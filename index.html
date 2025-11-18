@@ -5120,7 +5120,7 @@
          */
         function parseCurlCommand(curlCommand) {
             const result = {
-                method: 'GET',
+                method: '', // 不设置默认值，后面根据是否有数据自动判断
                 url: '',
                 headers: {},
                 bodyType: 'none',
@@ -5142,8 +5142,8 @@
                 urlParam: /--url\s+['"]([^'"]+)['"]/,
                 // 支持 -H 和 --header
                 header: /(?:-H|--header)\s+['"]([^'"]+)['"]/g,
-                data: /-d\s+['"]((?:[^'"]|\\['"])*)['"]|-d\s+([^\s]+)/g,
-                dataRaw: /--data-raw\s+['"]((?:[^'"]|\\['"])*)['"]|--data-raw\s+([^\s]+)/g,
+                data: /-d\s+([^\s]+)/g,
+                dataRaw: /--data-raw\s+([^\s]+)/g,
                 // 支持 -F 和 --form
                 form: /(?:-F|--form)\s+['"]([^'"]+)['"]/g,
                 dataBinary: /--data-binary\s+['"]@?([^'"]+)['"]/,
@@ -5178,31 +5178,46 @@
                 }
             }
 
-            // 处理 --cookie 参数
+            // 处理 --cookie 和 -b 参数
             const cookieMatch = cmd.match(patterns.cookie);
             if (cookieMatch) {
                 result.headers['Cookie'] = cookieMatch[1];
+            } else {
+                // 尝试匹配 -b 参数（短格式）
+                const bMatch = cmd.match(/-b\s+['"]([^'"]+)['"]/);
+                if (bMatch) {
+                    result.headers['Cookie'] = bMatch[1];
+                }
             }
 
             // 提取请求体数据 (--data-raw 优先)
             let hasData = false;
-            while ((match = patterns.dataRaw.exec(cmd)) !== null) {
-                const dataContent = match[1] || match[2];
-                if (dataContent !== undefined) {
-                    result.body = dataContent.replace(/\\'/g, "'").replace(/\\"/g, '"');
+            
+            // 首先尝试匹配带引号的完整数据
+            let dataRawMatch = cmd.match(/--data-raw\s+(['"])([\s\S]*?)\1/);
+            if (dataRawMatch) {
+                result.body = dataRawMatch[2].replace(/\\'/g, "'").replace(/\\"/g, '"');
+                hasData = true;
+            } else {
+                // 尝试匹配不带引号的数据
+                dataRawMatch = cmd.match(/--data-raw\s+([^\s]+)/);
+                if (dataRawMatch) {
+                    result.body = dataRawMatch[1];
                     hasData = true;
-                    break; // 只取第一个
                 }
             }
 
             // 如果没有 --data-raw，尝试 -d 或 --data
             if (!hasData) {
-                while ((match = patterns.data.exec(cmd)) !== null) {
-                    const dataContent = match[1] !== undefined ? match[1] : match[2];
-                    if (dataContent !== undefined) {
-                        result.body = dataContent.replace(/\\'/g, "'").replace(/\\"/g, '"');
+                let dataMatch = cmd.match(/-d\s+(['"])([\s\S]*?)\1/);
+                if (dataMatch) {
+                    result.body = dataMatch[2].replace(/\\'/g, "'").replace(/\\"/g, '"');
+                    hasData = true;
+                } else {
+                    dataMatch = cmd.match(/-d\s+([^\s]+)/);
+                    if (dataMatch) {
+                        result.body = dataMatch[1];
                         hasData = true;
-                        break; // 只取第一个
                     }
                 }
             }
@@ -5248,19 +5263,29 @@
                 }
             }
 
-            // 如果还没有提取到URL，尝试从命令末尾提取
+            // 如果还没有提取到URL，尝试从命令中提取
             if (!result.url) {
-                // 先尝试匹配带引号的URL
-                let urlMatch = cmd.match(/['"]([^'"\s]+)['"]\s*$/);
-                if (urlMatch) {
+                // 先尝试匹配带引号的URL（可能在命令开头或任何位置）
+                let urlMatch = cmd.match(/['"]([^'"\s]+)['"]/);
+                if (urlMatch && (urlMatch[1].startsWith('http://') || urlMatch[1].startsWith('https://') || urlMatch[1].includes('/'))) {
                     result.url = urlMatch[1];
                 } else {
-                    // 如果没有引号，匹配最后一个不以-开头的参数
-                    urlMatch = cmd.match(/(?:^|\s)([^\s-][^\s]*)\s*$/);
-                    if (urlMatch) {
+                    // 尝试匹配不带引号的URL（在命令开头，不以-开头的参数）
+                    urlMatch = cmd.match(/^([^\s-][^\s]*)/);
+                    if (urlMatch && (urlMatch[1].startsWith('http://') || urlMatch[1].startsWith('https://') || urlMatch[1].includes('/'))) {
                         result.url = urlMatch[1];
                     }
                 }
+            }
+
+            // 如果有 --data-raw 或 -d 参数，且没有明确指定方法，默认为 POST
+            if (!result.method && (hasData || formFields.length > 0)) {
+                result.method = 'POST';
+            }
+            
+            // 如果还是没有方法，默认为 GET
+            if (!result.method) {
+                result.method = 'GET';
             }
 
             return result;
