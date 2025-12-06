@@ -1121,6 +1121,7 @@
             <div class="container">
                 <div class="request-section">
                     <div class="url-section">
+                        <button onclick="importCurlCommand()" class="btn-secondary" title="从curl命令导入">导入curl</button>
                         <button class="new-request-btn" onclick="newRequest()">新建</button>
                         <select id="httpMethod">
                             <option>GET</option>
@@ -1137,6 +1138,7 @@
                         </select>
                         <input type="url" id="url" placeholder="输入请求URL" value="" />
                         <button onclick="saveToApis()" class="btn-secondary">保存</button>
+                        <button onclick="exportCurlCommand()" class="btn-secondary" title="导出为curl命令">导出curl</button>
                         <button id="downloadBtn" onclick="sendRequestAndDownload()" class="btn-secondary">下载</button>
                         <button id="sendBtn" onclick="sendRequest()">发送请求</button>
                     </div>
@@ -4810,6 +4812,483 @@
                 }
             }
             if (!found) alert('请选择要发送的消息行');
+        }
+
+        /**
+         * 导出curl命令
+         * 将当前请求转换为curl命令并复制到剪贴板
+         */
+        function exportCurlCommand() {
+            try {
+                const method = byId('httpMethod').value;
+                const url = byId('url').value.trim();
+                
+                if (!url) {
+                    alert('请输入URL');
+                    return;
+                }
+
+                // 构建curl命令
+                let curlCommand = 'curl';
+
+                // 添加请求方法
+                if (method && method !== 'GET' && method !== 'WS' && method !== 'SSE') {
+                    curlCommand += ` -X ${method}`;
+                }
+
+                // 处理URL，添加协议
+                const settings = getRequestSettings();
+                const fullUrl = normalizeUrlWithProtocol(url, settings.default_protocol || 'http');
+                
+                // 添加请求头
+                const headers = {};
+                docSelectAll('#headersList .header-row').forEach(row => {
+                    const inputs = row.getElementsByTagName('input');
+                    const isEnabled = inputs[0]?.checked;
+                    const key = inputs[1]?.value?.trim();
+                    const value = inputs[2]?.value?.trim();
+                    if (isEnabled && key) {
+                        headers[key] = value || '';
+                    }
+                });
+
+                // 添加全局请求头
+                const globalHeaders = getGlobalHeaders();
+                for (const [key, value] of Object.entries(globalHeaders)) {
+                    if (!headers[key]) {
+                        headers[key] = value;
+                    }
+                }
+
+                // 输出请求头
+                for (const [key, value] of Object.entries(headers)) {
+                    if (key && value !== undefined) {
+                        curlCommand += ` -H "${key}: ${value.replace(/"/g, '\\"')}"`;
+                    }
+                }
+
+                // 获取请求体类型
+                const bodyType = getBodyType();
+
+                // 处理请求体
+                if (bodyType !== 'none' && bodyType !== 'websocket') {
+                    switch (bodyType) {
+                        case 'json': {
+                            const selectedRow = document.querySelector('#jsonBodyRows input[type="radio"]:checked');
+                            if (selectedRow) {
+                                const jsonText = selectedRow.closest('.body-row').querySelector('textarea')?.value || '';
+                                if (jsonText) {
+                                    curlCommand += ` -d '${jsonText.replace(/'/g, "'\\''")}' -H "Content-Type: application/json"`;
+                                }
+                            }
+                            break;
+                        }
+                        case 'text': {
+                            const selectedRow = document.querySelector('#textBodyRows input[type="radio"]:checked');
+                            if (selectedRow) {
+                                const textContent = selectedRow.closest('.body-row').querySelector('textarea')?.value || '';
+                                if (textContent) {
+                                    curlCommand += ` -d '${textContent.replace(/'/g, "'\\''")}' -H "Content-Type: text/plain"`;
+                                }
+                            }
+                            break;
+                        }
+                        case 'form': {
+                            const formData = [];
+                            docSelectAll('#formRows .header-row').forEach(row => {
+                                const inputs = row.getElementsByTagName('input');
+                                const isEnabled = inputs[0]?.checked;
+                                const key = inputs[1]?.value?.trim();
+                                const value = inputs[2]?.value || '';
+                                if (isEnabled && key) {
+                                    formData.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+                                }
+                            });
+                            if (formData.length > 0) {
+                                curlCommand += ` -d '${formData.join('&')}' -H "Content-Type: application/x-www-form-urlencoded"`;
+                            }
+                            break;
+                        }
+                        case 'formdata': {
+                            docSelectAll('.formdata-row').forEach(row => {
+                                const isEnabled = row.querySelector('input[type="checkbox"]')?.checked;
+                                if (!isEnabled) return;
+                                
+                                const key = row.querySelector('.formdata-key')?.value?.trim();
+                                const type = row.querySelector('.formdata-type')?.value;
+                                
+                                if (!key) return;
+                                
+                                if (type === 'text') {
+                                    const value = row.querySelector('.text-input')?.value || '';
+                                    curlCommand += ` -F "${key}=${value.replace(/"/g, '\\"')}"`;
+                                } else if (type === 'file') {
+                                    const fileInput = row.querySelector('.file-input');
+                                    if (fileInput?.files.length > 0) {
+                                        for (const file of fileInput.files) {
+                                            curlCommand += ` -F "${key}=@${file.name}"`;
+                                        }
+                                    }
+                                }
+                            });
+                            break;
+                        }
+                        case 'binary': {
+                            const selectedRow = document.querySelector('#binaryBodyRows input[type="radio"]:checked');
+                            if (selectedRow) {
+                                const fileInput = selectedRow.closest('.body-row').querySelector('input[type="file"]');
+                                if (fileInput?.files.length > 0) {
+                                    const fileName = fileInput.files[0].name;
+                                    curlCommand += ` --data-binary "@${fileName}" -H "Content-Type: application/octet-stream"`;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // 添加SSL验证选项
+                if (settings.verify_ssl === 'N') {
+                    curlCommand += ' -k';
+                }
+
+                // 添加跳转选项
+                if (settings.follow_redirect === 'Y') {
+                    curlCommand += ' -L';
+                }
+
+                // 添加超时时间
+                if (settings.timeout && parseInt(settings.timeout) > 0) {
+                    curlCommand += ` --max-time ${settings.timeout}`;
+                }
+
+                // 最后添加URL
+                curlCommand += ` "${fullUrl}"`;
+
+                // 复制到剪贴板
+                navigator.clipboard.writeText(curlCommand).then(() => {
+                    alert('已将curl命令复制到剪贴板！');
+                }).catch(() => {
+                    // 如果剪贴板复制失败，显示对话框
+                    const dialog = prompt('复制以下的curl命令:', curlCommand);
+                });
+
+            } catch (error) {
+                alert('导出curl命令失败: ' + error.message);
+                console.error('导出curl命令错误:', error);
+            }
+        }
+
+        /**
+         * 导入curl命令
+         * 解析curl命令并填充到请求表单中
+         */
+        function importCurlCommand() {
+            const curlText = prompt('请粘贴curl命令:');
+            if (!curlText) return;
+
+            try {
+                // 解析curl命令
+                const parsed = parseCurlCommand(curlText.trim());
+                console.log('Parsed curl command:', parsed);
+                
+                // 设置请求方法
+                if (parsed.method) {
+                    byId('httpMethod').value = parsed.method;
+                    console.log('Set method:', parsed.method);
+                }
+
+                // 设置URL
+                if (parsed.url) {
+                    byId('url').value = parsed.url;
+                    console.log('Set URL:', parsed.url);
+                }
+
+                // 清空现有请求头
+                byId('headersList').innerHTML = '';
+
+                // 添加请求头
+                if (parsed.headers && Object.keys(parsed.headers).length > 0) {
+                    console.log('Adding headers:', parsed.headers);
+                    for (const [key, value] of Object.entries(parsed.headers)) {
+                        const headerRow = document.createElement('div');
+                        headerRow.className = 'header-row';
+                        headerRow.innerHTML = `
+                            <input type="checkbox" checked>
+                            <input type="text" placeholder="Header名称" value="${key.replace(/"/g, '&quot;')}" />
+                            <input type="text" placeholder="Header值" value="${value.replace(/"/g, '&quot;')}" />
+                            <input type="text" placeholder="备注" class="header-remark input-remark" />
+                            <button class="remove-btn" onclick="removeHeader(this)">删除</button>
+                        `;
+                        byId('headersList').appendChild(headerRow);
+                    }
+                } else {
+                    console.log('No headers, adding default row');
+                    // 添加一个默认空行
+                    addHeader();
+                }
+
+                // 处理请求体
+                console.log('Body type:', parsed.bodyType);
+                if (parsed.bodyType === 'json' && parsed.body) {
+                    // 设置JSON请求体
+                    document.querySelector('input[name="bodyType"][value="json"]').checked = true;
+                    updateBodyType('json');
+                    const jsonBodyRows = byId('jsonBodyRows');
+                    jsonBodyRows.innerHTML = '';
+                    const row = createJsonBodyRow();
+                    row.querySelector('textarea').value = parsed.body;
+                    row.querySelector('input[type="radio"]').checked = true;
+                    jsonBodyRows.appendChild(row);
+                } else if (parsed.bodyType === 'text' && parsed.body) {
+                    // 设置Text请求体
+                    document.querySelector('input[name="bodyType"][value="text"]').checked = true;
+                    updateBodyType('text');
+                    const textBodyRows = byId('textBodyRows');
+                    textBodyRows.innerHTML = '';
+                    const row = createTextBodyRow();
+                    row.querySelector('textarea').value = parsed.body;
+                    row.querySelector('input[type="radio"]').checked = true;
+                    textBodyRows.appendChild(row);
+                } else if (parsed.bodyType === 'form' && parsed.body) {
+                    // 设置Form请求体
+                    document.querySelector('input[name="bodyType"][value="form"]').checked = true;
+                    updateBodyType('form');
+                    byId('formRows').innerHTML = '';
+                    
+                    // 解析form数据
+                    const params = new URLSearchParams(parsed.body);
+                    let hasFormData = false;
+                    for (const [key, value] of params.entries()) {
+                        hasFormData = true;
+                        const formRow = document.createElement('div');
+                        formRow.className = 'header-row';
+                        formRow.innerHTML = `
+                            <input type="checkbox" checked>
+                            <input type="text" placeholder="参数名称" value="${key.replace(/"/g, '&quot;')}"/>
+                            <input type="text" placeholder="参数值" value="${value.replace(/"/g, '&quot;')}"/>
+                            <input type="text" placeholder="备注" class="form-remark input-remark"/>
+                            <button class="remove-btn" onclick="removeFormRow(this)">删除</button>
+                        `;
+                        byId('formRows').appendChild(formRow);
+                    }
+                    // 如果没有解析到任何form数据，添加一个空行
+                    if (!hasFormData) {
+                        addFormRow();
+                    }
+                } else if (parsed.bodyType === 'formdata' && parsed.formFields) {
+                    // 设置FormData请求体
+                    document.querySelector('input[name="bodyType"][value="formdata"]').checked = true;
+                    updateBodyType('formdata');
+                    byId('formDataRows').innerHTML = '';
+                    
+                    for (const field of parsed.formFields) {
+                        const row = createFormDataRow();
+                        row.querySelector('.formdata-key').value = field.name;
+                        if (field.isFile) {
+                            row.querySelector('.formdata-type').value = 'file';
+                            handleTypeChange(row.querySelector('.formdata-type'));
+                            // 文件类型，显示文件名提示
+                            row.querySelector('.file-preview').innerHTML = `<div class="file-preview-item"><span>文件: ${field.value}</span></div>`;
+                        } else {
+                            row.querySelector('.formdata-type').value = 'text';
+                            row.querySelector('.text-input').value = field.value;
+                        }
+                        byId('formDataRows').appendChild(row);
+                    }
+                    // 如果formFields为空，添加一个默认行
+                    if (parsed.formFields.length === 0) {
+                        addFormDataRow();
+                    }
+                } else {
+                    // 无请求体
+                    document.querySelector('input[name="bodyType"][value="none"]').checked = true;
+                    updateBodyType('none');
+                }
+
+                alert('导入curl命令成功！');
+            } catch (error) {
+                alert('解析curl命令失败: ' + error.message);
+                console.error('解析curl命令错误:', error);
+            }
+        }
+
+        /**
+         * 解析curl命令
+         * @param {string} curlCommand - curl命令字符串
+         * @returns {Object} 解析后的请求对象
+         */
+        function parseCurlCommand(curlCommand) {
+            const result = {
+                method: '', // 不设置默认值，后面根据是否有数据自动判断
+                url: '',
+                headers: {},
+                bodyType: 'none',
+                body: '',
+                formFields: []
+            };
+
+            // 删除多余的空格和换行符
+            let cmd = curlCommand.replace(/\\\n/g, ' ').replace(/\s+/g, ' ').trim();
+
+            // 删除curl命令前缀
+            cmd = cmd.replace(/^curl\s+/i, '');
+
+            // 使用正则表达式匹配参数
+            const patterns = {
+                // 支持 -X 和 --request
+                method: /(?:-X|--request)\s+([A-Z]+)/i,
+                // 支持 --url
+                urlParam: /--url\s+['"]([^'"]+)['"]/,
+                // 支持 -H 和 --header
+                header: /(?:-H|--header)\s+['"]([^'"]+)['"]/g,
+                data: /-d\s+([^\s]+)/g,
+                dataRaw: /--data-raw\s+([^\s]+)/g,
+                // 支持 -F 和 --form
+                form: /(?:-F|--form)\s+['"]([^'"]+)['"]/g,
+                dataBinary: /--data-binary\s+['"]@?([^'"]+)['"]/,
+                // 支持 --cookie
+                cookie: /--cookie\s+['"]([^'"]+)['"]/,
+                insecure: /-k|--insecure/,
+                location: /-L|--location/,
+                maxTime: /--max-time\s+(\d+)/,
+            };
+
+            // 提取请求方法
+            const methodMatch = cmd.match(patterns.method);
+            if (methodMatch) {
+                result.method = methodMatch[1].toUpperCase();
+            }
+
+            // 提取URL（优先使用 --url 参数）
+            const urlParamMatch = cmd.match(patterns.urlParam);
+            if (urlParamMatch) {
+                result.url = urlParamMatch[1];
+            }
+
+            // 提取请求头
+            let match;
+            while ((match = patterns.header.exec(cmd)) !== null) {
+                const headerLine = match[1];
+                const colonIndex = headerLine.indexOf(':');
+                if (colonIndex > 0) {
+                    const key = headerLine.substring(0, colonIndex).trim();
+                    const value = headerLine.substring(colonIndex + 1).trim();
+                    result.headers[key] = value;
+                }
+            }
+
+            // 处理 --cookie 和 -b 参数
+            const cookieMatch = cmd.match(patterns.cookie);
+            if (cookieMatch) {
+                result.headers['Cookie'] = cookieMatch[1];
+            } else {
+                // 尝试匹配 -b 参数（短格式）
+                const bMatch = cmd.match(/-b\s+['"]([^'"]+)['"]/);
+                if (bMatch) {
+                    result.headers['Cookie'] = bMatch[1];
+                }
+            }
+
+            // 提取请求体数据 (--data-raw 优先)
+            let hasData = false;
+            
+            // 首先尝试匹配带引号的完整数据
+            let dataRawMatch = cmd.match(/--data-raw\s+(['"])([\s\S]*?)\1/);
+            if (dataRawMatch) {
+                result.body = dataRawMatch[2].replace(/\\'/g, "'").replace(/\\"/g, '"');
+                hasData = true;
+            } else {
+                // 尝试匹配不带引号的数据
+                dataRawMatch = cmd.match(/--data-raw\s+([^\s]+)/);
+                if (dataRawMatch) {
+                    result.body = dataRawMatch[1];
+                    hasData = true;
+                }
+            }
+
+            // 如果没有 --data-raw，尝试 -d 或 --data
+            if (!hasData) {
+                let dataMatch = cmd.match(/-d\s+(['"])([\s\S]*?)\1/);
+                if (dataMatch) {
+                    result.body = dataMatch[2].replace(/\\'/g, "'").replace(/\\"/g, '"');
+                    hasData = true;
+                } else {
+                    dataMatch = cmd.match(/-d\s+([^\s]+)/);
+                    if (dataMatch) {
+                        result.body = dataMatch[1];
+                        hasData = true;
+                    }
+                }
+            }
+
+            // 提取form-data数据 (-F 或 --form)
+            const formFields = [];
+            while ((match = patterns.form.exec(cmd)) !== null) {
+                const field = match[1];
+                const equalIndex = field.indexOf('=');
+                if (equalIndex > 0) {
+                    const name = field.substring(0, equalIndex).trim();
+                    const value = field.substring(equalIndex + 1).trim();
+                    const isFile = value.startsWith('@');
+                    formFields.push({
+                        name: name,
+                        value: isFile ? value.substring(1) : value,
+                        isFile: isFile
+                    });
+                }
+            }
+
+            if (formFields.length > 0) {
+                result.bodyType = 'formdata';
+                result.formFields = formFields;
+            } else if (hasData) {
+                // 根据Content-Type判断请求体类型
+                const contentType = result.headers['Content-Type'] || result.headers['content-type'] || '';
+                if (contentType.includes('application/json')) {
+                    result.bodyType = 'json';
+                } else if (contentType.includes('application/x-www-form-urlencoded')) {
+                    result.bodyType = 'form';
+                } else if (contentType.includes('text/')) {
+                    result.bodyType = 'text';
+                } else if (result.body) {
+                    // 尝试解析JSON
+                    try {
+                        JSON.parse(result.body);
+                        result.bodyType = 'json';
+                    } catch (e) {
+                        // 如果不是JSON，默认为text
+                        result.bodyType = 'text';
+                    }
+                }
+            }
+
+            // 如果还没有提取到URL，尝试从命令中提取
+            if (!result.url) {
+                // 先尝试匹配带引号的URL（可能在命令开头或任何位置）
+                let urlMatch = cmd.match(/['"]([^'"\s]+)['"]/);
+                if (urlMatch && (urlMatch[1].startsWith('http://') || urlMatch[1].startsWith('https://') || urlMatch[1].includes('/'))) {
+                    result.url = urlMatch[1];
+                } else {
+                    // 尝试匹配不带引号的URL（在命令开头，不以-开头的参数）
+                    urlMatch = cmd.match(/^([^\s-][^\s]*)/);
+                    if (urlMatch && (urlMatch[1].startsWith('http://') || urlMatch[1].startsWith('https://') || urlMatch[1].includes('/'))) {
+                        result.url = urlMatch[1];
+                    }
+                }
+            }
+
+            // 如果有 --data-raw 或 -d 参数，且没有明确指定方法，默认为 POST
+            if (!result.method && (hasData || formFields.length > 0)) {
+                result.method = 'POST';
+            }
+            
+            // 如果还是没有方法，默认为 GET
+            if (!result.method) {
+                result.method = 'GET';
+            }
+
+            return result;
         }
 
         /**
