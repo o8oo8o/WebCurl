@@ -11,20 +11,26 @@
             box-sizing: border-box;
         }
 
+        html,
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f0f0f0;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1200px;
             min-width: 800px;
             margin: 0 auto;
-            background-color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
             overflow-x: auto;
         }
 
@@ -42,39 +48,81 @@
         input,
         textarea,
         button {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
         }
 
         select {
             width: 100px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         input[type="url"] {
             flex: 1;
         }
 
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
         button {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
-            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         button:disabled {
-            background-color: #cccccc;
+            background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
             cursor: not-allowed;
             opacity: 0.6;
+            transform: none;
+            box-shadow: none;
         }
 
         .loading {
             position: relative;
-            pointer-events: none;
         }
 
         .loading::after {
@@ -97,23 +145,103 @@
             }
         }
 
-        .tabs {
+        .send-btn-group {
             display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 15px;
+            position: relative;
         }
 
-        .tab {
-            padding: 8px 16px;
+        .send-btn-group #sendBtn {
+            border-radius: 10px 0 0 10px;
+            padding: 10px 20px;
+        }
+
+        .send-btn-dropdown {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-left: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0 10px 10px 0;
+            padding: 10px 12px;
             cursor: pointer;
-            border: 1px solid transparent;
+            font-size: 10px;
+            min-width: 32px;
         }
 
-        .tab.active {
-            border: 1px solid #ddd;
-            border-bottom: none;
-            background-color: white;
-            margin-bottom: -1px;
+        .send-btn-dropdown:hover {
+            background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+        }
+
+        .send-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 120px;
+            overflow: hidden;
+        }
+
+        .send-dropdown-menu.show {
+            display: block;
+        }
+
+        .send-dropdown-menu div {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: #2d3436;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .send-dropdown-menu div:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .send-btn-group.loading-group .send-btn-dropdown {
+            display: none;
+        }
+
+        .send-btn-group.loading-group #sendBtn {
+            border-radius: 10px;
+        }
+
+        .request-tabs,
+        .response-tabs,
+        .panel-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            gap: 4px;
+        }
+
+        .request-tab,
+        .response-tab {
+            padding: 4px 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 5px 5px 0 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .request-tab:hover,
+        .response-tab:hover {
+            background: #e9ecef;
+        }
+
+        .request-tab.active,
+        .response-tab.active {
+            border: 2px solid #667eea;
+            border-bottom: 1px solid #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: -2px;
         }
 
         .tab-content {
@@ -121,7 +249,9 @@
             min-height: 300px;
         }
 
-        .tab-content.active {
+        .tab-content.active,
+        .response-tab-content.active,
+        .panel-content.active {
             display: block;
         }
 
@@ -133,9 +263,11 @@
         }
 
         .header-row input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             margin: 0;
+            cursor: pointer;
+            accent-color: #667eea;
         }
 
         .header-row input[type="text"] {
@@ -143,39 +275,26 @@
         }
 
         .remove-btn {
-            background-color: #f44336;
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%) !important;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3) !important;
+        }
+
+        .remove-btn:hover {
+            box-shadow: 0 6px 20px rgba(214, 48, 49, 0.4) !important;
         }
 
         .response-section {
             margin-top: 20px;
-            border-top: 1px solid #ddd;
+            border-top: 2px solid #e9ecef;
             padding-top: 20px;
         }
 
         .response-info {
             margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f8f8f8;
-        }
-
-        .response-tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 15px;
-        }
-
-        .response-tab {
-            padding: 8px 16px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            margin-right: 5px;
-        }
-
-        .response-tab.active {
-            border: 1px solid #ddd;
-            border-bottom: none;
-            background-color: white;
-            margin-bottom: -1px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
         }
 
         .response-tab-content {
@@ -183,121 +302,66 @@
             padding: 15px 0;
         }
 
-        .response-tab-content.active {
-            display: block;
-        }
-
         #responseBody {
             width: 100%;
             min-height: 200px;
-            font-family: monospace;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
             white-space: pre-wrap;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            line-height: 1.6;
         }
 
         .file-input-container {
             margin-top: 10px;
         }
 
-        .file-list {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px;
-            background: #f5f5f5;
-            margin-bottom: 5px;
-            border-radius: 3px;
-        }
-
         .headers-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .headers-table th,
         .headers-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e9ecef;
+            padding: 12px;
             text-align: left;
         }
 
         .headers-table th {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
         }
 
-        .formdata-type-select {
-            width: 100px;
-            margin-right: 10px;
+        .headers-table tr:hover td {
+            background: #f8f9fa;
         }
 
-        .formdata-input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: center;
-        }
-
-        .formdata-list {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .formdata-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px;
-            background: #f5f5f5;
-            margin-bottom: 5px;
-            border-radius: 3px;
-        }
-
-        .formdata-item span {
-            flex: 1;
-        }
-
-        .type-badge {
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        .type-file {
-            background-color: #e1f5fe;
-            color: #0277bd;
-        }
-
-        .type-text {
-            background-color: #f1f8e9;
-            color: #558b2f;
-        }
-
-        .formdata-row {
+        .formdata-row,
+        .body-row {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
             align-items: start;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 4px;
+            padding: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
             width: 100%;
         }
 
-        .formdata-row input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+        .formdata-row input[type="checkbox"],
+        .body-row input[type="radio"] {
+            width: 18px;
+            height: 18px;
             margin: 0;
             margin-top: 10px;
+            cursor: pointer;
+            accent-color: #667eea;
         }
 
         .formdata-key {
@@ -317,64 +381,97 @@
 
         .formdata-value .text-input {
             width: 100%;
-            height: 36px;
+            height: 40px;
         }
 
         .formdata-value .file-input {
             width: 100%;
-            height: 36px;
+            height: 40px;
             padding: 6px;
             box-sizing: border-box;
         }
 
         .formdata-value .file-input::-webkit-file-upload-button {
-            height: 22px;
-            padding: 0 10px;
+            height: 26px;
+            padding: 0 12px;
             margin-right: 10px;
-            border: 1px solid #ddd;
-            background: #f5f5f5;
-            border-radius: 3px;
+            border: 2px solid #e9ecef;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
         }
 
         .file-preview {
             margin-top: 5px;
             font-size: 12px;
-            color: #666;
+            color: #636e72;
         }
 
         .file-preview-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 2px 5px;
-            background: #e3f2fd;
-            border-radius: 3px;
-            margin-bottom: 2px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            border-radius: 6px;
+            margin-bottom: 4px;
         }
 
-        .add-row-btn {
+        .btn-action,
+        .history-load-btn {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+            color: white !important;
+            border: none !important;
+            padding: 6px 12px !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 12px !important;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3) !important;
             margin-top: 10px;
-            background-color: #2196F3;
-            padding: 8px 16px;
-            font-size: 14px;
-            min-width: 100px;
-            height: 36px;
+            height: auto;
+            white-space: nowrap;
         }
 
-        /* 按钮样式优化 */
+        .btn-action:hover,
+        .history-load-btn:hover {
+            box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger-action {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%) !important;
+            color: white !important;
+            border: none !important;
+            padding: 6px 12px !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 12px !important;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3) !important;
+            margin-top: 10px;
+            height: auto;
+            white-space: nowrap;
+        }
+
+        .btn-danger-action:hover {
+            box-shadow: 0 6px 20px rgba(214, 48, 49, 0.4) !important;
+            transform: translateY(-2px);
+        }
+
         .btn-primary {
-            background-color: #4CAF50;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
         }
 
         .btn-secondary {
-            background-color: #2196F3;
+            background: linear-gradient(135deg, #636e72 0%, #2d3436 100%) !important;
+            box-shadow: 0 4px 15px rgba(45, 52, 54, 0.3) !important;
         }
 
-        .btn-danger {
-            background-color: #f44336;
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(45, 52, 54, 0.4) !important;
         }
 
-        /* 容器样式 */
         .container-hidden {
             display: none;
         }
@@ -383,44 +480,36 @@
             margin-top: 10px;
         }
 
-        /* 输入框样式 */
-        .input-full-width {
-            width: 100%;
-        }
-
         .input-remark {
             width: 80px;
-        }
-
-        .input-number {
-            width: 100%;
         }
 
         .input-ws-send {
             width: 60%;
         }
 
-        /* 表格样式 */
         .table-col-enable {
-            width: 50px;
+            width: 40px;
         }
 
         .table-col-action {
-            width: 80px;
+            width: 55px;
         }
 
-        /* 文本域样式 */
-        .textarea-body {
+        .textarea-body,
+        .body-content textarea {
             width: 100%;
             height: 150px;
-            font-family: monospace;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
             resize: vertical;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
         }
 
-        /* 文件输入框样式 */
         .file-input-binary {
             width: 100%;
-            height: 36px;
+            height: 40px;
             padding: 6px;
             box-sizing: border-box;
         }
@@ -430,19 +519,21 @@
             width: 180px;
         }
 
-        /* 选择框样式 */
         .select-formdata-type {
             width: 30px;
         }
 
-        /* 分隔线样式 */
         .divider {
             margin: 15px 0;
+            border: none;
+            border-top: 2px solid #e9ecef;
         }
 
-        /* 设置输入框样式 */
         .setting-input {
             width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
         }
 
         .setting-input-integrity {
@@ -451,7 +542,6 @@
             margin-top: 5px;
         }
 
-        /* 集合选择器样式 */
         .collection-selector {
             margin-bottom: 10px;
             display: flex;
@@ -459,31 +549,53 @@
             gap: 8px;
         }
 
-        /* 文件输入框默认隐藏 */
+        .collection-selector select {
+            flex: 1;
+        }
+
         .file-input {
             display: none;
         }
 
-        /* 表单备注样式 */
         .form-remark {
             width: 80px;
         }
 
         .body-type-radio {
             display: inline-flex;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .body-type-radio label {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             cursor: pointer;
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .body-type-radio label:hover {
+            background: #e9ecef;
+        }
+
+        .body-type-radio label:has(input:checked) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
         }
 
         .body-type-radio input[type="radio"] {
             cursor: pointer;
+            accent-color: #667eea;
+            width: 14px;
+            height: 14px;
         }
 
         #bodyTab {
@@ -498,74 +610,108 @@
 
         .content-wrapper {
             display: flex;
-            gap: 10px;
+            gap: 16px;
             max-width: 1600px;
             margin: 0 auto;
         }
 
+        .content-wrapper-expanded {
+            max-width: 100%;
+            justify-content: center;
+            padding: 0 16px;
+        }
+
         .aside {
             width: 30%;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-height: calc(100vh - 40px);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-height: calc(100vh - 32px);
             overflow-y: scroll;
+        }
+
+        .aside::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .aside::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .aside::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .aside-hidden {
+            display: none;
+        }
+
+        .toggle-aside-btn {
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .toggle-aside-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
         }
 
         .global-actions {
             display: flex;
-            gap: 5px;
+            gap: 6px;
             margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
         }
 
         .global-actions button {
             flex: 1;
-            padding: 8px;
+            padding: 6px 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             color: white;
-            font-size: 13px;
-        }
-
-        .global-export-btn {
-            background-color: #4CAF50;
-        }
-
-        .global-import-btn {
-            background-color: #2196F3;
-        }
-
-        .panel-tabs {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 15px;
+            font-size: 12px;
+            min-width: 70px;
         }
 
         .panel-tab {
-            padding: 10px 15px;
+            padding: 4px 6px;
             cursor: pointer;
             border: 1px solid transparent;
             flex: 1;
             text-align: center;
+            border-radius: 5px 5px 0 0;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .panel-tab:hover {
+            background: #e9ecef;
         }
 
         .panel-tab.active {
-            border: 1px solid #ddd;
-            border-bottom: none;
-            background-color: white;
+            border: 2px solid #667eea;
+            border-bottom: 2px solid #ffffff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             margin-bottom: -1px;
         }
 
         .panel-content {
             display: none;
-        }
-
-        .panel-content.active {
-            display: block;
         }
 
         .history-header {
@@ -577,89 +723,57 @@
 
         .history-header .btn-group {
             display: flex;
-            gap: 5px;
-        }
-
-        .export-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .import-btn {
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .clear-history-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .clear-history-btn:hover {
-            background-color: #d32f2f;
+            gap: 6px;
+            flex-wrap: wrap;
         }
 
         .history-item {
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             margin-bottom: 10px;
             font-size: 13px;
             position: relative;
+            background: #fafbfc;
+            transition: all 0.3s ease;
         }
 
         .history-item:hover {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-color: #667eea;
         }
 
         .history-method {
             font-weight: bold;
-            color: #2196F3;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-right: 8px;
         }
 
         .history-url {
-            color: #666;
+            color: #636e72;
             word-break: break-all;
             margin-bottom: 5px;
         }
 
         .history-time {
             font-size: 12px;
-            color: #999;
+            color: #b2bec3;
             margin-bottom: 5px;
-        }
-
-        .history-load-btn {
-            background-color: #4CAF50;
-            padding: 4px 8px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            height: 24px;
-            color: white;
-            margin: 2px;
         }
 
         .main-content {
             flex: 1;
             min-width: 0;
+        }
+
+        .main-content-expanded {
+            width: 100%;
+            max-width: 1400px;
+            flex: none;
+            margin: 0 auto;
         }
 
         .settings-dialog {
@@ -668,10 +782,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             width: 600px;
             max-height: 80vh;
@@ -686,13 +800,15 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
             z-index: 999;
         }
 
         .settings-dialog h3 {
             margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+            color: #2d3436;
         }
 
         .settings-group {
@@ -701,8 +817,9 @@
 
         .settings-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #2d3436;
         }
 
         .settings-group select {
@@ -717,128 +834,111 @@
             margin-top: 20px;
         }
 
-        .settings-btn {
-            background-color: #2196F3;
-            margin-right: 10px;
-        }
-
-        .save-api-btn {
-            background-color: #FFA000;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .save-api-btn:hover {
-            background-color: #F57C00;
-        }
-
-        .api-name {
-            font-weight: bold;
-            color: #1976D2;
-            margin-bottom: 5px;
-        }
-
         .history-item button {
-            padding: 4px 8px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 3px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 12px;
-            height: 24px;
+            height: 28px;
             color: white;
             margin: 2px;
-        }
-
-        .history-item .history-load-btn {
-            background-color: #4CAF50;
-        }
-
-        .history-item .remove-btn {
-            background-color: #f44336;
         }
 
         .variables-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .variables-table th,
         .variables-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e9ecef;
+            padding: 4px 6px;
             text-align: left;
         }
 
         .variables-table th {
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .variables-table td {
+            font-size: 12px;
         }
 
         .variables-table input[type="text"] {
             width: 100%;
-            padding: 6px;
-            border: 1px solid #ddd;
+            padding: 4px 6px;
+            border: 1px solid transparent;
             border-radius: 4px;
+            font-size: 12px;
+            background: transparent;
+        }
+
+        .variables-table input[type="text"]:focus {
+            border-color: #667eea;
+            background: #ffffff;
+            outline: none;
         }
 
         .variables-table input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
+            accent-color: #667eea;
         }
 
         .variables-table .remove-btn {
-            padding: 4px 8px;
-            background-color: #f44336;
+            padding: 3px 8px;
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%) !important;
             color: white;
             border: none;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 11px;
         }
 
         .variables-table .remove-btn:hover {
-            background-color: #d32f2f;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3) !important;
         }
 
-        /* 多行请求体样式 */
-        .body-row {
+        .variables-table-container {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            align-items: start;
-            padding: 10px;
-            background: #f9f9f9;
-            border-radius: 4px;
-            width: 100%;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .body-row input[type="radio"] {
-            width: 16px;
-            height: 16px;
-            margin: 0;
-            margin-top: 10px;
+        .variables-table-container .btn-action,
+        .variables-table-container .btn-danger-action {
+            padding: 5px 12px !important;
+            font-size: 12px !important;
+            height: auto !important;
         }
 
         .body-content {
             flex: 1;
             min-width: 200px;
-        }
-
-        .body-content textarea {
-            width: 100%;
-            height: 150px;
-            font-family: monospace;
-            resize: vertical;
+            position: relative;
         }
 
         .body-content input[type="file"] {
             width: 100%;
-            height: 36px;
+            height: 40px;
             padding: 6px;
             box-sizing: border-box;
+        }
+
+        .json-body-formatted {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow-y: auto;
         }
 
         .body-remark {
@@ -846,91 +946,104 @@
             min-width: 120px;
             height: 150px;
             resize: vertical;
-            font-family: monospace;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
         }
 
         .body-actions {
             display: flex;
-            gap: 5px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
         }
 
         .body-actions button {
-            padding: 4px 8px;
+            padding: 5px 10px;
             border: none;
-            border-radius: 3px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
             color: white;
         }
 
-        .body-actions .remove-btn {
-            background-color: #f44336;
+        .json-body-formatted::-webkit-scrollbar {
+            width: 6px;
         }
 
-        /* JSON格式化高亮样式 */
+        .json-body-formatted::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 3px;
+        }
+
+        .json-body-formatted::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+
         .json-formatted {
-            background: #f5f5f5;
-            color: #222;
-            padding: 15px;
-            border-radius: 5px;
-            font-family: monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #dfe6e9;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
             white-space: pre;
-            border: 1px solid #ddd;
+            border: 2px solid #2d3436;
             max-height: 400px;
             overflow-y: auto;
         }
 
+        .json-formatted::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .json-formatted::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 4px;
+        }
+
+        .json-formatted::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
         .json-formatted .json-key {
-            color: #1a7ab6;
+            color: #74b9ff;
         }
 
         .json-formatted .json-string {
-            color: #c41a16;
+            color: #55efc4;
         }
 
         .json-formatted .json-number {
-            color: #1c00cf;
+            color: #ffeaa7;
         }
 
         .json-formatted .json-boolean,
         .json-formatted .json-null {
-            color: #aa0d91;
+            color: #fd79a8;
         }
 
         .json-formatted .json-bracket {
-            color: #888;
+            color: #dfe6e9;
         }
 
         .json-formatted .json-arrow {
             cursor: pointer;
             user-select: none;
-            color: #888;
-            margin-right: 4px;
+            color: #74b9ff;
+            margin-right: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .json-formatted .json-arrow:hover {
+            color: #0984e3;
         }
 
         .json-formatted .json-container {
             margin-left: 20px;
-        }
-
-        .json-actions {
-            margin-top: 10px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .json-actions button {
-            padding: 4px 8px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-            color: white;
-            background-color: #4CAF50;
-        }
-
-        .json-actions button:hover {
-            background-color: #45a049;
+            border-left: 2px solid #667eea;
+            padding-left: 12px;
         }
 
         #wsBodyContainer {
@@ -947,6 +1060,7 @@
 
         #wsBodyRows .body-row input[type="radio"] {
             width: 18px;
+            accent-color: #667eea;
         }
 
         #wsBodyRows .ws-body-type {
@@ -961,8 +1075,11 @@
 
         #wsBodyRows .ws-body-text {
             width: 100%;
-            min-height: 36px;
+            min-height: 40px;
             resize: vertical;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
         }
 
         #wsBodyRows .ws-body-file {
@@ -973,8 +1090,11 @@
             min-width: 120px;
             max-width: 200px;
             flex: 0 0 160px;
-            height: 36px;
+            height: 40px;
             resize: vertical;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
         }
 
         #wsBodyRows .remove-btn {
@@ -984,8 +1104,13 @@
         #wsBodyContainer .ws-body-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        #wsBodyContainer .ws-body-actions button {
+            padding: 5px 10px;
+            font-size: 12px;
         }
 
         select option {
@@ -995,33 +1120,318 @@
         }
 
         .httpStatus1 {
-            /* 信息响应 */
-            background: linear-gradient(135deg, #64b5f6, #1e88e5);
-            color: #e3f2fd;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+            color: #ffffff !important;
         }
 
         .httpStatus2 {
-            /* 成功 */
-            background: linear-gradient(135deg, #81c784, #43a047);
-            color: #e8f5e9;
+            background: linear-gradient(135deg, #55efc4 0%, #00b894 100%) !important;
+            color: #ffffff !important;
         }
 
         .httpStatus3 {
-            /* 重定向 */
-            background: linear-gradient(135deg, #fff176, #fdd835);
-            color: #3e2723;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%) !important;
+            color: #2d3436 !important;
         }
 
         .httpStatus4 {
-            /* 客户端错误 */
-            background: linear-gradient(135deg, #ffb74d, #fb8c00);
-            color: #fff3e0;
+            background: linear-gradient(135deg, #fab1a0 0%, #e17055 100%) !important;
+            color: #ffffff !important;
         }
 
         .httpStatus5 {
-            /* 服务器错误 */
-            background: linear-gradient(135deg, #e57373, #d32f2f);
-            color: #ffebee;
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%) !important;
+            color: #ffffff !important;
+        }
+
+        .new-request-btn {
+            background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%) !important;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
+        }
+
+        .new-request-btn:hover {
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4) !important;
+        }
+
+        .response-actions {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .response-actions button {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        .script-section {
+            margin-bottom: 16px;
+        }
+
+        .script-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .script-section-title {
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 14px;
+        }
+
+        .script-action-btn {
+            padding: 4px 12px !important;
+            font-size: 12px !important;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(116, 185, 255, 0.3) !important;
+        }
+
+        .script-action-btn:hover {
+            box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        .script-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            background: #fafbfc;
+            color: #2d3436;
+            transition: all 0.3s ease;
+        }
+
+        .script-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
+        }
+
+        .script-textarea::placeholder {
+            color: #b2bec3;
+        }
+
+        /* ========== Hook脚本功能样式 ========== */
+
+        /* Hook脚本区块容器 */
+        .hook-section {
+            margin-bottom: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Hook脚本区块头部 */
+        .hook-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        /* Hook脚本区块标题 */
+        .hook-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 14px;
+        }
+
+        /* Hook启用复选框 */
+        .hook-enable-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        /* Hook操作按钮容器 */
+        .hook-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* Hook操作按钮样式 */
+        .hook-action-btn {
+            padding: 4px 10px !important;
+            font-size: 11px !important;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(116, 185, 255, 0.3) !important;
+        }
+
+        .hook-action-btn:hover {
+            box-shadow: 0 4px 10px rgba(116, 185, 255, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Hook危险操作按钮（如清空） */
+        .hook-action-btn.danger {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%) !important;
+            box-shadow: 0 2px 6px rgba(214, 48, 49, 0.3) !important;
+        }
+
+        .hook-action-btn.danger:hover {
+            box-shadow: 0 4px 10px rgba(214, 48, 49, 0.4) !important;
+        }
+
+        /* Hook脚本编辑文本框 */
+        .hook-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: none;
+            border-top: 1px solid #e9ecef;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: vertical;
+            background: #fafbfc;
+            color: #2d3436;
+            transition: all 0.3s ease;
+        }
+
+        .hook-textarea:focus {
+            outline: none;
+            background: #ffffff;
+        }
+
+        .hook-textarea::placeholder {
+            color: #b2bec3;
+        }
+
+        /* Hook控制台容器 */
+        .hook-console {
+            margin-top: 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Hook控制台头部 */
+        .hook-console-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Hook控制台清空按钮 */
+        .hook-console-clear {
+            padding: 2px 8px !important;
+            font-size: 11px !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            cursor: pointer;
+        }
+
+        /* Hook控制台输出区域 */
+        .hook-console-output {
+            height: 120px;
+            overflow-y: auto;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 8px 12px;
+        }
+
+        /* Hook控制台日志行 */
+        .hook-console-line {
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        /* Hook控制台日志类型样式 */
+        .hook-console-line.info {
+            color: #74b9ff;
+        }
+
+        .hook-console-line.success {
+            color: #00b894;
+        }
+
+        .hook-console-line.error {
+            color: #ff7675;
+        }
+
+        .hook-console-line.warn {
+            color: #fdcb6e;
+        }
+
+        /* Hook控制台时间戳 */
+        .hook-console-time {
+            color: #636e72;
+            margin-right: 8px;
+        }
+
+        .hook-example-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hook-example-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            min-width: 180px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .hook-example-menu.show {
+            display: block;
+        }
+
+        .hook-example-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #2d3436;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .hook-example-item:last-child {
+            border-bottom: none;
+        }
+
+        .hook-example-item:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
     </style>
 </head>
@@ -1030,10 +1440,11 @@
     <div class="content-wrapper">
         <div class="aside">
             <div class="global-actions">
-                <button class="global-export-btn" onclick="exportAllConfig()">导出全部配置</button>
-                <button class="global-import-btn" onclick="importAllConfig()">导入全部配置</button>
-                <button class="settings-btn" onclick="openSettings()">请求配置</button>
-                <button class="settings-btn" onclick="window.open('/tool.html')">常用工具</button>
+                <button class="btn-action" onclick="exportAllConfig()">导出配置</button>
+                <button class="btn-action" onclick="importAllConfig()">导入配置</button>
+                <button class="btn-action" onclick="openSettings()">请求配置</button>
+                <button class="btn-action" onclick="window.open('/tool')">工具</button>
+                <button class="btn-action" onclick="window.open('/mock')">Mock</button>
             </div>
             <div class="panel-tabs">
                 <div class="panel-tab active" onclick="switchPanelTab('history')">历史</div>
@@ -1044,9 +1455,9 @@
             <div id="historyPanel" class="panel-content active">
                 <div class="history-header">
                     <div class="btn-group">
-                        <button class="clear-history-btn" onclick="clearHistory()">清空历史</button>
-                        <button class="import-btn" onclick="importHistory()">导入历史</button>
-                        <button class="export-btn" onclick="exportHistory()">导出历史</button>
+                        <button class="btn-danger-action" onclick="clearHistory()">清空</button>
+                        <button class="btn-action" onclick="importHistory()">导入</button>
+                        <button class="btn-action" onclick="exportHistory()">导出</button>
                     </div>
                 </div>
                 <div id="historyList"></div>
@@ -1054,26 +1465,28 @@
             <div id="apisPanel" class="panel-content">
                 <div class="history-header">
                     <div class="btn-group">
-                        <button class="clear-history-btn" onclick="clearApis()">清空列表</button>
-                        <button class="import-btn" onclick="importApis()">导入接口</button>
-                        <button class="export-btn" onclick="exportApis()">导出接口</button>
+                        <button class="btn-danger-action" onclick="clearApis()">清空</button>
+                        <button class="btn-action" onclick="importApis()">导入</button>
+                        <button class="btn-action" onclick="exportApis()">导出</button>
+                        <button class="btn-action" onclick="addApiCollection()">新增</button>
+                        <button class="btn-danger-action" onclick="removeApiCollection()">删除</button>
                     </div>
                 </div>
                 <!-- 集合管理UI -->
                 <div class="collection-selector">
-                    <label>集合：</label>
+                    <label>集合:</label>
                     <select id="apiCollectionSelect" onchange="switchApiCollection()"></select>
-                    <button onclick="addApiCollection()">新增集合</button>
-                    <button onclick="removeApiCollection()">删除集合</button>
                 </div>
                 <div id="apisList"></div>
             </div>
             <div id="variablesPanel" class="panel-content">
                 <div class="history-header">
                     <div class="btn-group">
-                        <button class="clear-history-btn" onclick="clearVariables()">清空变量</button>
-                        <button class="import-btn" onclick="importVariables()">导入变量</button>
-                        <button class="export-btn" onclick="exportVariables()">导出变量</button>
+                        <button class="btn-danger-action" onclick="clearVariables()">清空</button>
+                        <button class="btn-action" onclick="importVariables()">导入</button>
+                        <button class="btn-action" onclick="exportVariables()">导出</button>
+                        <button class="btn-action" onclick="addVariableRow()">添加</button>
+                        <button class="btn-action" onclick="saveVariables()">保存</button>
                     </div>
                 </div>
                 <div class="variables-table-container">
@@ -1088,16 +1501,17 @@
                         </thead>
                         <tbody id="variablesTableBody"></tbody>
                     </table>
-                    <button class="add-row-btn" onclick="addVariableRow()">添加变量</button>
-                    <button class="save-btn btn-primary" onclick="saveVariables()">保存变量</button>
+
                 </div>
             </div>
             <div id="globalHeadersPanel" class="panel-content">
                 <div class="history-header">
                     <div class="btn-group">
-                        <button class="clear-history-btn" onclick="clearGlobalHeaders()">清空全局头</button>
-                        <button class="import-btn" onclick="importGlobalHeaders()">导入全局头</button>
-                        <button class="export-btn" onclick="exportGlobalHeaders()">导出全局头</button>
+                        <button class="btn-danger-action" onclick="clearGlobalHeaders()">清空</button>
+                        <button class="btn-action" onclick="importGlobalHeaders()">导入</button>
+                        <button class="btn-action" onclick="exportGlobalHeaders()">导出</button>
+                        <button class="btn-action" onclick="addGlobalHeaderRow()">添加</button>
+                        <button class="btn-action" onclick="saveGlobalHeaders()">保存</button>
                     </div>
                 </div>
                 <div class="variables-table-container">
@@ -1112,8 +1526,7 @@
                         </thead>
                         <tbody id="globalHeadersTableBody"></tbody>
                     </table>
-                    <button class="add-row-btn" onclick="addGlobalHeaderRow()">添加全局头</button>
-                    <button class="save-btn btn-primary" onclick="saveGlobalHeaders()">保存全局头</button>
+
                 </div>
             </div>
         </div>
@@ -1121,7 +1534,7 @@
             <div class="container">
                 <div class="request-section">
                     <div class="url-section">
-                        <button onclick="importCurlCommand()" class="btn-secondary" title="从curl命令导入">导入curl</button>
+                        <button class="toggle-aside-btn" onclick="toggleAside()">◀</button>
                         <button class="new-request-btn" onclick="newRequest()">新建</button>
                         <select id="httpMethod">
                             <option>GET</option>
@@ -1138,14 +1551,20 @@
                         </select>
                         <input type="url" id="url" placeholder="输入请求URL" value="" />
                         <button onclick="saveToApis()" class="btn-secondary">保存</button>
-                        <button onclick="exportCurlCommand()" class="btn-secondary" title="导出为curl命令">导出curl</button>
-                        <button id="downloadBtn" onclick="sendRequestAndDownload()" class="btn-secondary">下载</button>
-                        <button id="sendBtn" onclick="sendRequest()">发送请求</button>
+                        <div class="send-btn-group" id="sendBtnGroup">
+                            <button id="sendBtn" onclick="handleSendButtonClick()">发送</button>
+                            <button class="send-btn-dropdown" onclick="toggleSendDropdown(event)">▼</button>
+                            <div class="send-dropdown-menu" id="sendDropdownMenu">
+                                <div onclick="sendRequestAndDownload()">下载</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="tabs">
-                        <div class="tab active" onclick="switchTab('headers')">请求头</div>
-                        <div class="tab" onclick="switchTab('body')">请求体</div>
+                    <div class="request-tabs">
+                        <div class="request-tab active" onclick="switchRequestTab('headers')">请求头</div>
+                        <div class="request-tab" onclick="switchRequestTab('body')">请求体</div>
+                        <div class="request-tab" onclick="switchRequestTab('script')">脚本</div>
+                        <div class="request-tab" onclick="switchRequestTab('tools')">工具</div>
                     </div>
 
                     <div id="headersTab" class="tab-content active">
@@ -1166,7 +1585,7 @@
                             <label>
                                 <input type="radio" name="bodyType" value="none" checked
                                     onchange="updateBodyType(this.value)">
-                                <span>无请求体</span>
+                                <span>none</span>
                             </label>
                             <label>
                                 <input type="radio" name="bodyType" value="json" onchange="updateBodyType(this.value)">
@@ -1183,7 +1602,7 @@
                             </label>
                             <label>
                                 <input type="radio" name="bodyType" value="form" onchange="updateBodyType(this.value)">
-                                <span>application/x-www-form-urlencoded</span>
+                                <span>x-www-form-urlencoded</span>
                             </label>
                             <label>
                                 <input type="radio" name="bodyType" value="formdata"
@@ -1199,42 +1618,152 @@
                         <div id="jsonBodyContainer" class="container-hidden">
                             <div id="jsonBodyRows"></div>
                             <div class="body-actions">
-                                <button class="add-row-btn" onclick="addJsonBodyRow()">添加JSON行</button>
+                                <button class="btn-action" onclick="addJsonBodyRow()">添加JSON行</button>
                             </div>
                         </div>
                         <div id="textBodyContainer" class="container-hidden">
                             <div id="textBodyRows"></div>
                             <div class="body-actions">
-                                <button class="add-row-btn" onclick="addTextBodyRow()">添加Text行</button>
+                                <button class="btn-action" onclick="addTextBodyRow()">添加Text行</button>
                             </div>
                         </div>
                         <div id="binaryBodyContainer" class="container-hidden">
                             <div id="binaryBodyRows"></div>
                             <div class="body-actions">
-                                <button class="add-row-btn" onclick="addBinaryBodyRow()">添加Binary行</button>
+                                <button class="btn-action" onclick="addBinaryBodyRow()">添加Binary行</button>
                             </div>
                         </div>
                         <div id="formDataContainer" class="file-input-container container-hidden">
                             <div id="formDataRows"></div>
-                            <button class="add-row-btn" onclick="addFormDataRow()">添加新行</button>
+                            <button class="btn-action" onclick="addFormDataRow()">添加新行</button>
                         </div>
                         <div id="formContainer" class="container-hidden container-margin-top">
                             <div id="formRows"></div>
-                            <button onclick="addFormRow()" class="add-row-btn">添加表单项</button>
+                            <button onclick="addFormRow()" class="btn-action">添加表单项</button>
                         </div>
                         <div id="wsControls" class="container-hidden container-margin-top">
                             <input type="text" id="wsSendInput" placeholder="输入要发送的消息" class="input-ws-send">
-                            <button id="wsSendBtn" class="add-row-btn">发送</button>
-                            <button id="wsCloseBtn" class="add-row-btn">关闭连接</button>
+                            <button id="wsSendBtn" class="btn-action">发送</button>
+                            <button id="wsCloseBtn" class="btn-danger-action">关闭连接</button>
                         </div>
                         <div id="wsBodyContainer" class="container-hidden container-margin-top">
                             <div id="wsBodyRows"></div>
                             <div class="ws-body-actions">
-                                <button class="add-row-btn" onclick="addWsBodyRow()" type="button">添加行</button>
-                                <button class="add-row-btn" onclick="if (currentWS) currentWS.close();"
-                                    type="button">断开连接</button>
-                                <button class="add-row-btn" onclick="sendWsBody()" type="button">发送</button>
+                                <button class="btn-action" onclick="addWsBodyRow()" type="button">添加行</button>
+                                <button class="btn-danger-action" onclick="if (currentWS) currentWS.close();"
+                                    type="button">关闭连接</button>
+                                <button class="btn-action" onclick="sendWsBody()" type="button">发送</button>
                             </div>
+                        </div>
+                    </div>
+
+                    <div id="scriptTab" class="tab-content">
+                        <div class="hook-section">
+                            <div class="hook-section-header">
+                                <div class="hook-section-title">
+                                    <input type="checkbox" id="preRequestEnabled" class="hook-enable-checkbox" checked>
+                                    <span>Pre-Request Hook（前置脚本）</span>
+                                </div>
+                                <div class="hook-actions">
+                                    <div class="hook-example-dropdown">
+                                        <button class="hook-action-btn" onclick="toggleHookExampleMenu('preRequest')">示例
+                                            ▼</button>
+                                        <div id="preRequestExampleMenu" class="hook-example-menu">
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('preRequest', 'sign')">动态签名</div>
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('preRequest', 'timestamp')">添加时间戳</div>
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('preRequest', 'auth')">动态Token</div>
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('preRequest', 'env')">环境切换</div>
+                                        </div>
+                                    </div>
+                                    <button class="hook-action-btn danger"
+                                        onclick="clearHookScript('preRequest')">清空</button>
+                                </div>
+                            </div>
+                            <textarea id="preRequestScript" class="hook-textarea" placeholder="// 在请求发送前执行，可修改请求参数
+function preRequest(request) {
+    console.log(request)
+    const utils = request.utils;
+    console.log(utils.getAllVariables());
+    console.log(utils.getAllGlobalHeaders());
+    const timestamp = Date.now();
+    request.headers['X-Timestamp'] = `${Date.now()}`;
+    request.utils.log('已添加时间戳:', timestamp);
+    return request;
+}"></textarea>
+                        </div>
+
+                        <div class="hook-section">
+                            <div class="hook-section-header">
+                                <div class="hook-section-title">
+                                    <input type="checkbox" id="postResponseEnabled" class="hook-enable-checkbox"
+                                        checked>
+                                    <span>Post-Response Hook（后置脚本）</span>
+                                </div>
+                                <div class="hook-actions">
+                                    <div class="hook-example-dropdown">
+                                        <button class="hook-action-btn"
+                                            onclick="toggleHookExampleMenu('postResponse')">示例 ▼</button>
+                                        <div id="postResponseExampleMenu" class="hook-example-menu">
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('postResponse', 'extractToken')">提取Token</div>
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('postResponse', 'log')">日志记录</div>
+                                            <div class="hook-example-item"
+                                                onclick="loadHookExample('postResponse', 'autoSave')">自动保存变量</div>
+                                        </div>
+                                    </div>
+                                    <button class="hook-action-btn danger"
+                                        onclick="clearHookScript('postResponse')">清空</button>
+                                </div>
+                            </div>
+                            <textarea id="postResponseScript" class="hook-textarea" placeholder="// 在响应返回后执行，可处理响应数据
+function postResponse(response) {
+    const utils = response.utils;
+    if (response.json) {
+        const data = response.json;
+        const fieldsToSave = ['id', 'token', 'x-uuid', 'x-name',];
+        fieldsToSave.forEach(field => {
+            if (data[field] !== undefined) {
+                utils.setVariable('last_var_' + field, data[field]);
+                utils.setGlobalHeader('last-header-' + field, data[field]);
+            }
+        });
+        utils.success('已自动保存响应字段');
+    }
+    return response;
+}"></textarea>
+                        </div>
+
+                        <div class="hook-console">
+                            <div class="hook-console-header">
+                                <span>控制台输出</span>
+                                <button class="hook-console-clear" onclick="clearHookConsole()">清空</button>
+                            </div>
+                            <div id="hookConsoleOutput" class="hook-console-output"></div>
+                        </div>
+                    </div>
+
+                    <div id="toolsTab" class="tab-content">
+                        <div class="script-section">
+                            <div class="script-section-header">
+                                <span class="script-section-title">Curl 导入</span>
+                                <button class="script-action-btn" onclick="importCurlFromTextarea()">导入</button>
+                            </div>
+                            <textarea id="curlImportArea" class="script-textarea"
+                                placeholder="粘贴 curl 命令后点击导入按钮..."></textarea>
+                        </div>
+                        <div class="script-section">
+                            <div class="script-section-header">
+                                <span class="script-section-title">Curl 导出</span>
+                                <button class="script-action-btn" onclick="exportCurlToTextarea()">生成</button>
+                                <button class="script-action-btn" onclick="copyCurlExport()">复制</button>
+                            </div>
+                            <textarea id="curlExportArea" class="script-textarea" readonly
+                                placeholder="点击生成按钮导出当前请求为 curl 命令..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -1418,18 +1947,543 @@
         }
 
         /**
-         * 切换请求标签页
-         * @param {string} tabName - 标签页名称，可选值：'headers' 或 'body'
+         * Hook脚本执行引擎
+         * 负责管理和执行前置脚本（Pre-Request）和后置脚本（Post-Response）
          */
-        function switchTab(tabName) {
-            docSelectAll('.tab').forEach(tab => tab.classList.remove('active'));
+        const HookEngine = {
+            /** @type {Array<{type: string, time: string, message: string}>} 控制台日志数组 */
+            consoleLogs: [],
+
+            /**
+             * 记录日志到控制台
+             * @param {string} type - 日志类型：info/success/error/warn
+             * @param {...any} args - 日志内容
+             */
+            log(type, ...args) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
+                const message = args.map(arg => {
+                    if (typeof arg === 'object') {
+                        try {
+                            return JSON.stringify(arg, null, 2);
+                        } catch {
+                            return String(arg);
+                        }
+                    }
+                    return String(arg);
+                }).join(' ');
+
+                this.consoleLogs.push({ type, time: timeStr, message });
+                this.renderConsole();
+            },
+
+            /**
+             * 渲染控制台输出
+             * 将日志数组转换为HTML并显示在控制台区域
+             */
+            renderConsole() {
+                const output = byId('hookConsoleOutput');
+                if (!output) return;
+
+                output.innerHTML = this.consoleLogs.map(log => {
+                    const typeClass = log.type || 'info';
+                    return `<div class="hook-console-line ${typeClass}"><span class="hook-console-time">[${log.time}]</span>${this.escapeHtml(log.message)}</div>`;
+                }).join('');
+
+                output.scrollTop = output.scrollHeight;
+            },
+
+            /**
+             * HTML转义，防止XSS攻击
+             * @param {string} text - 需要转义的文本
+             * @returns {string} 转义后的安全文本
+             */
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            /**
+             * 清空控制台日志
+             */
+            clearConsole() {
+                this.consoleLogs = [];
+                this.renderConsole();
+            },
+
+            /**
+             * 获取Hook脚本可用的工具函数集
+             * @returns {Object} 工具函数对象
+             */
+            getUtils() {
+                const self = this;
+                return {
+                    // 日志输出函数
+                    log: (...args) => self.log('info', ...args),
+                    info: (...args) => self.log('info', ...args),
+                    success: (...args) => self.log('success', ...args),
+                    warn: (...args) => self.log('warn', ...args),
+                    error: (...args) => self.log('error', ...args),
+
+                    /**
+                     * 设置变量（保存到localStorage并刷新DOM）
+                     * @param {string} name - 变量名
+                     * @param {any} value - 变量值
+                     */
+                    setVariable: (name, value) => {
+                        const envConf = StorageManager.get('env_conf', []);
+                        const existingIndex = envConf.findIndex(v => v.env_name === name);
+                        if (existingIndex >= 0) {
+                            envConf[existingIndex].env_value = String(value);
+                            envConf[existingIndex].enable = true;
+                        } else {
+                            envConf.push({ row_id: Date.now(), enable: true, env_name: name, env_value: String(value) });
+                        }
+                        StorageManager.set('env_conf', envConf);
+                        // 刷新变量表格DOM
+                        if (typeof loadVariables === 'function') {
+                            loadVariables();
+                        }
+                        self.log('success', `变量已设置: ${name} = ${value}`);
+                    },
+
+                    /**
+                     * 获取变量值（只获取启用的变量）
+                     * @param {string} name - 变量名
+                     * @returns {string|undefined} 变量值
+                     */
+                    getVariable: (name) => {
+                        const envConf = StorageManager.get('env_conf', []);
+                        const found = envConf.find(v => v.env_name === name && v.enable !== false);
+                        return found ? found.env_value : undefined;
+                    },
+
+                    /**
+                     * 获取所有启用的变量
+                     * @returns {Object} 变量键值对对象
+                     */
+                    getAllVariables: () => {
+                        const envConf = StorageManager.get('env_conf', []);
+                        const result = {};
+                        envConf.filter(v => v.enable !== false).forEach(v => { result[v.env_name] = v.env_value; });
+                        return result;
+                    },
+
+                    /**
+                     * 设置全局请求头（保存到localStorage并刷新DOM）
+                     * @param {string} name - 请求头名称
+                     * @param {string} value - 请求头值
+                     */
+                    setGlobalHeader: (name, value) => {
+                        const headerConf = StorageManager.get('header_conf', []);
+                        const existingIndex = headerConf.findIndex(h => h.header_name === name);
+                        if (existingIndex >= 0) {
+                            headerConf[existingIndex].header_value = String(value);
+                            headerConf[existingIndex].enable = true;
+                        } else {
+                            headerConf.push({ row_id: Date.now(), enable: true, header_name: name, header_value: String(value) });
+                        }
+                        StorageManager.set('header_conf', headerConf);
+                        // 刷新全局请求头表格DOM
+                        if (typeof loadGlobalHeaders === 'function') {
+                            loadGlobalHeaders();
+                        }
+                        self.log('success', `全局请求头已设置: ${name} = ${value}`);
+                    },
+
+                    /**
+                     * 获取全局请求头值（只获取启用的请求头）
+                     * @param {string} name - 请求头名称
+                     * @returns {string|undefined} 请求头值
+                     */
+                    getGlobalHeader: (name) => {
+                        const headerConf = StorageManager.get('header_conf', []);
+                        const found = headerConf.find(h => h.header_name === name && h.enable !== false);
+                        return found ? found.header_value : undefined;
+                    },
+
+                    /**
+                     * 获取所有启用的全局请求头
+                     * @returns {Object} 全局请求头键值对对象
+                     */
+                    getAllGlobalHeaders: () => {
+                        const headerConf = StorageManager.get('header_conf', []);
+                        const result = {};
+                        headerConf.filter(h => h.enable !== false).forEach(h => { result[h.header_name] = h.header_value; });
+                        return result;
+                    },
+                };
+            },
+
+            /**
+             * 执行前置脚本（Pre-Request Hook）
+             * 在请求发送前执行，可修改请求参数
+             * @param {Object} request - 请求对象
+             * @returns {Promise<Object>} 处理后的请求对象
+             */
+            async executePreRequest(request) {
+                const scriptText = byId('preRequestScript')?.value || '';
+                const enabled = byId('preRequestEnabled')?.checked !== false;
+
+                // 如果未启用或脚本为空，直接返回原请求
+                if (!enabled || !scriptText.trim()) {
+                    return request;
+                }
+
+                this.log('info', '执行 Pre-Request Hook...');
+
+                try {
+                    const utils = this.getUtils();
+                    // 构建传递给脚本的请求对象
+                    const requestObj = {
+                        url: request.url,
+                        method: request.method,
+                        headers: { ...request.headers },
+                        body: request.body,
+                        bodyType: request.bodyType,
+                        settings: { ...request.settings },
+                        variables: utils.getAllVariables(),
+                        utils
+                    };
+
+                    // 包装脚本，使其能够被Function构造函数执行
+                    const wrappedScript = `
+                        ${scriptText}
+                        return (typeof preRequest === 'function') ? preRequest(request) : request;
+                    `;
+
+                    // 执行脚本
+                    const fn = new Function('request', wrappedScript);
+                    const result = await fn(requestObj);
+
+                    // 如果脚本返回了有效的对象，合并修改
+                    if (result && typeof result === 'object') {
+                        this.log('success', 'Pre-Request Hook 执行完成');
+                        return {
+                            ...request,
+                            url: result.url || request.url,
+                            method: result.method || request.method,
+                            headers: result.headers || request.headers,
+                            body: result.body !== undefined ? result.body : request.body,
+                            settings: result.settings || request.settings
+                        };
+                    }
+
+                    return request;
+                } catch (error) {
+                    this.log('error', `Pre-Request Hook 执行错误: ${error.message}`);
+                    console.error('Pre-Request Hook Error:', error);
+                    return request;
+                }
+            },
+
+            /**
+             * 执行后置脚本（Post-Response Hook）
+             * 在响应返回后执行，可处理响应数据
+             * @param {Object} response - 响应对象
+             * @returns {Promise<Object>} 处理后的响应对象
+             */
+            async executePostResponse(response) {
+                const scriptText = byId('postResponseScript')?.value || '';
+                const enabled = byId('postResponseEnabled')?.checked !== false;
+
+                // 如果未启用或脚本为空，直接返回原响应
+                if (!enabled || !scriptText.trim()) {
+                    return response;
+                }
+
+                this.log('info', '执行 Post-Response Hook...');
+
+                try {
+                    const utils = this.getUtils();
+                    // 尝试解析JSON响应
+                    let json = null;
+                    try {
+                        if (response.body && typeof response.body === 'string') {
+                            json = JSON.parse(response.body);
+                        }
+                    } catch {
+                        // 响应不是JSON格式
+                    }
+
+                    // 构建传递给脚本的响应对象
+                    const responseObj = {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: { ...response.headers },
+                        body: response.body,
+                        duration: response.duration,
+                        contentType: response.contentType,
+                        json,
+                        utils
+                    };
+
+                    // 包装脚本，使其能够被Function构造函数执行
+                    const wrappedScript = `
+                        ${scriptText}
+                        return (typeof postResponse === 'function') ? postResponse(response) : response;
+                    `;
+
+                    // 执行脚本
+                    const fn = new Function('response', wrappedScript);
+                    const result = await fn(responseObj);
+
+                    // 如果脚本返回了有效的对象，合并修改
+                    if (result && typeof result === 'object') {
+                        this.log('success', 'Post-Response Hook 执行完成');
+                        return {
+                            ...response,
+                            body: result.body !== undefined ? result.body : response.body
+                        };
+                    }
+
+                    return response;
+                } catch (error) {
+                    this.log('error', `Post-Response Hook 执行错误: ${error.message}`);
+                    console.error('Post-Response Hook Error:', error);
+                    return response;
+                }
+            },
+
+            /**
+             * 获取当前Hook脚本配置
+             * @returns {Object} Hook脚本配置对象
+             */
+            getHookScripts() {
+                return {
+                    preRequest: {
+                        enabled: byId('preRequestEnabled')?.checked !== false,
+                        script: byId('preRequestScript')?.value || ''
+                    },
+                    postResponse: {
+                        enabled: byId('postResponseEnabled')?.checked !== false,
+                        script: byId('postResponseScript')?.value || ''
+                    }
+                };
+            },
+
+            /**
+             * 设置Hook脚本配置
+             * @param {Object} hooks - Hook脚本配置对象
+             */
+            setHookScripts(hooks) {
+                if (hooks.preRequest) {
+                    const preEnabled = byId('preRequestEnabled');
+                    const preScript = byId('preRequestScript');
+                    if (preEnabled) preEnabled.checked = hooks.preRequest.enabled !== false;
+                    if (preScript) preScript.value = hooks.preRequest.script || '';
+                }
+                if (hooks.postResponse) {
+                    const postEnabled = byId('postResponseEnabled');
+                    const postScript = byId('postResponseScript');
+                    if (postEnabled) postEnabled.checked = hooks.postResponse.enabled !== false;
+                    if (postScript) postScript.value = hooks.postResponse.script || '';
+                }
+            }
+        };
+
+        /**
+         * 清空Hook控制台日志
+         */
+        function clearHookConsole() {
+            HookEngine.clearConsole();
+        }
+
+        /**
+         * 清空Hook脚本内容
+         * @param {string} type - 脚本类型：'preRequest' 或 'postResponse'
+         */
+        function clearHookScript(type) {
+            if (type === 'preRequest') {
+                byId('preRequestScript').value = '';
+            } else if (type === 'postResponse') {
+                byId('postResponseScript').value = '';
+            }
+        }
+
+        /**
+         * 切换Hook示例下拉菜单的显示状态
+         * @param {string} type - 脚本类型：'preRequest' 或 'postResponse'
+         */
+        function toggleHookExampleMenu(type) {
+            const menuId = type === 'preRequest' ? 'preRequestExampleMenu' : 'postResponseExampleMenu';
+            const menu = byId(menuId);
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+            // 点击其他区域时关闭菜单
+            document.addEventListener('click', function closeMenu(e) {
+                if (!e.target.closest('.hook-example-dropdown')) {
+                    menu?.classList.remove('show');
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        /**
+         * Hook脚本示例集合
+         * 包含前置脚本和后置脚本的常用示例
+         */
+        const HookExamples = {
+            preRequest: {
+                sign: `// 动态签名示例
+function preRequest(request) {
+    const timestamp = Date.now();
+    const nonce = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+    const bodyStr = request.body || '';
+    const secret = 'your_secret_key';
+    
+    // 简单签名示例（实际使用建议用更安全的算法）
+    const signStr = bodyStr + timestamp + nonce + secret;
+    
+    // 设置签名相关请求头
+    request.headers['X-Timestamp'] = timestamp;
+    request.headers['X-Nonce'] = nonce;
+    request.headers['X-Signature'] = signStr;
+    
+    request.utils.log('签名已生成');
+    return request;
+}`,
+                timestamp: `// 添加时间戳示例
+function preRequest(request) {
+    console.log(request)
+    const utils = request.utils;
+    console.log(utils.getAllVariables());
+    console.log(utils.getAllGlobalHeaders());
+    const timestamp = Date.now();
+    request.headers['X-Timestamp'] = String(timestamp);
+    request.utils.log('已添加时间戳:', timestamp);
+    return request;
+}`,
+                auth: `// 动态Token示例
+function preRequest(request) {
+    const token = request.utils.getVariable('auth_token');
+    if (token) {
+        request.headers['Authorization'] = 'Bearer ' + token;
+        request.utils.log('已添加Token:', token.substring(0, 20) + '...');
+    } else {
+        request.utils.warn('未找到auth_token变量');
+    }
+    return request;
+}`,
+                env: `// 环境切换示例
+function preRequest(request) {
+    const env = request.utils.getVariable('current_env') || 'dev';
+    
+    const baseUrls = {
+        dev: 'http://localhost:8080',
+        test: 'http://test.example.com',
+        prod: 'https://api.example.com'
+    };
+    
+    const baseUrl = baseUrls[env] || baseUrls.dev;
+    
+    // 替换URL中的{{base_url}}
+    request.url = request.url.replace('{{base_url}}', baseUrl);
+    request.utils.log('当前环境:', env, 'BaseURL:', baseUrl);
+    
+    return request;
+}`
+            },
+            postResponse: {
+                extractToken: `// 提取Token示例
+function postResponse(response) {
+    const utils = response.utils;
+    
+    // 检查响应是否成功
+    if (response.status === 200 && response.json) {
+        // 尝试从不同位置提取token
+        const token = response.json.token || 
+                      response.json.data?.token ||
+                      response.json.access_token;
+        
+        if (token) {
+            utils.setVariable('auth_token', token);
+            utils.success('Token已提取并保存:', token.substring(0, 20) + '...');
+        }
+    }
+    
+    // 检测token过期
+    if (response.status === 401) {
+        utils.warn('Token可能已过期');
+    }
+    
+    return response;
+}`,
+                log: `// 日志记录示例
+function postResponse(response) {
+    const utils = response.utils;
+    
+    utils.info('=== 响应信息 ===');
+    utils.info('状态码:', response.status);
+    utils.info('耗时:', response.duration, 'ms');
+    utils.info('Content-Type:', response.contentType);
+    
+    if (response.json) {
+        utils.info('JSON数据:', JSON.stringify(response.json, null, 2));
+    }
+    
+    return response;
+}`,
+                autoSave: `// 自动保存变量示例
+function postResponse(response) {
+    const utils = response.utils;
+    console.log(response);
+    if (response.json) {
+        const data = response.json;
+        const fieldsToSave = ['id', 'token', 'x-uuid', 'x-name',];
+        fieldsToSave.forEach(field => {
+            if (data[field] !== undefined) {
+                utils.setVariable('last_var_' + field, data[field]);
+                utils.setGlobalHeader('last-header-' + field, data[field]);
+            }
+        });
+        utils.success('已自动保存响应字段');
+    }
+    return response;
+}`
+            }
+        };
+
+        /**
+         * 加载Hook脚本示例
+         * @param {string} type - 脚本类型：'preRequest' 或 'postResponse'
+         * @param {string} exampleName - 示例名称
+         */
+        function loadHookExample(type, exampleName) {
+            const examples = HookExamples[type];
+            if (examples && examples[exampleName]) {
+                const textareaId = type === 'preRequest' ? 'preRequestScript' : 'postResponseScript';
+                byId(textareaId).value = examples[exampleName];
+                HookEngine.log('info', `已加载示例: ${exampleName}`);
+            }
+            // 关闭菜单
+            const menuId = type === 'preRequest' ? 'preRequestExampleMenu' : 'postResponseExampleMenu';
+            byId(menuId)?.classList.remove('show');
+        }
+
+        /**
+         * 切换请求标签页
+         * @param {string} tabName - 标签页名称，可选值：'headers'、'body'、'script' 或 'tools'
+         */
+        function switchRequestTab(tabName) {
+            docSelectAll('.request-tab').forEach(tab => tab.classList.remove('active'));
             docSelectAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            const selectedTab = document.querySelector(`.tab:nth-child(${tabName === 'headers' ? '1' : '2'})`);
+            let tabIndex = 1;
+            if (tabName === 'body') tabIndex = 2;
+            else if (tabName === 'script') tabIndex = 3;
+            else if (tabName === 'tools') tabIndex = 4;
+
+            const selectedTab = document.querySelector(`.request-tab:nth-child(${tabIndex})`);
             const selectedContent = byId(`${tabName}Tab`);
 
-            selectedTab.classList.add('active');
-            selectedContent.classList.add('active');
+            if (selectedTab) selectedTab.classList.add('active');
+            if (selectedContent) selectedContent.classList.add('active');
         }
 
         /**
@@ -1571,12 +2625,82 @@
             row.innerHTML = `
                 <input type="radio" name="jsonBodyRadio">
                 <div class="body-content">
-                    <textarea placeholder="{}" class="textarea-body"></textarea>
+                    <textarea placeholder="{}" class="textarea-body json-body-textarea"></textarea>
+                    <div class="json-body-formatted" style="display:none;"></div>
                 </div>
                 <textarea placeholder="备注" class="body-remark"></textarea>
-                <button class="remove-btn" onclick="removeBodyRow(this, 'json')">删除</button>
+                <div class="json-body-btn-group">
+                    <button class="json-body-action-btn" onclick="formatJsonBodyRow(this)">格式化</button>
+                    <button class="json-body-action-btn json-show-raw-btn" onclick="showRawJsonBodyRow(this)" style="display:none;">显示原始</button>
+                    <button class="remove-btn" onclick="removeBodyRow(this, 'json')">删除</button>
+                </div>
             `;
             return row;
+        }
+
+        /**
+         * 格式化JSON请求体行
+         * 将当前行的JSON文本解析并渲染为可折叠的高亮DOM结构
+         * 隐藏原始textarea，显示格式化容器，切换按钮显示状态
+         * @param {HTMLElement} btn - 触发格式化的按钮元素
+         * @returns {void}
+         */
+        function formatJsonBodyRow(btn) {
+            const btnGroup = btn.closest('.json-body-btn-group');
+            const bodyRow = btn.closest('.body-row');
+            const bodyContent = bodyRow.querySelector('.body-content');
+            const textarea = bodyRow.querySelector('.json-body-textarea');
+            const formattedContainer = bodyRow.querySelector('.json-body-formatted');
+            const showRawBtn = btnGroup.querySelector('.json-show-raw-btn');
+
+            try {
+                const rawJson = textarea.value.trim();
+                if (!rawJson) {
+                    alert('没有JSON内容可格式化');
+                    return;
+                }
+
+                const jsonObj = JSON.parse(rawJson);
+
+                const textareaHeight = textarea.offsetHeight;
+                bodyContent.style.height = textareaHeight + 'px';
+
+                formattedContainer.innerHTML = '';
+                const container = document.createElement('div');
+                container.className = 'json-formatted';
+                processValue(container, jsonObj);
+                formattedContainer.appendChild(container);
+
+                textarea.style.display = 'none';
+                formattedContainer.style.display = 'block';
+                btn.style.display = 'none';
+                showRawBtn.style.display = 'inline-block';
+
+            } catch (error) {
+                alert('JSON格式错误: ' + (error.message || error));
+            }
+        }
+
+        /**
+         * 显示JSON请求体行的原始文本
+         * 隐藏格式化容器，显示原始textarea，切换按钮显示状态
+         * 与formatJsonBodyRow函数互斥，用于从格式化视图切换回原始编辑视图
+         * @param {HTMLElement} btn - 触发显示原始文本的按钮元素
+         * @returns {void}
+         */
+        function showRawJsonBodyRow(btn) {
+            const btnGroup = btn.closest('.json-body-btn-group');
+            const bodyRow = btn.closest('.body-row');
+            const bodyContent = bodyRow.querySelector('.body-content');
+            const textarea = bodyRow.querySelector('.json-body-textarea');
+            const formattedContainer = bodyRow.querySelector('.json-body-formatted');
+            const formatBtn = btnGroup.querySelector('.json-body-action-btn:not(.json-show-raw-btn)');
+
+            bodyContent.style.height = '';
+            textarea.style.display = 'block';
+            formattedContainer.style.display = 'none';
+            btn.style.display = 'none';
+            formatBtn.style.display = 'inline-block';
         }
 
         /**
@@ -1612,7 +2736,7 @@
                     <input type="file" class="file-input-binary" onchange="handleBinaryFileChange(event)">
                     <div class="file-preview"></div>
                 </div>
-                <input type="text" placeholder="备注" class="body-remark">
+                <textarea placeholder="备注" class="body-remark"></textarea>
                 <button class="remove-btn" onclick="removeBodyRow(this, 'binary')">删除</button>
             `;
             return row;
@@ -1855,6 +2979,13 @@
             return headers;
         }
 
+        /**
+         * 规范化URL协议
+         * 为URL添加默认协议前缀，支持http/https/ws/wss协议
+         * @param {string} url - 原始URL
+         * @param {string} protocol - 默认协议（http或https）
+         * @returns {string} 规范化后的URL
+         */
         function normalizeUrlWithProtocol(url, protocol) {
             if (!url) return url;
             // 只判断常用的四种协议
@@ -1874,7 +3005,7 @@
          * @param {boolean} download - 是否为下载请求
          * @returns {Promise<void>}
          */
-        async function handleProxyRequest(url, method, bodyType, headers, settings, download) {
+        async function handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody) {
             const formData = new FormData();
             formData.append('url', url);
             formData.append('method', method);
@@ -1888,9 +3019,8 @@
             formData.append('retry_count', settings.retry_count || '0');
             formData.append('retry_delay', settings.retry_delay || '0');
 
-            // 处理body和文件
             const filesInfo = [];
-            await processRequestBody(formData, bodyType, filesInfo);
+            await processRequestBodyWithBody(formData, bodyType, filesInfo, requestBody);
 
             if (filesInfo.length > 0) {
                 formData.append('file_info', JSON.stringify(filesInfo));
@@ -1900,29 +3030,86 @@
                 const startTime = Date.now();
                 const response = await fetch('/api/forward', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: signal
                 });
                 const duration = Date.now() - startTime;
                 const contentType = response.headers.get('content-type');
 
-                // SSE流式处理
                 if (contentType?.includes('text/event-stream')) {
                     await handleSSEFetchResponse(response);
                     saveRequestToHistory();
                     return;
                 }
 
+                const responseHeaders = {};
+                response.headers.forEach((value, key) => {
+                    responseHeaders[key] = value;
+                });
+
+                let responseText = '';
+                const binaryTypes = [
+                    'application/octet-stream',
+                    'application/pdf',
+                    'image/',
+                    'audio/',
+                    'video/',
+                    'application/zip',
+                    'application/x-rar'
+                ];
+                const isBinaryContent = contentType && binaryTypes.some(type => contentType.includes(type));
+
+                if (!isBinaryContent) {
+                    responseText = await response.text();
+                }
+
+                const hookResponse = await HookEngine.executePostResponse({
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: responseHeaders,
+                    body: responseText,
+                    duration,
+                    contentType
+                });
+
+                if (hookResponse.body !== undefined && hookResponse.body !== responseText) {
+                    responseText = hookResponse.body;
+                }
+
                 if (download) {
                     await handleDownloadResponse(response, contentType);
                 } else {
-                    await handleNormalResponse(response, duration, contentType);
+                    await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
                 }
 
                 await updateResponseHeaders(response);
                 saveRequestToHistory();
             } catch (error) {
-                await handleRequestError(error);
+                if (error.name !== 'AbortError') {
+                    await handleRequestError(error);
+                }
+            } finally {
+                currentAbortController = null;
             }
+        }
+
+        /**
+         * 处理请求体（支持Hook修改后的请求体）
+         * 如果Hook修改了请求体，则使用修改后的值；否则使用原始处理逻辑
+         * @param {FormData} formData - FormData对象
+         * @param {string} bodyType - 请求体类型
+         * @param {Array} filesInfo - 文件信息数组
+         * @param {string} requestBody - Hook修改后的请求体
+         * @returns {Promise<void>}
+         */
+        async function processRequestBodyWithBody(formData, bodyType, filesInfo, requestBody) {
+            if (requestBody) {
+                if (bodyType === 'json' || bodyType === 'text' || bodyType === 'xml') {
+                    formData.append('body', requestBody);
+                }
+                return;
+            }
+            await processRequestBody(formData, bodyType, filesInfo);
         }
 
         /**
@@ -2042,7 +3229,12 @@
             const responseHeaders = byId('responseHeaders');
 
             if (responseInfo) {
-                responseInfo.innerHTML = `请求错误: ${error.message}`;
+                if (error.name === 'AbortError') {
+                    responseInfo.innerHTML = '请求已取消';
+                    responseInfo.className = 'response-info httpStatus4';
+                } else {
+                    responseInfo.innerHTML = `请求错误: ${error.message}`;
+                }
             }
             if (responseBody) {
                 responseBody.value = '';
@@ -2061,9 +3253,10 @@
          * @param {string} method - 请求方法 (WS/SSE)
          * @param {Object} headers - 请求头
          * @param {Object} settings - 请求设置
+         * @param {AbortSignal} signal - AbortController 的信号
          * @returns {Promise<void>}
          */
-        async function handleWSRequest(url, method, headers, settings) {
+        async function handleWSRequest(url, method, headers, settings, signal) {
             // 断开已有连接
             if (currentWS) {
                 try { currentWS.close(); } catch (e) { }
@@ -2100,7 +3293,7 @@
             formData.append('retry_delay', settings.retry_delay || '0');
 
             try {
-                const resp = await fetch('/api/forward', { method: 'POST', body: formData });
+                const resp = await fetch('/api/forward', { method: 'POST', body: formData, signal: signal });
                 const data = await resp.json();
                 if (data.code !== 0) {
                     if (responseInfo) {
@@ -2117,7 +3310,12 @@
                 }
             } catch (err) {
                 if (responseInfo) {
-                    responseInfo.innerHTML = '请求错误: ' + (err.message || err);
+                    if (err.name === 'AbortError') {
+                        responseInfo.innerHTML = '请求已取消';
+                        responseInfo.className = 'response-info httpStatus4';
+                    } else {
+                        responseInfo.innerHTML = '请求错误: ' + (err.message || err);
+                    }
                 }
                 console.error('WS/SSE请求错误:', err);
             }
@@ -2301,7 +3499,7 @@
          * @param {Object} requestOptions - 请求选项
          * @returns {Promise<void>}
          */
-        async function setContentTypeAndBody(headers, bodyType, requestOptions) {
+        async function setContentTypeAndBody(headers, bodyType, requestOptions, requestBody) {
             switch (bodyType) {
                 case 'form':
                     headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -2310,10 +3508,8 @@
                     headers['Content-Type'] = 'application/json';
                     break;
                 case 'text':
-                    // 检查用户是否已经设置了文本类型的 Content-Type
                     const customContentType = headers['Content-Type'];
                     if (customContentType && customContentType.startsWith('text/')) {
-                        // 使用用户自定义的 Content-Type
                         headers['Content-Type'] = customContentType;
                     } else {
                         headers['Content-Type'] = 'text/plain';
@@ -2324,7 +3520,11 @@
                     break;
             }
 
-            requestOptions.body = await getRequestBody(bodyType);
+            if (requestBody !== undefined && requestBody !== null) {
+                requestOptions.body = requestBody;
+            } else {
+                requestOptions.body = await getRequestBody(bodyType);
+            }
         }
 
         /**
@@ -2611,6 +3811,7 @@
         // 全局变量，保存当前WS/SSE连接
         let currentWS = null;
         let currentSSE = null;
+        let currentAbortController = null;
 
         // localStorage管理工具
         const StorageManager = {
@@ -2662,29 +3863,99 @@
          */
         function setRequestButtonsState(loading) {
             const sendBtn = byId('sendBtn');
-            const downloadBtn = byId('downloadBtn');
+            const sendBtnGroup = byId('sendBtnGroup');
 
             if (sendBtn) {
-                sendBtn.disabled = loading;
                 if (loading) {
+                    sendBtn.disabled = false;
                     sendBtn.classList.add('loading');
-                    sendBtn.textContent = '请求中...';
+                    sendBtn.textContent = '取消';
                 } else {
+                    sendBtn.disabled = false;
                     sendBtn.classList.remove('loading');
-                    sendBtn.textContent = '发送请求';
+                    sendBtn.textContent = '发送';
                 }
             }
 
-            if (downloadBtn) {
-                downloadBtn.disabled = loading;
+            if (sendBtnGroup) {
                 if (loading) {
-                    downloadBtn.classList.add('loading');
-                    downloadBtn.textContent = '下载中...';
+                    sendBtnGroup.classList.add('loading-group');
                 } else {
-                    downloadBtn.classList.remove('loading');
-                    downloadBtn.textContent = '下载';
+                    sendBtnGroup.classList.remove('loading-group');
                 }
             }
+        }
+
+        /**
+         * 切换发送按钮下拉菜单
+         * @param {Event} event - 点击事件
+         */
+        function toggleSendDropdown(event) {
+            event.stopPropagation();
+            const menu = byId('sendDropdownMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        /**
+         * 关闭发送按钮下拉菜单
+         */
+        function closeSendDropdown() {
+            const menu = byId('sendDropdownMenu');
+            if (menu) {
+                menu.classList.remove('show');
+            }
+        }
+
+        document.addEventListener('click', function (event) {
+            const sendBtnGroup = byId('sendBtnGroup');
+            if (sendBtnGroup && !sendBtnGroup.contains(event.target)) {
+                closeSendDropdown();
+            }
+        });
+
+        /**
+         * 处理发送按钮点击事件
+         * 根据按钮当前状态决定是发送请求还是取消请求
+         */
+        function handleSendButtonClick() {
+            const sendBtn = byId('sendBtn');
+            if (!sendBtn) return;
+
+            if (sendBtn.classList.contains('loading')) {
+                cancelRequest();
+            } else {
+                sendRequest();
+            }
+        }
+
+        /**
+         * 取消当前请求
+         * 调用 AbortController 中断正在进行的请求
+         */
+        function cancelRequest() {
+            if (currentAbortController) {
+                currentAbortController.abort();
+                currentAbortController = null;
+            }
+            if (currentWS) {
+                try {
+                    currentWS.close();
+                } catch (e) {
+                    console.warn('关闭WS连接时出错:', e);
+                }
+                currentWS = null;
+            }
+            if (currentSSE) {
+                try {
+                    currentSSE.close();
+                } catch (e) {
+                    console.warn('关闭SSE连接时出错:', e);
+                }
+                currentSSE = null;
+            }
+            setRequestButtonsState(false);
         }
 
         /**
@@ -2694,13 +3965,13 @@
          * @returns {Promise<void>}
          */
         async function sendRequest(download = false) {
-            // 每次请求前先清空响应内容
             clearResponse();
-            // 设置按钮为加载状态
             setRequestButtonsState(true);
 
+            currentAbortController = new AbortController();
+            const signal = currentAbortController.signal;
+
             try {
-                // 获取基本请求信息
                 const methodElement = byId('httpMethod');
                 const urlElement = byId('url');
 
@@ -2712,7 +3983,6 @@
                 let url = urlElement.value;
                 const bodyType = getBodyType();
 
-                // 替换URL中的变量
                 url = replaceVariables(url)?.trim() || '';
                 const settings = getRequestSettings();
                 url = normalizeUrlWithProtocol(url, settings.default_protocol);
@@ -2720,8 +3990,26 @@
                     throw new Error('请输入有效的URL');
                 }
 
-                // 获取并处理请求头
-                const headers = await buildRequestHeaders();
+                let headers = await buildRequestHeaders();
+
+                let requestBody = null;
+                if (bodyType !== 'none' && method !== 'GET') {
+                    requestBody = await getRequestBody(bodyType);
+                }
+
+                const hookRequest = await HookEngine.executePreRequest({
+                    url,
+                    method,
+                    headers,
+                    body: requestBody,
+                    bodyType,
+                    settings
+                });
+
+                url = hookRequest.url;
+                method = hookRequest.method;
+                headers = hookRequest.headers;
+                requestBody = hookRequest.body;
 
                 const requestOptions = {
                     method,
@@ -2733,23 +4021,22 @@
                     referrer: settings.referrer,
                     referrerPolicy: settings.referrerPolicy,
                     integrity: settings.integrity || undefined,
-                    keepalive: settings.keepalive
+                    keepalive: settings.keepalive,
+                    signal: signal
                 };
 
                 if (useProxy && method !== 'WS' && method !== 'SSE') {
-                    await handleProxyRequest(url, method, bodyType, headers, settings, download);
+                    await handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody);
                     return;
                 }
 
-                // WS/SSE 逻辑
                 if (useProxy && (method === 'WS' || method === 'SSE')) {
-                    await handleWSRequest(url, method, headers, settings);
+                    await handleWSRequest(url, method, headers, settings, signal);
                     return;
                 }
 
-                // 设置Content-Type并获取请求体
                 if (bodyType !== 'none' && method !== 'GET') {
-                    await setContentTypeAndBody(headers, bodyType, requestOptions);
+                    await setContentTypeAndBody(headers, bodyType, requestOptions, requestBody);
                 }
 
                 const startTime = Date.now();
@@ -2757,10 +4044,44 @@
                 const duration = Date.now() - startTime;
                 const contentType = response.headers.get('content-type');
 
+                const responseHeaders = {};
+                response.headers.forEach((value, key) => {
+                    responseHeaders[key] = value;
+                });
+
+                let responseText = '';
+                const binaryTypes = [
+                    'application/octet-stream',
+                    'application/pdf',
+                    'image/',
+                    'audio/',
+                    'video/',
+                    'application/zip',
+                    'application/x-rar'
+                ];
+                const isBinaryContent = contentType && binaryTypes.some(type => contentType.includes(type));
+
+                if (!isBinaryContent) {
+                    responseText = await response.text();
+                }
+
+                const hookResponse = await HookEngine.executePostResponse({
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: responseHeaders,
+                    body: responseText,
+                    duration,
+                    contentType
+                });
+
+                if (hookResponse.body !== undefined && hookResponse.body !== responseText) {
+                    responseText = hookResponse.body;
+                }
+
                 if (download) {
                     await handleDownloadResponse(response, contentType);
                 } else {
-                    await handleNormalResponse(response, duration, contentType);
+                    await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
                 }
 
                 await updateResponseHeaders(response);
@@ -2768,8 +4089,61 @@
             } catch (error) {
                 await handleRequestError(error);
             } finally {
-                // 恢复按钮状态
+                currentAbortController = null;
                 setRequestButtonsState(false);
+            }
+        }
+
+        /**
+         * 处理普通响应（带响应体）
+         * 用于Hook执行后显示响应内容
+         * @param {Response} response - fetch响应对象
+         * @param {number} duration - 响应耗时（毫秒）
+         * @param {string} contentType - 响应内容类型
+         * @param {string} responseText - 响应体文本
+         * @param {boolean} isBinaryContent - 是否为二进制内容
+         * @returns {Promise<void>}
+         */
+        async function handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent) {
+            const responseInfo = byId('responseInfo');
+            const responseBody = byId('responseBody');
+
+            if (responseInfo) {
+                responseInfo.innerHTML = `
+                    状态码: ${response.status} ${response.statusText}<br>
+                    响应时间: ${duration}ms<br>
+                    内容类型: ${contentType || '未指定'}<br>
+                `;
+                responseInfo.classList = 'response-info httpStatus' + (response.status + "").substr(0, 1);
+            }
+
+            resetJsonFormatState();
+
+            if (isBinaryContent) {
+                if (responseBody) {
+                    responseBody.value = `[二进制内容] - ${contentType}\n建议使用"发送并下载"按钮下载此内容`;
+                }
+            } else {
+                if (responseBody) {
+                    responseBody.value = responseText;
+                }
+
+                const isJsonContentType = contentType?.includes('application/json');
+                const isJsonFormat = responseText.trim() && (
+                    responseText.trim().startsWith('{') ||
+                    responseText.trim().startsWith('[')
+                );
+
+                if (isJsonContentType || (isJsonFormat && (() => {
+                    try {
+                        JSON.parse(responseText.trim());
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                })())) {
+                    showJsonFormatButton();
+                }
             }
         }
 
@@ -2778,7 +4152,7 @@
          * @returns {Promise<void>}
          */
         async function sendRequestAndDownload() {
-            // 每次请求前先清空响应内容
+            closeSendDropdown();
             clearResponse();
             await sendRequest(true);
         }
@@ -2806,8 +4180,12 @@
             if (!responseBody?.value) return;
 
             try {
-                await navigator.clipboard.writeText(responseBody.value);
-                console.log('响应内容已复制到剪贴板');
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    await navigator.clipboard.writeText(responseBody.value);
+                    console.log('响应内容已复制到剪贴板');
+                } else {
+                    console.warn('剪贴板API不可用');
+                }
             } catch (err) {
                 console.error('复制响应内容失败:', err);
             }
@@ -2988,6 +4366,7 @@
                 url,
                 headers,
                 body,
+                hooks: HookEngine.getHookScripts(),
                 timestamp: new Date().toISOString()
             };
 
@@ -3149,6 +4528,11 @@
                         noneRadio.checked = true;
                         updateBodyType('none');
                     }
+                }
+
+                // 加载Hook脚本
+                if (historyItem.hooks) {
+                    HookEngine.setHookScripts(historyItem.hooks);
                 }
             } catch (error) {
                 console.error('加载请求数据时出错:', error);
@@ -3429,6 +4813,7 @@
                 url,
                 headers,
                 body,
+                hooks: HookEngine.getHookScripts(),
                 timestamp: new Date().toISOString()
             };
 
@@ -3619,7 +5004,6 @@
         function saveVariables() {
             const rows = docSelectAll('#variablesTableBody tr');
             const envConf = [];
-            const envData = new Map();
 
             rows.forEach((row, index) => {
                 const enable = row.querySelector('input[type="checkbox"]').checked;
@@ -3639,22 +5023,10 @@
                     env_name: name,
                     env_value: value
                 });
-
-                // 如果启用且有变量名，则添加到最终变量映射
-                if (enable && name) {
-                    envData.set(name, value);
-                }
             });
-
-            // 转换为数组格式
-            const envDataArray = Array.from(envData.entries()).map(([env_name, env_value]) => ({
-                env_name,
-                env_value
-            }));
 
             // 保存到localStorage
             StorageManager.set('env_conf', envConf);
-            StorageManager.set('env_data', envDataArray);
 
             alert('变量保存成功');
         }
@@ -3691,7 +5063,6 @@
         function clearVariables() {
             if (confirm('确定要清空所有变量吗？此操作不可撤销。')) {
                 StorageManager.remove('env_conf');
-                StorageManager.remove('env_data');
                 loadVariables();
             }
         }
@@ -3762,32 +5133,22 @@
 
         /**
          * 替换变量
-         * 将文本中的{{变量名}}替换为对应的变量值
+         * 将文本中的{{变量名}}替换为对应的变量值（只替换启用的变量）
          * @param {string} text - 要替换的文本
          * @returns {string} 替换后的文本
          */
         function replaceVariables(text) {
             if (!text) return text;
 
-            const envData = StorageManager.get('env_data', []);
+            const envConf = StorageManager.get('env_conf', []);
             let result = text;
 
-            envData.forEach(({ env_name, env_value }) => {
+            envConf.filter(v => v.enable !== false).forEach(({ env_name, env_value }) => {
                 const pattern = new RegExp(`{{${env_name}}}`, 'g');
                 result = result.replace(pattern, env_value);
             });
 
             return result;
-        }
-
-        /**
-         * 清空所有全局请求头
-         */
-        function clearGlobalHeaders() {
-            if (confirm('确定要清空所有全局头吗？此操作不可撤销。')) {
-                StorageManager.remove('globalHeaders');
-                updateGlobalHeadersDisplay();
-            }
         }
 
         /**
@@ -3821,7 +5182,6 @@
         function saveGlobalHeaders() {
             const rows = docSelectAll('#globalHeadersTableBody tr');
             const headerConf = [];
-            const headerData = new Map();
 
             rows.forEach((row, index) => {
                 const enable = row.querySelector('input[type="checkbox"]').checked;
@@ -3835,22 +5195,10 @@
                     header_name: name,
                     header_value: value
                 });
-
-                // 如果启用且有请求头名称，则添加到最终映射
-                if (enable && name) {
-                    headerData.set(name, value);
-                }
             });
-
-            // 转换为数组格式
-            const headerDataArray = Array.from(headerData.entries()).map(([header_name, header_value]) => ({
-                header_name,
-                header_value
-            }));
 
             // 保存到localStorage
             StorageManager.set('header_conf', headerConf);
-            StorageManager.set('header_data', headerDataArray);
 
             alert('全局请求头保存成功');
         }
@@ -3887,7 +5235,6 @@
         function clearGlobalHeaders() {
             if (confirm('确定要清空所有全局请求头吗？此操作不可撤销。')) {
                 StorageManager.remove('header_conf');
-                StorageManager.remove('header_data');
                 loadGlobalHeaders();
             }
         }
@@ -3958,13 +5305,13 @@
 
         /**
          * 获取全局请求头
-         * 从localStorage读取全局请求头并返回对象
+         * 从localStorage读取全局请求头并返回对象（只返回启用的请求头）
          * @returns {Object} 全局请求头对象
          */
         function getGlobalHeaders() {
-            const headerData = StorageManager.get('header_data', []);
+            const headerConf = StorageManager.get('header_conf', []);
             const headers = {};
-            headerData.forEach(({ header_name, header_value }) => {
+            headerConf.filter(h => h.enable !== false).forEach(({ header_name, header_value }) => {
                 const key = replaceVariables(header_name).trim();
                 const value = replaceVariables(header_value).trim();
                 headers[key] = value;
@@ -4171,21 +5518,11 @@
                         // 导入变量配置
                         if (Array.isArray(config.variables)) {
                             StorageManager.set('env_conf', config.variables);
-                            // 更新变量数据
-                            const envData = config.variables
-                                .filter(item => item.enable)
-                                .map(({ env_name, env_value }) => ({ env_name, env_value }));
-                            StorageManager.set('env_data', envData);
                         }
 
                         // 导入全局请求头
                         if (Array.isArray(config.globalHeaders)) {
                             StorageManager.set('header_conf', config.globalHeaders);
-                            // 更新请求头数据
-                            const headerData = config.globalHeaders
-                                .filter(item => item.enable)
-                                .map(({ header_name, header_value }) => ({ header_name, header_value }));
-                            StorageManager.set('header_data', headerData);
                         }
 
                         // 导入请求配置
@@ -4214,7 +5551,11 @@
             document.body.removeChild(fileInput);
         }
 
-        // 集合相关逻辑
+        /**
+         * 获取所有接口集合
+         * 从localStorage读取接口集合，如果不存在则自动迁移老数据或创建默认集合
+         * @returns {Array} 接口集合数组
+         */
         function getApiCollections() {
             let collections = StorageManager.get('apiCollections', []);
             // 兼容老数据迁移
@@ -4232,14 +5573,26 @@
             return collections;
         }
 
+        /**
+         * 保存所有接口集合到localStorage
+         * @param {Array} collections - 接口集合数组
+         */
         function setApiCollections(collections) {
             StorageManager.set('apiCollections', collections);
         }
 
+        /**
+         * 获取当前选中的接口集合名称
+         * @returns {string} 当前集合名称
+         */
         function getCurrentCollectionName() {
             return StorageManager.get('currentApiCollection', '默认集合');
         }
 
+        /**
+         * 设置当前选中的接口集合名称
+         * @param {string} name - 集合名称
+         */
         function setCurrentCollectionName(name) {
             StorageManager.set('currentApiCollection', name);
         }
@@ -4308,6 +5661,32 @@
             setCurrentCollectionName('默认集合');
             updateApiCollectionSelect();
             updateApisDisplay();
+        }
+
+        let isAsideVisible = true;
+
+        /**
+         * 切换左侧边栏显示/隐藏
+         * 点击按钮隐藏或显示左侧区域，右侧内容自动调整宽度
+         */
+        function toggleAside() {
+            const aside = document.querySelector('.aside');
+            const mainContent = document.querySelector('.main-content');
+            const contentWrapper = document.querySelector('.content-wrapper');
+            const toggleBtn = document.querySelector('.toggle-aside-btn');
+
+            if (isAsideVisible) {
+                aside.classList.add('aside-hidden');
+                mainContent.classList.add('main-content-expanded');
+                contentWrapper.classList.add('content-wrapper-expanded');
+                toggleBtn.textContent = '▶';
+            } else {
+                aside.classList.remove('aside-hidden');
+                mainContent.classList.remove('main-content-expanded');
+                contentWrapper.classList.remove('content-wrapper-expanded');
+                toggleBtn.textContent = '◀';
+            }
+            isAsideVisible = !isAsideVisible;
         }
 
         /**
@@ -4432,17 +5811,22 @@
             const copyFormattedBtn = byId('copyFormattedBtn');
 
             try {
-                await navigator.clipboard.writeText(formattedJson);
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    await navigator.clipboard.writeText(formattedJson);
 
-                if (copyFormattedBtn) {
-                    copyFormattedBtn.textContent = "✓ 已复制!";
-                    setTimeout(() => {
-                        if (copyFormattedBtn) {
-                            copyFormattedBtn.textContent = "复制格式化JSON";
-                        }
-                    }, 2000);
+                    if (copyFormattedBtn) {
+                        copyFormattedBtn.textContent = "✓ 已复制!";
+                        setTimeout(() => {
+                            if (copyFormattedBtn) {
+                                copyFormattedBtn.textContent = "复制格式化JSON";
+                            }
+                        }, 2000);
+                    }
+                    console.log('格式化JSON已复制到剪贴板');
+                } else {
+                    console.warn('剪贴板API不可用');
+                    alert("复制失败，请手动复制内容");
                 }
-                console.log('格式化JSON已复制到剪贴板');
             } catch (err) {
                 console.error('复制格式化JSON失败:', err);
                 alert("复制失败，请手动复制内容");
@@ -4654,6 +6038,10 @@
             let dataBuffer = '';
             let result = '';
 
+            /**
+             * 读取SSE流数据
+             * 递归读取响应流并处理SSE事件
+             */
             async function readStream() {
                 try {
                     const { value, done } = await reader.read();
@@ -4819,28 +6207,48 @@
          * 将当前请求转换为curl命令并复制到剪贴板
          */
         function exportCurlCommand() {
+            const curlCommand = generateCurlCommand();
+            if (!curlCommand) return;
+
+            try {
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(curlCommand).then(() => {
+                        alert('已将curl命令复制到剪贴板！');
+                    }).catch(() => {
+                        prompt('复制以下的curl命令:', curlCommand);
+                    });
+                } else {
+                    prompt('复制以下的curl命令:', curlCommand);
+                }
+            } catch (clipboardError) {
+                prompt('复制以下的curl命令:', curlCommand);
+            }
+        }
+
+        /**
+         * 生成curl命令
+         * 根据当前请求配置生成对应的curl命令字符串
+         * @returns {string} 生成的curl命令
+         */
+        function generateCurlCommand() {
             try {
                 const method = byId('httpMethod').value;
                 const url = byId('url').value.trim();
-                
+
                 if (!url) {
                     alert('请输入URL');
-                    return;
+                    return null;
                 }
 
-                // 构建curl命令
                 let curlCommand = 'curl';
 
-                // 添加请求方法
                 if (method && method !== 'GET' && method !== 'WS' && method !== 'SSE') {
                     curlCommand += ` -X ${method}`;
                 }
 
-                // 处理URL，添加协议
                 const settings = getRequestSettings();
                 const fullUrl = normalizeUrlWithProtocol(url, settings.default_protocol || 'http');
-                
-                // 添加请求头
+
                 const headers = {};
                 docSelectAll('#headersList .header-row').forEach(row => {
                     const inputs = row.getElementsByTagName('input');
@@ -4852,7 +6260,6 @@
                     }
                 });
 
-                // 添加全局请求头
                 const globalHeaders = getGlobalHeaders();
                 for (const [key, value] of Object.entries(globalHeaders)) {
                     if (!headers[key]) {
@@ -4860,17 +6267,14 @@
                     }
                 }
 
-                // 输出请求头
                 for (const [key, value] of Object.entries(headers)) {
                     if (key && value !== undefined) {
                         curlCommand += ` -H "${key}: ${value.replace(/"/g, '\\"')}"`;
                     }
                 }
 
-                // 获取请求体类型
                 const bodyType = getBodyType();
 
-                // 处理请求体
                 if (bodyType !== 'none' && bodyType !== 'websocket') {
                     switch (bodyType) {
                         case 'json': {
@@ -4913,12 +6317,12 @@
                             docSelectAll('.formdata-row').forEach(row => {
                                 const isEnabled = row.querySelector('input[type="checkbox"]')?.checked;
                                 if (!isEnabled) return;
-                                
+
                                 const key = row.querySelector('.formdata-key')?.value?.trim();
                                 const type = row.querySelector('.formdata-type')?.value;
-                                
+
                                 if (!key) return;
-                                
+
                                 if (type === 'text') {
                                     const value = row.querySelector('.text-input')?.value || '';
                                     curlCommand += ` -F "${key}=${value.replace(/"/g, '\\"')}"`;
@@ -4947,58 +6351,100 @@
                     }
                 }
 
-                // 添加SSL验证选项
                 if (settings.verify_ssl === 'N') {
                     curlCommand += ' -k';
                 }
 
-                // 添加跳转选项
                 if (settings.follow_redirect === 'Y') {
                     curlCommand += ' -L';
                 }
 
-                // 添加超时时间
                 if (settings.timeout && parseInt(settings.timeout) > 0) {
                     curlCommand += ` --max-time ${settings.timeout}`;
                 }
 
-                // 最后添加URL
                 curlCommand += ` "${fullUrl}"`;
 
-                // 复制到剪贴板
-                navigator.clipboard.writeText(curlCommand).then(() => {
-                    alert('已将curl命令复制到剪贴板！');
-                }).catch(() => {
-                    // 如果剪贴板复制失败，显示对话框
-                    const dialog = prompt('复制以下的curl命令:', curlCommand);
-                });
+                return curlCommand;
 
             } catch (error) {
                 alert('导出curl命令失败: ' + error.message);
                 console.error('导出curl命令错误:', error);
+                return null;
             }
         }
 
         /**
-         * 导入curl命令
-         * 解析curl命令并填充到请求表单中
+         * 将curl命令导出到文本框
+         * 生成curl命令并显示在导出文本框中
          */
-        function importCurlCommand() {
-            const curlText = prompt('请粘贴curl命令:');
-            if (!curlText) return;
+        function exportCurlToTextarea() {
+            const curlCommand = generateCurlCommand();
+            if (curlCommand) {
+                byId('curlExportArea').value = curlCommand;
+            }
+        }
+
+        /**
+         * 复制curl命令到剪贴板
+         * 从导出文本框复制curl命令
+         */
+        function copyCurlExport() {
+            const curlExportArea = byId('curlExportArea');
+            const curlCommand = curlExportArea.value;
+            if (!curlCommand) {
+                alert('请先生成curl命令');
+                return;
+            }
 
             try {
-                // 解析curl命令
-                const parsed = parseCurlCommand(curlText.trim());
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    navigator.clipboard.writeText(curlCommand).then(() => {
+                        alert('已复制到剪贴板！');
+                    }).catch(() => {
+                        curlExportArea.select();
+                        document.execCommand('copy');
+                        alert('已复制到剪贴板！');
+                    });
+                } else {
+                    curlExportArea.select();
+                    document.execCommand('copy');
+                    alert('已复制到剪贴板！');
+                }
+            } catch (e) {
+                curlExportArea.select();
+                document.execCommand('copy');
+                alert('已复制到剪贴板！');
+            }
+        }
+
+        /**
+         * 从文本框导入curl命令
+         * 读取文本框中的curl命令并解析填充到请求表单
+         */
+        function importCurlFromTextarea() {
+            const curlText = byId('curlImportArea').value.trim();
+            if (!curlText) {
+                alert('请输入curl命令');
+                return;
+            }
+            importCurlFromText(curlText);
+        }
+
+        /**
+         * 从文本解析curl命令并填充请求表单
+         * @param {string} curlText - curl命令文本
+         */
+        function importCurlFromText(curlText) {
+            try {
+                const parsed = parseCurlCommand(curlText);
                 console.log('Parsed curl command:', parsed);
-                
-                // 设置请求方法
+
                 if (parsed.method) {
                     byId('httpMethod').value = parsed.method;
                     console.log('Set method:', parsed.method);
                 }
 
-                // 设置URL
                 if (parsed.url) {
                     byId('url').value = parsed.url;
                     console.log('Set URL:', parsed.url);
@@ -5055,7 +6501,7 @@
                     document.querySelector('input[name="bodyType"][value="form"]').checked = true;
                     updateBodyType('form');
                     byId('formRows').innerHTML = '';
-                    
+
                     // 解析form数据
                     const params = new URLSearchParams(parsed.body);
                     let hasFormData = false;
@@ -5081,7 +6527,7 @@
                     document.querySelector('input[name="bodyType"][value="formdata"]').checked = true;
                     updateBodyType('formdata');
                     byId('formDataRows').innerHTML = '';
-                    
+
                     for (const field of parsed.formFields) {
                         const row = createFormDataRow();
                         row.querySelector('.formdata-key').value = field.name;
@@ -5192,7 +6638,7 @@
 
             // 提取请求体数据 (--data-raw 优先)
             let hasData = false;
-            
+
             // 首先尝试匹配带引号的完整数据
             let dataRawMatch = cmd.match(/--data-raw\s+(['"])([\s\S]*?)\1/);
             if (dataRawMatch) {
@@ -5282,7 +6728,7 @@
             if (!result.method && (hasData || formFields.length > 0)) {
                 result.method = 'POST';
             }
-            
+
             // 如果还是没有方法，默认为 GET
             if (!result.method) {
                 result.method = 'GET';

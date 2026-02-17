@@ -1,0 +1,284 @@
+{
+  "listen": [
+    {
+      "host": "0.0.0.0",
+      "port": 8080,
+      "protocols": ["http"]
+    }
+  ],
+  "static": [
+    {
+      "mount": "/demo-static/",
+      "dir": "./files",
+      "download": false,
+      "index_files": ["index.html"],
+      "allow_methods": ["GET", "HEAD"],
+      "headers": {
+        "X-Demo-Static": "true",
+        "Cache-Control": "max-age=60"
+      }
+    },
+    {
+      "mount": "/download/",
+      "dir": "./files",
+      "download": true,
+      "allow_methods": ["GET"]
+    }
+  ],
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/demo/user/{id}",
+      "responses": [
+        {
+          "status": 200,
+          "headers": {
+            "X-Request-Id": "{{param.id}}",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "id": "{{param.id}}",
+            "message": "路径参数 param.id 已注入"
+          }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/query",
+      "responses": [
+        {
+          "status": 200,
+          "body": {
+            "name": "{{query.name}}",
+            "age_str": "{{query.age}}",
+            "age_int": "{{@int:query.age}}",
+            "vip": "{{@bool:query.vip}}"
+          }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/route-when",
+      "when": {
+        "query.role": "admin"
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": { "ok": true, "msg": "路由级 when 通过：query.role=admin" }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/match",
+      "match": {
+        "headers": { "X-Api-Key": "^key-.+" },
+        "query": { "env": "^(dev|test)$" },
+        "body": {}
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": { "ok": true, "msg": "match 通过：Header X-Api-Key 正则 + Query env 正则" }
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/match-body",
+      "match": {
+        "body": {
+          "type": "^(login|register)$",
+          "version": "v1"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": { "ok": true, "msg": "match.body 点路径匹配通过" }
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/extract",
+      "extract": {
+        "from": "body",
+        "rules": {
+          "userId": "data.userId",
+          "level": "data.profile.level"
+        }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "body": {
+            "echo_userId": "{{extract.userId}}",
+            "echo_level": "{{extract.level}}"
+          }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/branch/{id}",
+      "responses": [
+        {
+          "when": { "param.id": "007" },
+          "status": 200,
+          "body": { "msg": "命中 when: param.id=007" }
+        },
+        {
+          "when": { "param.id": ">100" },
+          "status": 200,
+          "body": { "msg": "命中 when: param.id>100" }
+        },
+        {
+          "when": { "param.id": "~^[a-z]+$" },
+          "status": 200,
+          "body": { "msg": "命中 when: param.id 匹配正则" }
+        },
+        {
+          "status": 200,
+          "body": { "msg": "兜底响应" }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/response-full",
+      "responses": [
+        {
+          "status": 201,
+          "headers": {
+            "X-Custom": "{{query.name}}",
+            "Content-Type": "application/json"
+          },
+          "cookies": [
+            {
+              "name": "demo_token",
+              "value": "token-{{query.uid}}",
+              "path": "/",
+              "max_age": 3600,
+              "http_only": true,
+              "same_site": "lax"
+            }
+          ],
+          "delay_ms": 100,
+          "body": {
+            "status": 201,
+            "with_headers_and_cookies": true
+          }
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/demo/file",
+      "responses": [
+        {
+          "status": 200,
+          "file": "./files/demo.png"
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/template/{name}",
+      "extract": {
+        "from": "query",
+        "rules": { "uid": "uid", "userId": "uid" }
+      },
+      "responses": [
+        {
+          "status": 200,
+          "headers": { "Content-Type": "application/json" },
+          "template": "./payloads/welcome.json"
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/body-at-file",
+      "responses": [
+        {
+          "status": 200,
+          "headers": { "Content-Type": "application/json" },
+          "body": "@./payloads/welcome.json"
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/demo/form",
+      "responses": [
+        {
+          "status": 200,
+          "body": {
+            "username": "{{form.username}}",
+            "file_name": "{{form.avatar.filename}}",
+            "file_size": "{{form.avatar.size}}"
+          }
+        }
+      ]
+    },
+    {
+      "method": "ANY",
+      "path": "/api/demo/any",
+      "responses": [
+        {
+          "status": 200,
+          "body": { "method": "任意方法均可命中" }
+        }
+      ]
+    }
+  ],
+  "websockets": [
+    {
+      "path": "/ws/demo/{room}",
+      "match": {
+        "query": { "token": ".+" },
+        "headers": { "Sec-WebSocket-Protocol": "^demo$" }
+      },
+      "script": [
+        { "send": "{\"type\":\"welcome\",\"room\":\"{{param.room}}\"}" },
+        { "send": "{\"type\":\"ping\"}","delay_ms": 5000 },
+        { "await": { "type": "pong" }, "timeout_ms": 3000 },
+        { "send": "{\"type\":\"ok\"}" },
+        { "close": true }
+      ]
+    }
+  ],
+  "sse": [
+    {
+      "path": "/sse/demo/{topic}",
+      "method": "GET",
+      "match": { "query": { "client": ".+" } },
+      "headers": { "X-Topic": "{{param.topic}}" },
+      "status": 200,
+      "cookies": [
+        {
+          "name": "sse_demo",
+          "value": "{{param.topic}}",
+          "path": "/",
+          "max_age": 60
+        }
+      ],
+      "events": [
+        { "id": "1", "event": "hello", "data": "topic={{param.topic}}", "retry": 2000 },
+        { "event": "ping", "data": "{\"ts\":1}", "delay_ms": 1000 },
+        { "data": "Start" },
+        { "data": "AAA", "delay_ms": 3000 },
+        { "data": "BBB", "delay_ms": 3000 },
+        { "data": "CCC", "delay_ms": 3000 },
+        { "data": "DDD", "delay_ms": 3000 },
+        { "data": "EEE", "delay_ms": 3000 },
+        { "data": "done" }
+      ],
+      "repeat": false
+    }
+  ]
+}

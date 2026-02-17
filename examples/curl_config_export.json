@@ -1,0 +1,317 @@
+{
+  "history": [],
+  "apiCollections": [
+    {
+      "name": "默认集合",
+      "apis": [
+        {
+          "name": "SSE",
+          "method": "SSE",
+          "url": "http://{{host}}:{{port}}/sse/demo/news?client=curl",
+          "headers": {
+            "Accept": {
+              "value": "text/event-stream",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T11:18:17.312Z"
+        },
+        {
+          "name": "WebSocket",
+          "method": "WS",
+          "url": "ws://{{host}}:{{port}}/ws/demo/meet?token=abcd",
+          "headers": {
+            "Sec-WebSocket-Protocol": {
+              "value": "demo",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": {
+            "type": "websocket",
+            "data": [
+              {
+                "type": "text",
+                "value": "{\"type\":\"pong\"}",
+                "selected": true,
+                "remark": ""
+              }
+            ]
+          },
+          "timestamp": "2026-02-07T10:36:09.233Z"
+        },
+        {
+          "name": "任意方法",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/any",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:49:16.930Z"
+        },
+        {
+          "name": "form-data",
+          "method": "POST",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/form",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": {
+            "type": "formdata",
+            "data": [
+              {
+                "key": "username",
+                "type": "text",
+                "value": "root-user",
+                "enabled": true,
+                "remark": ""
+              },
+              {
+                "key": "avatar",
+                "type": "file",
+                "value": null,
+                "enabled": true,
+                "remark": ""
+              }
+            ]
+          },
+          "timestamp": "2026-02-07T09:48:39.955Z"
+        },
+        {
+          "name": "模板替换",
+          "method": "POST",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/template/bob?uid=query-123",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": {
+            "type": "json",
+            "data": [
+              {
+                "content": "{\"name\":\"demo-body\"}",
+                "selected": true,
+                "remark": ""
+              }
+            ]
+          },
+          "timestamp": "2026-02-07T09:34:36.132Z"
+        },
+        {
+          "name": "status_headers_cookies_delay_ms",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/response-full?name=alice&uid=u1",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:23:30.839Z"
+        },
+        {
+          "name": "请求branch_04",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/branch/50",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:22:01.949Z"
+        },
+        {
+          "name": "请求branch_03",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/branch/abc",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:21:05.594Z"
+        },
+        {
+          "name": "请求branch_02",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/branch/200",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:20:20.654Z"
+        },
+        {
+          "name": "请求branch_01",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/branch/007",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": false,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:19:40.401Z"
+        },
+        {
+          "name": "请求body提取",
+          "method": "POST",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/extract",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": {
+            "type": "json",
+            "data": [
+              {
+                "content": "{\"data\":{\"userId\":\"u123\",\"profile\":{\"level\":5}}}",
+                "selected": true,
+                "remark": ""
+              }
+            ]
+          },
+          "timestamp": "2026-02-07T09:17:44.585Z"
+        },
+        {
+          "name": "请求body匹配",
+          "method": "POST",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/match-body",
+          "headers": {
+            "Content-Type": {
+              "value": "application/json",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": {
+            "type": "json",
+            "data": [
+              {
+                "content": "{\"type\":\"login\",\"version\":\"v1\"}",
+                "selected": true,
+                "remark": ""
+              }
+            ]
+          },
+          "timestamp": "2026-02-07T09:16:38.623Z"
+        },
+        {
+          "name": "match匹配",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/match?env=dev",
+          "headers": {
+            "X-Api-Key": {
+              "value": "key-abc",
+              "enabled": true,
+              "remark": ""
+            }
+          },
+          "body": null,
+          "timestamp": "2026-02-07T09:14:26.448Z"
+        },
+        {
+          "name": "路由级when",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/route-when?role=admin",
+          "headers": {},
+          "body": null,
+          "timestamp": "2026-02-07T09:11:52.082Z"
+        },
+        {
+          "name": "query参数",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/query?name=huang&age=66&vip=true",
+          "headers": {},
+          "body": null,
+          "timestamp": "2026-02-07T09:09:57.860Z"
+        },
+        {
+          "name": "path参数",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/api/demo/user/88",
+          "headers": {},
+          "body": null,
+          "timestamp": "2026-02-07T09:05:27.164Z"
+        },
+        {
+          "name": "请求静态资源",
+          "method": "GET",
+          "url": "{{proto}}://{{host}}:{{port}}/demo-static/",
+          "headers": {},
+          "body": null,
+          "timestamp": "2026-02-07T09:01:30.996Z"
+        }
+      ]
+    }
+  ],
+  "variables": [
+    {
+      "row_id": 1,
+      "enable": true,
+      "env_name": "proto",
+      "env_value": "http"
+    },
+    {
+      "row_id": 2,
+      "enable": true,
+      "env_name": "host",
+      "env_value": "127.0.0.1"
+    },
+    {
+      "row_id": 3,
+      "enable": true,
+      "env_name": "port",
+      "env_value": "8080"
+    }
+  ],
+  "globalHeaders": [],
+  "requestSettings": {
+    "default_protocol": "http",
+    "verify_ssl": "N",
+    "follow_redirect": "N",
+    "timeout": "0",
+    "retry_count": "0",
+    "retry_delay": "0",
+    "sse_event_types": "",
+    "cache": "default",
+    "mode": "cors",
+    "credentials": "same-origin",
+    "redirect": "follow",
+    "referrerPolicy": "no-referrer-when-downgrade",
+    "referrer": "about:client",
+    "integrity": "",
+    "keepalive": false
+  }
+}

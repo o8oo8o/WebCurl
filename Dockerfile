@@ -1,15 +1,15 @@
 ############################################
 # WebCurl
 ############################################
-FROM golang:1.24.4-alpine3.22 AS build-env
+FROM golang:1.26.0-alpine3.23.2 AS build-env
 WORKDIR /mnt
-COPY index.html tool.html favicon.ico main.go go.mod README.md /mnt/
+COPY index.html tool.html mock.html favicon.ico main.go mock.go tool.go ws.go mux.go go.mod README.md /mnt/
 RUN echo 'start build'
 RUN cd /mnt/ && export GO111MODULE=on && export GOPROXY=https://goproxy.cn && CGO_ENABLED=0 go build -o WebCurl
 
-FROM alpine:3.22
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \    
-	&& apk update \    
+FROM alpine:3.23.2
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+	&& apk update \
 	&& apk add --no-cache tzdata \
 	&& cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
 	&& mkdir -p /usr/local/WebCurl

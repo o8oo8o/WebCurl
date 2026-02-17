@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>WebMock</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a1a2e;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            flex-shrink: 0;
+            height: calc(100vh / 20);
+            min-height: 50px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 12px;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .status {
+            padding: 0 16px;
+            height: 36px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            color: #6c5ce7;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(253, 203, 110, 0.4);
+        }
+
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6c5ce7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        .status.running {
+            background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 184, 148, 0.4);
+        }
+
+        .status.running::before {
+            background: #ffffff;
+        }
+
+        button {
+            padding: 0 20px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+            box-shadow: 0 4px 15px rgba(45, 52, 54, 0.3);
+        }
+
+        button.secondary:hover {
+            box-shadow: 0 6px 20px rgba(45, 52, 54, 0.4);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3);
+        }
+
+        button.danger:hover {
+            box-shadow: 0 6px 20px rgba(214, 48, 49, 0.4);
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        select {
+            padding: 0 16px;
+            height: 36px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            background: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 150px;
+            max-width: 150px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            resize: none;
+            background: #fafbfc;
+            color: #2d3436;
+            transition: all 0.3s ease;
+            min-height: 0;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
+        }
+
+        textarea::placeholder {
+            color: #b2bec3;
+        }
+
+        .log {
+            flex-shrink: 0;
+            height: calc(100vh / 6);
+            min-height: 100px;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #a4b0be;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            border: 1px solid #2d3436;
+            margin-top: 12px;
+        }
+
+        .log-tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .log-tab {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #636e72;
+            transition: all 0.3s ease;
+        }
+
+        .log-tab:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dfe6e9 100%);
+        }
+
+        .log-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .log-tab-badge {
+            display: inline-block;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            margin-left: 6px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 9px;
+            font-size: 10px;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        .log-tab.active .log-tab-badge {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .log-container {
+            flex-shrink: 0;
+            height: calc(100vh / 6);
+            min-height: 100px;
+            margin-top: 0;
+        }
+
+        .log-panel {
+            display: none;
+            height: 100%;
+            padding: 8px;
+            border-radius: 0 0 12px 12px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #a4b0be;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            border: 1px solid #2d3436;
+            border-top: none;
+        }
+
+        #requestLogPanel {
+            padding: 4px;
+            white-space: normal;
+            line-height: 1;
+        }
+
+        .log-panel.active {
+            display: block;
+        }
+
+        .log-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-panel::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 4px;
+        }
+
+        .log-panel::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .request-log-item {
+            padding: 0 4px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border-left: 2px solid #667eea;
+            line-height: 1;
+            font-size: 0;
+        }
+
+        .request-log-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .request-log-header {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 0;
+        }
+
+        .request-log-method {
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .request-log-method.GET {
+            background: #00b894;
+            color: white;
+        }
+
+        .request-log-method.POST {
+            background: #0984e3;
+            color: white;
+        }
+
+        .request-log-method.PUT {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+
+        .request-log-method.DELETE {
+            background: #d63031;
+            color: white;
+        }
+
+        .request-log-method.PATCH {
+            background: #6c5ce7;
+            color: white;
+        }
+
+        .request-log-method.OTHER {
+            background: #636e72;
+            color: white;
+        }
+
+        .request-log-path {
+            color: #dfe6e9;
+            font-weight: 600;
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .request-log-status {
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .request-log-status.s2xx {
+            background: #00b894;
+            color: white;
+        }
+
+        .request-log-status.s3xx {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+
+        .request-log-status.s4xx {
+            background: #e17055;
+            color: white;
+        }
+
+        .request-log-status.s5xx {
+            background: #d63031;
+            color: white;
+        }
+
+        .request-log-time {
+            color: #636e72;
+            font-size: 10px;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        .request-log-detail {
+            margin-top: 1px;
+            padding: 2px 4px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            font-size: 10px;
+            line-height: 1.1;
+        }
+
+        .request-log-item.collapsed .request-log-detail {
+            display: none;
+        }
+
+        .request-log-detail-row {
+            margin-bottom: 0;
+        }
+
+        .request-log-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .request-log-detail-label {
+            color: #74b9ff;
+            font-weight: 600;
+            font-size: 10px;
+            line-height: 1;
+        }
+
+        .log-resize-handle {
+            height: 6px;
+            background: linear-gradient(135deg, #e9ecef 0%, #dfe6e9 100%);
+            cursor: ns-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+            margin: 4px 0;
+        }
+
+        .log-resize-handle:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .log-resize-handle::before {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: #b2bec3;
+            border-radius: 2px;
+            transition: background 0.3s ease;
+        }
+
+        .log-resize-handle:hover::before {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .log::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 4px;
+        }
+
+        .log::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        #jsonFormattedContainer {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            margin-top: 0;
+            min-height: 0;
+        }
+
+        #jsonFormattedContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #jsonFormattedContainer::-webkit-scrollbar-track {
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        #jsonFormattedContainer::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .json-formatted {
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #dfe6e9;
+            padding: 16px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .json-arrow {
+            cursor: pointer;
+            margin-right: 6px;
+            color: #74b9ff;
+            font-size: 10px;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .json-arrow:hover {
+            color: #0984e3;
+            transform: scale(1.2);
+        }
+
+        .json-bracket {
+            color: #dfe6e9;
+        }
+
+        .json-key {
+            color: #74b9ff;
+        }
+
+        .json-string {
+            color: #55efc4;
+        }
+
+        .json-number {
+            color: #ffeaa7;
+        }
+
+        .json-boolean {
+            color: #fd79a8;
+        }
+
+        .json-null {
+            color: #636e72;
+            font-style: italic;
+        }
+
+        .json-container {
+            margin-left: 20px;
+            border-left: 2px solid #3742fa;
+            padding-left: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <section>
+            <div class="toolbar">
+                <div id="statusBadge" class="status">加载中...</div>
+                <select id="savedConfigSelect" onchange="loadSavedConfig()">
+                    <option value="">-- 已保存配置 --</option>
+                </select>
+                <button id="btnSaveConfig" class="secondary">保存</button>
+                <button id="btnDeleteConfig" class="danger" style="display:none;">删除</button>
+                <button id="btnLoad" class="secondary">拉取配置</button>
+                <button id="btnReload">Reload</button>
+                <button id="btnStart" class="secondary">Start</button>
+                <button id="btnRestart">Restart</button>
+                <button id="btnStop" class="danger">Stop</button>
+                <button id="btnImportConfig" class="secondary">导入</button>
+                <button id="btnExportConfig" class="secondary">导出</button>
+                <button id="btnFormatJson" class="secondary">格式化</button>
+                <button id="btnCopyFormatted" class="secondary" style="display:none;">复制JSON</button>
+                <button id="btnShowRaw" class="secondary" style="display:none;">显示原始</button>
+            </div>
+            <div class="editor-container" id="editorContainer">
+                <textarea id="configInput" placeholder="在此粘贴 / 编辑 mock.json"></textarea>
+                <div id="jsonFormattedContainer"></div>
+            </div>
+            <div class="log-resize-handle" id="logResizeHandle"></div>
+            <div class="log-tabs">
+                <div class="log-tab active" onclick="switchLogTab('system')">系统日志</div>
+                <div class="log-tab" onclick="switchLogTab('request')">
+                    请求日志
+                    <span class="log-tab-badge" id="requestLogBadge" style="display:none;">0</span>
+                </div>
+            </div>
+            <div class="log-container" id="logContainer">
+                <div class="log-panel active" id="systemLogPanel"></div>
+                <div class="log-panel" id="requestLogPanel"></div>
+            </div>
+        </section>
+    </main>
+    <script>
+        function byId(id) {
+            return document.getElementById(id);
+        }
+
+        const configInput = document.getElementById('configInput');
+        const statusBadge = document.getElementById('statusBadge');
+        const systemLogPanel = document.getElementById('systemLogPanel');
+        const requestLogPanel = document.getElementById('requestLogPanel');
+        const logContainer = document.getElementById('logContainer');
+        const logResizeHandle = document.getElementById('logResizeHandle');
+        const editorContainer = document.getElementById('editorContainer');
+        const requestLogBadge = document.getElementById('requestLogBadge');
+        const savedConfigSelect = document.getElementById('savedConfigSelect');
+        const btnDeleteConfig = document.getElementById('btnDeleteConfig');
+        const buttons = {
+            load: document.getElementById('btnLoad'),
+            reload: document.getElementById('btnReload'),
+            start: document.getElementById('btnStart'),
+            stop: document.getElementById('btnStop'),
+            restart: document.getElementById('btnRestart')
+        };
+
+        const STORAGE_KEY = 'mockConfigs';
+        let requestLogCount = 0;
+        let currentLogTab = 'system';
+        let ws = null;
+
+        /**
+         * 切换日志Tab页
+         * @param {string} tab - 'system' 或 'request'
+         */
+        function switchLogTab(tab) {
+            currentLogTab = tab;
+            document.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.log-panel').forEach(p => p.classList.remove('active'));
+            if (tab === 'system') {
+                document.querySelector('.log-tab:first-child').classList.add('active');
+                systemLogPanel.classList.add('active');
+            } else {
+                document.querySelector('.log-tab:last-child').classList.add('active');
+                requestLogPanel.classList.add('active');
+                requestLogBadge.style.display = 'none';
+                requestLogCount = 0;
+            }
+        }
+
+        /**
+         * 连接WebSocket接收请求日志
+         */
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = protocol + '//' + window.location.host + '/mock/ws';
+
+            try {
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function () {
+                    log('WebSocket 已连接');
+                };
+
+                ws.onmessage = function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addRequestLog(data);
+                    } catch (e) {
+                        console.error('解析请求日志失败:', e);
+                    }
+                };
+
+                ws.onclose = function () {
+                    log('WebSocket 已断开，5秒后重连...');
+                    setTimeout(connectWebSocket, 5000);
+                };
+
+                ws.onerror = function (err) {
+                    console.error('WebSocket 错误:', err);
+                };
+            } catch (e) {
+                console.error('WebSocket 连接失败:', e);
+            }
+        }
+
+        /**
+         * 添加请求日志到面板
+         * @param {Object} data - 请求日志数据
+         */
+        function addRequestLog(data) {
+            const methodClass = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(data.method)
+                ? data.method
+                : 'OTHER';
+
+            const statusClass = 's' + Math.floor(data.status / 100) + 'xx';
+
+            const item = document.createElement('div');
+            item.className = 'request-log-item';
+            let html = '<div class="request-log-header" onclick="toggleRequestLogDetail(this.parentElement)">';
+            html += '<span class="request-log-time">' + data.time + '</span>';
+            html += '<span class="request-log-status ' + statusClass + '">' + data.status + '</span>';
+            html += '<span class="request-log-method ' + methodClass + '">' + data.method + '</span>';
+            html += '<span class="request-log-path">' + data.url + '</span>';
+            html += '</div>';
+            html += '<div class="request-log-detail">';
+            if (Object.keys(data.headers || {}).length > 0) {
+                html += '<div class="request-log-detail-row"><span class="request-log-detail-label">Headers:</span><br>';
+                html += '<span style="color:#dfe6e9;font-size:10px;white-space:pre-wrap;">' + formatHeaders(data.headers) + '</span></div>';
+            }
+            if (data.body) {
+                html += '<div class="request-log-detail-row"><span class="request-log-detail-label">Body:</span><br>';
+                html += '<span style="color:#dfe6e9;font-size:10px;word-break:break-all;">' + escapeHtml(data.body.substring(0, 500));
+                if (data.body.length > 500) html += '...';
+                html += '</span></div>';
+            }
+            html += '</div>';
+            item.innerHTML = html;
+
+            requestLogPanel.insertBefore(item, requestLogPanel.firstChild);
+
+            if (currentLogTab !== 'request') {
+                requestLogCount++;
+                requestLogBadge.textContent = requestLogCount > 99 ? '99+' : requestLogCount;
+                requestLogBadge.style.display = 'inline-block';
+            }
+
+            while (requestLogPanel.children.length > 100) {
+                requestLogPanel.removeChild(requestLogPanel.lastChild);
+            }
+        }
+
+        /**
+         * 切换请求日志详情展开/收起
+         */
+        function toggleRequestLogDetail(item) {
+            item.classList.toggle('collapsed');
+        }
+
+        /**
+         * 初始化日志区域拖拽调整高度
+         */
+        function initLogResize() {
+            let isResizing = false;
+            let startY = 0;
+            let startLogHeight = 0;
+            let startEditorHeight = 0;
+
+            logResizeHandle.addEventListener('mousedown', function (e) {
+                isResizing = true;
+                startY = e.clientY;
+                startLogHeight = logContainer.offsetHeight;
+                startEditorHeight = editorContainer.offsetHeight;
+                document.body.style.cursor = 'ns-resize';
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function (e) {
+                if (!isResizing) return;
+                const deltaY = e.clientY - startY;
+                const newLogHeight = Math.max(100, Math.min(window.innerHeight * 0.7, startLogHeight - deltaY));
+                const newEditorHeight = Math.max(100, startEditorHeight + deltaY);
+                logContainer.style.height = newLogHeight + 'px';
+                editorContainer.style.height = newEditorHeight + 'px';
+            });
+
+            document.addEventListener('mouseup', function () {
+                if (isResizing) {
+                    isResizing = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        }
+
+        initLogResize();
+
+        /**
+         * 格式化Headers对象
+         */
+        function formatHeaders(headers) {
+            if (!headers) return '';
+            return Object.entries(headers)
+                .map(([k, v]) => escapeHtml(k) + ': ' + escapeHtml(v))
+                .join('\n');
+        }
+
+        /**
+         * HTML转义
+         */
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        connectWebSocket();
+
+        /**
+         * 从localStorage获取所有已保存的配置
+         * @returns {Object} 配置对象，键为配置名称，值为配置内容
+         */
+        function getMockConfigs() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        /**
+         * 将配置保存到localStorage
+         * @param {Object} configs - 配置对象
+         */
+        function saveMockConfigs(configs) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
+        }
+
+        /**
+         * 刷新已保存配置的下拉框列表
+         * 从localStorage读取所有配置并更新下拉框选项
+         */
+        function refreshSavedConfigList() {
+            const configs = getMockConfigs();
+            const names = Object.keys(configs);
+            savedConfigSelect.innerHTML = '<option value="">-- 已保存配置 --</option>';
+            names.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                savedConfigSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * 保存当前配置到localStorage
+         * 弹出输入框让用户输入名称（最多64字符），保存当前textarea内容
+         */
+        function saveConfig() {
+            const configValue = configInput.value.trim();
+            if (!configValue) {
+                alert('配置内容为空，无法保存');
+                return;
+            }
+
+            let name = prompt('请输入配置名称（最多64个字符）:');
+            if (!name) return;
+
+            name = name.trim().substring(0, 64);
+            if (!name) {
+                alert('名称不能为空');
+                return;
+            }
+
+            const configs = getMockConfigs();
+            configs[name] = configValue;
+            saveMockConfigs(configs);
+            refreshSavedConfigList();
+            savedConfigSelect.value = name;
+            btnDeleteConfig.style.display = 'inline-block';
+            log(`配置 "${name}" 保存成功`);
+        }
+
+        /**
+         * 从下拉框选择并加载已保存的配置
+         * 将选中的配置内容填充到textarea
+         */
+        function loadSavedConfig() {
+            const name = savedConfigSelect.value;
+            if (!name) {
+                btnDeleteConfig.style.display = 'none';
+                return;
+            }
+
+            const configs = getMockConfigs();
+            if (configs[name]) {
+                configInput.value = configs[name];
+                btnDeleteConfig.style.display = 'inline-block';
+                log(`已加载配置 "${name}"`);
+            }
+        }
+
+        /**
+         * 删除当前选中的已保存配置
+         * 弹出确认框，确认后从localStorage删除该配置
+         */
+        function deleteSavedConfig() {
+            const name = savedConfigSelect.value;
+            if (!name) return;
+
+            if (!confirm(`确定要删除配置 "${name}" 吗？`)) return;
+
+            const configs = getMockConfigs();
+            delete configs[name];
+            saveMockConfigs(configs);
+            refreshSavedConfigList();
+            btnDeleteConfig.style.display = 'none';
+            log(`配置 "${name}" 已删除`);
+        }
+
+        /**
+         * 从本地JSON文件导入配置
+         * 读取包含mockConfigs对象的JSON文件，将default填充到textarea，其他配置保存到localStorage
+         */
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    try {
+                        const content = event.target.result;
+                        const data = JSON.parse(content);
+
+                        if (data.mockConfigs) {
+                            if (data.mockConfigs.default) {
+                                configInput.value = data.mockConfigs.default;
+                            }
+                            const savedConfigs = { ...data.mockConfigs };
+                            delete savedConfigs.default;
+                            saveMockConfigs(savedConfigs);
+                            refreshSavedConfigList();
+                            log('配置导入成功（包含' + Object.keys(savedConfigs).length + '个已保存配置）');
+                        } else {
+                            alert('导入失败: 配置文件格式错误，缺少mockConfigs字段');
+                        }
+                    } catch (err) {
+                        alert('导入失败: JSON格式错误 - ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        /**
+         * 将当前配置导出为JSON文件
+         * 导出格式包含default（当前textarea内容）和所有已保存的配置
+         */
+        function exportConfig() {
+            const defaultContent = configInput.value.trim();
+            const configs = getMockConfigs();
+
+            const exportData = {
+                mockConfigs: {
+                    default: defaultContent,
+                    ...configs
+                }
+            };
+
+            const content = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([content], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mock-config-' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            log('配置导出成功（包含' + Object.keys(configs).length + '个已保存配置）');
+        }
+
+        document.getElementById('btnSaveConfig').addEventListener('click', saveConfig);
+        document.getElementById('btnImportConfig').addEventListener('click', importConfig);
+        document.getElementById('btnExportConfig').addEventListener('click', exportConfig);
+        btnDeleteConfig.addEventListener('click', deleteSavedConfig);
+
+        refreshSavedConfigList();
+
+        function log(message) {
+            const time = new Date().toLocaleTimeString();
+            systemLogPanel.textContent = `[${time}] ${message}\n` + systemLogPanel.textContent;
+        }
+
+        async function fetchConfig() {
+            try {
+                const res = await fetch('/mock/api/config');
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                configInput.value = data.config || '';
+                setStatus(data.running);
+                log('配置拉取成功');
+            } catch (err) {
+                log('拉取失败: ' + err.message);
+            }
+        }
+
+        function setStatus(running) {
+            statusBadge.textContent = running ? 'RUNNING' : 'STOPPED';
+            statusBadge.classList.toggle('running', running);
+        }
+
+        async function postJSON(url, payload) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload || {})
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text);
+            }
+            return res.json().catch(() => ({}));
+        }
+
+        buttons.load.addEventListener('click', fetchConfig);
+
+        buttons.reload.addEventListener('click', async () => {
+            try {
+                await postJSON('/mock/api/reload', { config: configInput.value });
+                setStatus(true);
+                log('Reload 成功');
+            } catch (err) {
+                log('Reload 失败: ' + err.message);
+            }
+        });
+
+        buttons.start.addEventListener('click', async () => {
+            try {
+                await postJSON('/mock/api/start');
+                setStatus(true);
+                log('Start 成功');
+            } catch (err) {
+                log('Start 失败: ' + err.message);
+            }
+        });
+
+        buttons.stop.addEventListener('click', async () => {
+            try {
+                await postJSON('/mock/api/stop');
+                setStatus(false);
+                log('Stop 成功');
+            } catch (err) {
+                log('Stop 失败: ' + err.message);
+            }
+        });
+
+        buttons.restart.addEventListener('click', async () => {
+            try {
+                await postJSON('/mock/api/restart');
+                setStatus(true);
+                log('Restart 成功');
+            } catch (err) {
+                log('Restart 失败: ' + err.message);
+            }
+        });
+
+        fetchConfig();
+
+        byId('btnFormatJson').addEventListener('click', formatJsonResponse);
+        byId('btnCopyFormatted').addEventListener('click', copyFormattedJson);
+        byId('btnShowRaw').addEventListener('click', showRawJson);
+
+
+
+
+
+
+        // JSON格式化高亮相关变量
+        let formattedJson = '';
+        let isJsonFormatted = false;
+
+        /**
+         * 格式化响应体中的JSON内容并高亮显示
+         * 解析并格式化JSON字符串，渲染为高亮DOM结构
+         * @returns {void}
+         */
+        function formatJsonResponse() {
+            const configTextarea = byId('configInput');
+            const jsonFormattedContainer = byId('jsonFormattedContainer');
+            const btnFormatJson = byId('btnFormatJson');
+            const btnCopyFormatted = byId('btnCopyFormatted');
+            const btnShowRaw = byId('btnShowRaw');
+
+            if (!configTextarea || !jsonFormattedContainer) {
+                console.error('JSON格式化所需元素不存在');
+                return;
+            }
+
+            try {
+                const rawJson = configTextarea.value.trim();
+                if (!rawJson) {
+                    alert('没有JSON内容可格式化');
+                    return;
+                }
+
+                const jsonObj = JSON.parse(rawJson);
+                formattedJson = JSON.stringify(jsonObj, null, 4);
+
+                renderJsonWithDom(jsonObj);
+
+                jsonFormattedContainer.style.display = 'block';
+                configTextarea.style.display = 'none';
+                btnFormatJson.style.display = 'none';
+                btnCopyFormatted.style.display = 'inline-block';
+                btnShowRaw.style.display = 'inline-block';
+                isJsonFormatted = true;
+
+            } catch (error) {
+                alert('JSON格式错误: ' + (error.message || error));
+                console.error('JSON格式化失败:', error);
+            }
+        }
+
+        function showRawJson() {
+            const configTextarea = byId('configInput');
+            const jsonFormattedContainer = byId('jsonFormattedContainer');
+            const btnFormatJson = byId('btnFormatJson');
+            const btnCopyFormatted = byId('btnCopyFormatted');
+            const btnShowRaw = byId('btnShowRaw');
+
+            jsonFormattedContainer.style.display = 'none';
+            configTextarea.style.display = 'block';
+            btnFormatJson.style.display = 'inline-block';
+            btnCopyFormatted.style.display = 'none';
+            btnShowRaw.style.display = 'none';
+            isJsonFormatted = false;
+        }
+
+        /**
+         * 复制格式化后的JSON字符串到剪贴板
+         * @returns {void}
+         */
+        /**
+         * 复制格式化JSON到剪贴板
+         */
+        async function copyFormattedJson() {
+            if (!formattedJson) {
+                alert("请先格式化JSON数据");
+                return;
+            }
+
+            const btnCopyFormatted = byId('btnCopyFormatted');
+
+            try {
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    await navigator.clipboard.writeText(formattedJson);
+
+                    if (btnCopyFormatted) {
+                        btnCopyFormatted.textContent = "✓ 已复制!";
+                        setTimeout(() => {
+                            if (btnCopyFormatted) {
+                                btnCopyFormatted.textContent = "复制格式化JSON";
+                            }
+                        }, 2000);
+                    }
+                    console.log('格式化JSON已复制到剪贴板');
+                } else {
+                    console.warn('剪贴板API不可用');
+                    alert("复制失败，请手动复制内容");
+                }
+            } catch (err) {
+                console.error('复制格式化JSON失败:', err);
+                alert("复制失败，请手动复制内容");
+            }
+        }
+
+        /**
+         * JSON格式化:使用DOM渲染JSON
+         * 将JSON数据渲染为可折叠的DOM结构，支持展开/收起功能
+         * @param {any} data - 要渲染的JSON数据
+         */
+        function renderJsonWithDom(data) {
+            const jsonFormattedContainer = byId('jsonFormattedContainer');
+            jsonFormattedContainer.innerHTML = '';
+            const container = document.createElement('div');
+            container.className = 'json-formatted';
+            processValue(container, data);
+            jsonFormattedContainer.appendChild(container);
+        }
+
+        /**
+         * JSON格式化:处理不同类型的值
+         * 根据数据类型创建对应的DOM元素，支持null、数组、对象、字符串、数字、布尔值
+         * @param {HTMLElement} parent - 父元素
+         * @param {any} data - 要处理的数据
+         */
+        function processValue(parent, data) {
+            if (data === null) {
+                createAndAppendSpan(parent, 'null', 'json-null');
+            } else if (Array.isArray(data)) {
+                processArray(parent, data);
+            } else if (typeof data === 'object') {
+                processObject(parent, data);
+            } else if (typeof data === 'string') {
+                createAndAppendSpan(parent, `"${data}"`, 'json-string');
+            } else if (typeof data === 'number') {
+                createAndAppendSpan(parent, data, 'json-number');
+            } else if (typeof data === 'boolean') {
+                createAndAppendSpan(parent, data ? 'true' : 'false', 'json-boolean');
+            }
+        }
+
+        /**
+         * JSON格式化:处理数组
+         * 创建可折叠的数组DOM结构，支持展开/收起功能
+         * @param {HTMLElement} parent - 父元素
+         * @param {Array} arr - 要处理的数组
+         */
+        function processArray(parent, arr) {
+            if (arr.length === 0) {
+                createAndAppendSpan(parent, '[]', 'json-bracket');
+                return;
+            }
+            // 折叠按钮
+            const arrow = document.createElement('span');
+            arrow.textContent = '▼';
+            arrow.className = 'json-arrow';
+            // 括号
+            const bracketSpan = document.createElement('span');
+            bracketSpan.textContent = '[';
+            bracketSpan.className = 'json-bracket';
+            // 容器
+            const itemsContainer = document.createElement('div');
+            itemsContainer.className = 'json-container';
+            arr.forEach((item, i) => {
+                const itemDiv = document.createElement('div');
+                processValue(itemDiv, item);
+                if (i < arr.length - 1) {
+                    createAndAppendSpan(itemDiv, ',', 'json-bracket');
+                }
+                itemsContainer.appendChild(itemDiv);
+            });
+            // 结束括号
+            const endBracketDiv = document.createElement('div');
+            const endBracketSpan = document.createElement('span');
+            endBracketSpan.textContent = ']';
+            endBracketSpan.className = 'json-bracket';
+            endBracketDiv.appendChild(endBracketSpan);
+            // 折叠逻辑
+            arrow.onclick = function () {
+                if (itemsContainer.style.display === 'none') {
+                    itemsContainer.style.display = '';
+                    endBracketDiv.style.display = '';
+                    arrow.textContent = '▼';
+                } else {
+                    itemsContainer.style.display = 'none';
+                    endBracketDiv.style.display = 'none';
+                    arrow.textContent = '▶';
+                }
+            };
+            // 组装
+            const headerDiv = document.createElement('div');
+            headerDiv.appendChild(arrow);
+            headerDiv.appendChild(bracketSpan);
+            parent.appendChild(headerDiv);
+            parent.appendChild(itemsContainer);
+            parent.appendChild(endBracketDiv);
+        }
+
+        /**
+         * JSON格式化:处理对象
+         * 创建可折叠的对象DOM结构，支持展开/收起功能
+         * @param {HTMLElement} parent - 父元素
+         * @param {Object} obj - 要处理的对象
+         */
+        function processObject(parent, obj) {
+            const keys = Object.keys(obj);
+            if (keys.length === 0) {
+                createAndAppendSpan(parent, '{}', 'json-bracket');
+                return;
+            }
+            // 折叠按钮
+            const arrow = document.createElement('span');
+            arrow.textContent = '▼';
+            arrow.className = 'json-arrow';
+            // 括号
+            const bracketSpan = document.createElement('span');
+            bracketSpan.textContent = '{';
+            bracketSpan.className = 'json-bracket';
+            // 属性容器
+            const propsContainer = document.createElement('div');
+            propsContainer.className = 'json-container';
+            keys.forEach((key, i) => {
+                const propDiv = document.createElement('div');
+                createAndAppendSpan(propDiv, `"${key}":`, 'json-key');
+                createAndAppendSpan(propDiv, ' ', null);
+                processValue(propDiv, obj[key]);
+                if (i < keys.length - 1) {
+                    createAndAppendSpan(propDiv, ',', 'json-bracket');
+                }
+                propsContainer.appendChild(propDiv);
+            });
+            // 结束括号
+            const endBracketDiv = document.createElement('div');
+            const endBracketSpan = document.createElement('span');
+            endBracketSpan.textContent = '}';
+            endBracketSpan.className = 'json-bracket';
+            endBracketDiv.appendChild(endBracketSpan);
+            // 折叠逻辑
+            arrow.onclick = function () {
+                if (propsContainer.style.display === 'none') {
+                    propsContainer.style.display = '';
+                    endBracketDiv.style.display = '';
+                    arrow.textContent = '▼';
+                } else {
+                    propsContainer.style.display = 'none';
+                    endBracketDiv.style.display = 'none';
+                    arrow.textContent = '▶';
+                }
+            };
+            // 组装
+            const headerDiv = document.createElement('div');
+            headerDiv.appendChild(arrow);
+            headerDiv.appendChild(bracketSpan);
+            parent.appendChild(headerDiv);
+            parent.appendChild(propsContainer);
+            parent.appendChild(endBracketDiv);
+        }
+
+        /**
+         * JSON格式化:创建并添加带样式的span
+         * 创建带样式的span元素并添加到父元素中
+         * @param {HTMLElement} parent - 父元素
+         * @param {string} content - 内容
+         * @param {string} className - CSS类名
+         * @param {boolean} newLine - 是否换行
+         */
+        function createAndAppendSpan(parent, content, className, newLine = false) {
+            const span = document.createElement('span');
+            span.textContent = content;
+            if (className) span.className = className;
+
+            if (newLine) {
+                const div = document.createElement('div');
+                div.appendChild(span);
+                parent.appendChild(div);
+            } else {
+                parent.appendChild(span);
+            }
+        }
+
+    </script>
+</body>
+
+</html>

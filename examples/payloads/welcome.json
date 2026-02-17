@@ -1,0 +1,6 @@
+{
+  "message": "Hello, {{param.name}}!",
+  "query_uid": "{{query.uid}}",
+  "extract_userId": "{{extract.userId}}",
+  "body_name": "{{body.name}}"
+}

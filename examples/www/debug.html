@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mock Debug - WS & SSE</title>
+    <style>
+        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; margin: 16px; }
+        .card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+        .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+        input[type="text"], textarea { width: 100%; max-width: 820px; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; }
+        button { padding: 8px 12px; border: 1px solid #d1d5db; background: #f9fafb; border-radius: 6px; cursor: pointer; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .log { height: 200px; overflow: auto; background: #0b1020; color: #d1fae5; padding: 8px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; white-space: pre-wrap; }
+        .row .label { min-width: 80px; color: #374151; }
+    </style>
+    <script>
+        let ws = null;
+        let es = null;
+        let sseAbort = null;
+
+        function $(id) { return document.getElementById(id); }
+        function now() { return new Date().toISOString(); }
+        function appendLog(el, msg) {
+            el.textContent += `[${now()}] ${msg}\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function toWsUrl(u) {
+            if (!u) return u;
+            const t = u.trim();
+            if (t.startsWith('ws://') || t.startsWith('wss://')) return t;
+            if (t.startsWith('http://')) return 'ws://' + t.slice('http://'.length);
+            if (t.startsWith('https://')) return 'wss://' + t.slice('https://'.length);
+            if (t.startsWith('//')) return (location.protocol === 'https:' ? 'wss:' : 'ws:') + t;
+            if (t.startsWith('/')) return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + t;
+            // 相对路径 -> 拼到当前 origin 上
+            return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + (t.startsWith('/') ? t : '/' + t);
+        }
+        function toHttpUrl(u) {
+            if (!u) return u;
+            const t = u.trim();
+            if (t.startsWith('http://') || t.startsWith('https://')) return t;
+            if (t.startsWith('ws://')) return 'http://' + t.slice('ws://'.length);
+            if (t.startsWith('wss://')) return 'https://' + t.slice('wss://'.length);
+            if (t.startsWith('//')) return (location.protocol === 'https:' ? 'https:' : 'http:') + t;
+            if (t.startsWith('/')) return (location.protocol === 'https:' ? 'https://' : 'http://') + location.host + t;
+            return (location.protocol === 'https:' ? 'https://' : 'http://') + location.host + (t.startsWith('/') ? t : '/' + t);
+        }
+
+        // WebSocket
+        function wsConnect() {
+            const url = toWsUrl($('wsUrl').value);
+            const protocolsRaw = $('wsProtocols').value.trim();
+            let protos = undefined;
+            if (protocolsRaw) {
+                protos = protocolsRaw.split(',').map(s => s.trim()).filter(Boolean);
+            }
+            const log = $('wsLog');
+            if (!url) { appendLog(log, 'WS URL 不能为空'); return; }
+            try {
+                ws = protos ? new WebSocket(url, protos) : new WebSocket(url);
+            } catch (e) {
+                appendLog(log, `创建连接失败: ${e}`);
+                return;
+            }
+            $('wsConnectBtn').disabled = true;
+            $('wsCloseBtn').disabled = false;
+            $('wsSendBtn').disabled = false;
+            appendLog(log, `连接中 -> ${url}`);
+            ws.onopen = () => appendLog(log, '已连接');
+            ws.onmessage = (evt) => appendLog(log, `收到: ${evt.data}`);
+            ws.onerror = (evt) => appendLog(log, `错误: ${evt.message || evt}`);
+            ws.onclose = (evt) => {
+                appendLog(log, `已关闭 code=${evt.code} reason=${evt.reason}`);
+                $('wsConnectBtn').disabled = false;
+                $('wsCloseBtn').disabled = true;
+                $('wsSendBtn').disabled = true;
+            };
+        }
+        function wsSend() {
+            const log = $('wsLog');
+            if (!ws || ws.readyState !== WebSocket.OPEN) { appendLog(log, '未连接或已关闭'); return; }
+            const msg = $('wsMsg').value;
+            ws.send(msg);
+            appendLog(log, `发送: ${msg}`);
+        }
+        function wsClose() {
+            const log = $('wsLog');
+            if (!ws) { appendLog(log, '未创建连接'); return; }
+            ws.close(1000, 'debug-close');
+        }
+
+        // SSE
+        function sseStart() {
+            const url = toHttpUrl($('sseUrl').value);
+            const method = $('sseMethod').value;
+            const hdrRaw = $('sseHeaders').value.trim();
+            const bodyRaw = $('sseBody').value;
+            const log = $('sseLog');
+            if (!url) { appendLog(log, 'SSE URL 不能为空'); return; }
+            $('sseStartBtn').disabled = true;
+            $('sseStopBtn').disabled = false;
+            appendLog(log, `连接中 -> ${method} ${url}`);
+            // 如果是标准 GET 且无自定义头/体，则用 EventSource，兼容浏览器原生行为
+            if (method === 'GET' && hdrRaw === '' && bodyRaw.trim() === '') {
+                try {
+                    es = new EventSource(url);
+                } catch (e) { appendLog(log, `创建连接失败: ${e}`); return; }
+                es.onopen = () => appendLog(log, '已连接');
+                es.onmessage = (evt) => appendLog(log, `收到 [message]: ${evt.data}`);
+                es.onerror = (evt) => appendLog(log, `错误: ${evt.message || 'EventSource error'}`);
+                return;
+            }
+            // 其它情况：使用 fetch + ReadableStream 读取
+            sseAbort = new AbortController();
+            let headers = {};
+            if (hdrRaw) {
+                try { headers = JSON.parse(hdrRaw) } catch(e) { appendLog(log, `headers 不是合法 JSON: ${e}`); }
+            }
+            fetch(url, { method, headers, body: (method === 'GET' ? undefined : bodyRaw), signal: sseAbort.signal })
+                .then(resp => {
+                    if (!resp.ok) { appendLog(log, `HTTP ${resp.status}`); }
+                    const reader = resp.body.getReader();
+                    const decoder = new TextDecoder();
+                    function pump() {
+                        return reader.read().then(({done, value}) => {
+                            if (done) { appendLog(log, '流结束'); return; }
+                            const text = decoder.decode(value, {stream:true});
+                            // 逐行输出
+                            text.split('\n').forEach(line => { if (line) appendLog(log, line); });
+                            return pump();
+                        }).catch(err => appendLog(log, `读取错误: ${err}`));
+                    }
+                    appendLog(log, '已连接');
+                    return pump();
+                })
+                .catch(err => appendLog(log, `连接失败: ${err}`));
+        }
+        function sseStop() {
+            const log = $('sseLog');
+            if (es) { es.close(); es = null; }
+            if (sseAbort) { sseAbort.abort(); sseAbort = null; }
+            appendLog(log, '已关闭');
+            $('sseStartBtn').disabled = false;
+            $('sseStopBtn').disabled = true;
+        }
+    </script>
+    </head>
+<body>
+    <h2>Mock Debug</h2>
+    <div class="card">
+        <h3>WebSocket</h3>
+        <div class="row">
+            <span class="label">WS URL</span>
+            <input id="wsUrl" type="text" placeholder="ws://localhost:8080/ws/{room}?token=xxx" value="ws://localhost:8080/ws/test?token=pass" />
+        </div>
+        <div class="row">
+            <span class="label">Protocols</span>
+            <input id="wsProtocols" type="text" placeholder="可选，逗号分隔，如 token-passwd" value="token-passdata" />
+        </div>
+        <div class="row">
+            <span class="label">Message</span>
+            <input id="wsMsg" type="text" placeholder='{"cmd":"ping"} 或 任意文本' value='{"cmd":"ping"}' />
+        </div>
+        <div class="row">
+            <button id="wsConnectBtn" onclick="wsConnect()">连接</button>
+            <button id="wsSendBtn" onclick="wsSend()" disabled>发送</button>
+            <button id="wsCloseBtn" onclick="wsClose()" disabled>关闭</button>
+        </div>
+        <div class="row">
+            <div class="log" id="wsLog"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>SSE</h3>
+        <div class="row">
+            <span class="label">SSE URL</span>
+            <input id="sseUrl" type="text" placeholder="http://localhost:8080/sse/{topic}" value="http://localhost:8080/sse/test?mode=live" />
+        </div>
+        <div class="row">
+            <span class="label">Method</span>
+            <select id="sseMethod">
+                <option>POST</option>
+                <option>GET</option>
+                
+            </select>
+        </div>
+        <div class="row">
+            <span class="label">Headers(JSON)</span>
+            <input id="sseHeaders" type="text" placeholder='{"X-Auth":"token-xxx"}'  value='{"X-Auth":"token-passwd"}'/>
+        </div>
+        <div class="row">
+            <span class="label">Body</span>
+            <input id="sseBody" type="text" placeholder='{"client":{"version":"v1.0"}}' value='{"client":{"version":"v1.8"}}' />
+        </div>
+        <div class="row">
+            <button id="sseStartBtn" onclick="sseStart()">开始</button>
+            <button id="sseStopBtn" onclick="sseStop()" disabled>停止</button>
+        </div>
+        <div class="row">
+            <div class="log" id="sseLog"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>提示</h3>
+        <ul>
+            <li>变量如 {room}/{topic} 与 query 参数请自行在 URL 中填写。</li>
+            <li>若服务启用 HTTPS，请将地址改为 wss:// 或 https://。</li>
+        </ul>
+    </div>
+</body>
+</html>

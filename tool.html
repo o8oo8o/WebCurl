@@ -5,240 +5,1102 @@
     <meta charset="UTF-8">
     <title>WebTools</title>
     <style>
-        body {
-            font-family: "微软雅黑", Arial, sans-serif;
-            background: #fafbfc;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
         }
 
         .container {
-            max-width: 900px;
-            margin: 30px auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px #eee;
-            padding: 32px;
+            width: 95%;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
         }
 
-        h2 {
-            margin-top: 32px;
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tab-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            background: #ffffff;
+            color: #636e72;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tool-section {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid #e9ecef;
+            margin-bottom: 16px;
+        }
+
+        .tool-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
         }
 
         textarea,
         input[type="text"],
         input[type="number"] {
             width: 100%;
-            font-size: 16px;
-            padding: 8px;
-            margin: 8px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            padding: 10px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
         }
 
         button {
-            margin: 8px 4px 8px 0;
-            padding: 8px 16px;
-            font-size: 16px;
-            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 10px;
             border: none;
-            background: #1976d2;
-            color: #fff;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        button:hover {
-            background: #1565c0;
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
-        .result {
-            background: #f5f5f5;
-            border-radius: 4px;
-            padding: 8px;
-            margin: 8px 0;
-            font-family: "Consolas", monospace;
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #636e72;
+            border: 2px solid #e9ecef;
+        }
+
+        button.secondary:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dfe6e9 100%);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+
+        button.danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #dfe6e9;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
             white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-box::-webkit-scrollbar-track {
+            background: #1a1a2e;
+            border-radius: 4px;
+        }
+
+        .result-box::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
         }
 
         .row {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             align-items: center;
+            margin-bottom: 12px;
         }
 
         .row>* {
             flex: 1;
         }
 
+        .row input[type="number"] {
+            max-width: 100px;
+            flex: none;
+        }
+
         label {
-            font-weight: bold;
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 13px;
+            display: block;
+            margin-bottom: 6px;
         }
 
-        .tab-bar {
+        .checkbox-row {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
-        .tab-btn {
-            flex: 1;
-            padding: 12px 0;
-            font-size: 18px;
-            border-radius: 6px 6px 0 0;
-            border: none;
-            background: #e3eaf3;
-            color: #1976d2;
-            font-weight: bold;
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
-        .tab-btn.active {
-            background: #1976d2;
-            color: #fff;
+        .checkbox-item label {
+            margin-bottom: 0;
+            cursor: pointer;
         }
 
-        .tab-content {
-            /* 保持原有内容样式 */
+        .hint {
+            color: #636e72;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #e9ecef;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #667eea;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+        }
+
+        .color-preview {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            flex: none;
+        }
+
+        .json-key {
+            color: #fdcb6e;
+        }
+
+        .json-string {
+            color: #00b894;
+        }
+
+        .json-number {
+            color: #0984e3;
+        }
+
+        .json-boolean {
+            color: #e17055;
+        }
+
+        .json-null {
+            color: #636e72;
+        }
+
+        .video-preview {
+            width: 100%;
+            max-height: 400px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            margin-top: 12px;
+        }
+
+        .record-status {
+            padding: 10px 14px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #636e72;
+            margin-top: 12px;
+        }
+
+        .record-status.recording {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .record-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .record-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fafbfc;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .record-item:hover {
+            border-color: #667eea;
+            background: #ffffff;
+        }
+
+        .record-item-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .record-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .record-item-name {
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .record-item-meta {
+            font-size: 12px;
+            color: #636e72;
+            margin-top: 2px;
+        }
+
+        .record-item-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .record-item-actions button {
+            padding: 8px 12px;
+            font-size: 12px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <div class="page-title">WebTools 工具箱</div>
         <div class="tab-bar">
             <button class="tab-btn active" onclick="showTab('jwt')">JWT解析</button>
             <button class="tab-btn" onclick="showTab('uuid')">UUID生成</button>
-            <button class="tab-btn" onclick="showTab('time')">时间戳转换</button>
-            <button class="tab-btn" onclick="showTab('base64')">Base64工具</button>
-            <button class="tab-btn" onclick="showTab('token')">Token生成器</button>
+            <button class="tab-btn" onclick="showTab('time')">时间戳</button>
+            <button class="tab-btn" onclick="showTab('base64')">Base64</button>
+            <button class="tab-btn" onclick="showTab('url')">URL</button>
+            <button class="tab-btn" onclick="showTab('token')">Token</button>
+            <button class="tab-btn" onclick="showTab('json')">JSON</button>
+            <button class="tab-btn" onclick="showTab('color')">颜色</button>
+            <button class="tab-btn" onclick="showTab('record')">录屏录像</button>
+            <button class="tab-btn" onclick="showTab('regex')">正则测试</button>
+            <button class="tab-btn" onclick="showTab('image')">图片处理</button>
+            <button class="tab-btn" onclick="showTab('crypto')">加密解密</button>
+            <button class="tab-btn" onclick="showTab('clientinfo')">客户端信息</button>
+            <button class="tab-btn" onclick="showTab('serverinfo')">服务端信息</button>
         </div>
 
         <!-- JWT解析 -->
-        <div id="tab-jwt" class="tab-content">
-            <h2>JWT解析</h2>
-            <textarea id="jwtInput" rows="3" placeholder="请输入JWT字符串"></textarea>
-            <div>
-                <button onclick="WebTools.parseJWT()">解析</button>
-                <button onclick="document.getElementById('jwtInput').value='';WebTools.clearJWTResult();">清空</button>
-            </div>
-            <div>
-                <label>Header(头部)</label>
-                <div class="result" id="jwtHeader"></div>
-            </div>
-            <div>
-                <label>Payload(载荷)</label>
-                <div class="result" id="jwtPayload"></div>
+        <div id="tab-jwt" class="tab-content active">
+            <div class="tool-section">
+                <div class="section-title">JWT解析</div>
+                <textarea id="jwtInput" rows="3" placeholder="请输入JWT字符串..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.parseJWT()">解析</button>
+                    <button class="secondary"
+                        onclick="document.getElementById('jwtInput').value='';WebTools.clearJWTResult();">清空</button>
+                </div>
+                <label>Header (头部)</label>
+                <div class="result-box" id="jwtHeader"></div>
+                <label style="margin-top:12px;">Payload (载荷)</label>
+                <div class="result-box" id="jwtPayload"></div>
             </div>
         </div>
 
         <!-- UUID生成 -->
-        <div id="tab-uuid" class="tab-content" style="display:none;">
-            <h2>UUID生成</h2>
-            <div class="row">
-                <input type="number" id="uuidCount" min="1" max="100" value="3" style="max-width:80px;">
-                <button onclick="WebTools.generateUUIDs()">生成UUID</button>
-                <button onclick="WebTools.copyUUIDs()">复制全部</button>
+        <div id="tab-uuid" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">UUID生成</div>
+                <div class="row">
+                    <label style="flex:none;width:60px;">数量:</label>
+                    <input type="number" id="uuidCount" min="1" max="100" value="5">
+                    <button class="primary" onclick="WebTools.generateUUIDs()">生成</button>
+                    <button class="secondary" onclick="WebTools.copyUUIDs()">复制全部</button>
+                </div>
+                <textarea id="uuidResult" rows="6" readonly placeholder="生成的UUID将显示在这里..."></textarea>
             </div>
-            <textarea id="uuidResult" rows="3" readonly></textarea>
         </div>
 
         <!-- 时间戳转换 -->
-        <div id="tab-time" class="tab-content" style="display:none;">
-            <h2>时间戳转换</h2>
-            <div class="row">
-                <input type="text" id="timestampInput" placeholder="输入时间戳(支持秒/毫秒)">
-                <button onclick="WebTools.timestampToDate()">转为日期</button>
+        <div id="tab-time" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">时间戳转换</div>
+                <div class="row">
+                    <input type="text" id="timestampInput" placeholder="输入时间戳 (支持秒/毫秒)">
+                    <button class="primary" onclick="WebTools.timestampToDate()">转为日期</button>
+                </div>
+                <div class="row">
+                    <input type="text" id="dateInput" placeholder="输入日期 (如 2025-07-10 10:23:33)">
+                    <button class="primary" onclick="WebTools.dateToTimestamp()">转为时间戳</button>
+                </div>
+                <div class="btn-group">
+                    <button class="secondary" onclick="WebTools.showNow()">获取当前时间</button>
+                </div>
+                <div class="result-box" id="timeResult"></div>
             </div>
-            <div class="row">
-                <input type="text" id="dateInput" placeholder="输入日期(如2025-07-10 10:23:33)">
-                <button onclick="WebTools.dateToTimestamp()">转为时间戳</button>
-            </div>
-            <div>
-                <button onclick="WebTools.showNow()">当前时间/时间戳</button>
-            </div>
-            <div class="result" id="timeResult"></div>
         </div>
 
         <!-- Base64 编码解码 -->
-        <div id="tab-base64" class="tab-content" style="display:none;">
-            <h2>Base64 编码/解码</h2>
-            <div>
-                <label>原始文本:</label>
+        <div id="tab-base64" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">Base64 编码/解码</div>
+                <label>原始文本</label>
                 <textarea id="base64Input" rows="3" placeholder="请输入要编码或解码的文本..."></textarea>
-                <div>
-                    <button onclick="WebTools.encodeBase64()">编码</button>
-                    <button onclick="WebTools.decodeBase64()">解码</button>
-                    <button onclick="WebTools.copyBase64Result()">复制结果</button>
-                    <button onclick="WebTools.clearBase64()">清空</button>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.encodeBase64()">编码</button>
+                    <button class="primary" onclick="WebTools.decodeBase64()">解码</button>
+                    <button class="secondary" onclick="WebTools.copyBase64Result()">复制结果</button>
+                    <button class="danger" onclick="WebTools.clearBase64()">清空</button>
                 </div>
-                <label>编码/解码结果:</label>
-                <textarea id="base64Result" rows="3" readonly></textarea>
+                <label>结果</label>
+                <textarea id="base64Result" rows="3" readonly placeholder="结果将显示在这里..."></textarea>
             </div>
-            <div style="margin-top:16px;">
-                <label>文件转Base64:</label>
+            <div class="tool-section">
+                <div class="section-title">文件转Base64</div>
                 <input type="file" id="fileInput" onchange="WebTools.fileToBase64(event)">
-                <div id="fileBase64Area" style="margin-top:8px;"></div>
+                <div id="fileBase64Area" style="margin-top:12px;"></div>
             </div>
-            <div style="margin-top:16px;">
-                <label>Base64转文件:</label>
-                <input type="text" id="fileNameInput" placeholder="还原文件名，如 test.pdf" style="max-width:200px;">
-                <button onclick="WebTools.base64ToFile()">解码为文件并下载</button>
+            <div class="tool-section">
+                <div class="section-title">Base64转文件</div>
+                <div class="row">
+                    <input type="text" id="fileNameInput" placeholder="文件名 (如 test.pdf)">
+                    <button class="primary" onclick="WebTools.base64ToFile()">解码并下载</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL编码解码 -->
+        <div id="tab-url" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">URL 编码/解码</div>
+                <label>原始文本</label>
+                <textarea id="urlInput" rows="3" placeholder="请输入要编码或解码的URL..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.encodeURL()">编码</button>
+                    <button class="primary" onclick="WebTools.decodeURL()">解码</button>
+                    <button class="secondary" onclick="WebTools.copyURLResult()">复制结果</button>
+                    <button class="danger" onclick="WebTools.clearURL()">清空</button>
+                </div>
+                <label>结果</label>
+                <textarea id="urlResult" rows="3" readonly placeholder="结果将显示在这里..."></textarea>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">URL参数解析</div>
+                <label>URL</label>
+                <textarea id="urlParseInput" rows="2" placeholder="输入完整URL，解析查询参数..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.parseURLParams()">解析参数</button>
+                </div>
+                <div class="result-box" id="urlParseResult"></div>
             </div>
         </div>
 
         <!-- Token生成器 -->
-        <div id="tab-token" class="tab-content" style="display:none;">
-            <h2>Token 生成器</h2>
-            <div style="color:#666;margin-bottom:12px;">使用您想要的字符，大写或小写字母、数字和/或符号生成随机字符串。</div>
-            <div class="row" style="margin-bottom:8px;">
-                <input type="checkbox" id="tokenUpper" checked style="width:32px;height:20px;"
-                    onchange="WebTools.refreshToken()">
-                <label style="flex:unset;width:180px;">大写 (ABC...)</label>
-
-                <input type="checkbox" id="tokenNumber" checked style="width:32px;height:20px;"
-                    onchange="WebTools.refreshToken()">
-                <label style="flex:unset;width:180px;">数字 (123...)</label>
-
-                <input type="checkbox" id="tokenLower" checked style="width:32px;height:20px;"
-                    onchange="WebTools.refreshToken()">
-                <label style="flex:unset;width:180px;">小写 (abc...)</label>
-
-                <input type="checkbox" id="tokenSymbol" style="width:32px;height:20px;"
-                    onchange="WebTools.refreshToken()">
-                <label style="flex:unset;width:180px;">符号 (!...)</label>
+        <div id="tab-token" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">Token生成器</div>
+                <div class="hint">生成随机字符串，可选择字符类型</div>
+                <div class="checkbox-row">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tokenUpper" checked onchange="WebTools.refreshToken()">
+                        <label for="tokenUpper">大写 (ABC)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tokenLower" checked onchange="WebTools.refreshToken()">
+                        <label for="tokenLower">小写 (abc)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tokenNumber" checked onchange="WebTools.refreshToken()">
+                        <label for="tokenNumber">数字 (123)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="tokenSymbol" onchange="WebTools.refreshToken()">
+                        <label for="tokenSymbol">符号 (!@#)</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:50px;">长度:</label>
+                    <input type="range" id="tokenLength" min="1" max="128" value="32"
+                        oninput="WebTools.onTokenLengthChange(this)">
+                    <input type="number" id="tokenLengthInput" min="1" max="2048" value="32"
+                        oninput="WebTools.onTokenLengthInputChange(this)">
+                </div>
+                <textarea id="tokenResult" rows="6" readonly placeholder="生成的Token将显示在这里..."></textarea>
+                <div class="btn-group">
+                    <button class="secondary" onclick="WebTools.copyToken()">复制</button>
+                    <button class="primary" onclick="WebTools.refreshToken()">刷新</button>
+                </div>
             </div>
+        </div>
 
-            <div class="row" style="margin-bottom:8px;align-items:center;">
-                <label style="flex:unset;width:60px;">长度</label>
-                <input type="range" id="tokenLength" min="1" max="2048" value="32" style="flex:2;"
-                    oninput="WebTools.onTokenLengthChange(this)">
-                <input type="number" id="tokenLengthInput" min="1" max="2048" value="32"
-                    style="width:70px;margin-left:8px;" oninput="WebTools.onTokenLengthInputChange(this)">
-                <span id="tokenLengthVal"
-                    style="flex:unset;width:40px;text-align:right;margin-left:8px;display:none;">32</span>
+        <!-- JSON格式化 -->
+        <div id="tab-json" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">JSON格式化</div>
+                <label>输入JSON</label>
+                <textarea id="jsonInput" rows="6" placeholder="请输入JSON字符串..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.formatJSON()">格式化</button>
+                    <button class="secondary" onclick="WebTools.compressJSON()">压缩</button>
+                    <button class="secondary" onclick="WebTools.copyJSONResult()">复制</button>
+                    <button class="danger" onclick="WebTools.clearJSON()">清空</button>
+                </div>
+                <label>结果</label>
+                <div class="result-box" id="jsonResult"></div>
             </div>
-            <textarea id="tokenResult" rows="10" readonly style="margin-bottom:8px;"></textarea>
-            <div>
-                <button onclick="WebTools.copyToken()">复制</button>
-                <button onclick="WebTools.refreshToken()">刷新</button>
+            <div class="tool-section">
+                <div class="section-title">JSON转义/反转义</div>
+                <label>输入</label>
+                <textarea id="jsonEscapeInput" rows="3" placeholder="输入需要转义或反转义的JSON字符串..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="WebTools.escapeJSON()">转义</button>
+                    <button class="primary" onclick="WebTools.unescapeJSON()">反转义</button>
+                </div>
+                <label>结果</label>
+                <textarea id="jsonEscapeResult" rows="3" readonly placeholder="结果将显示在这里..."></textarea>
+            </div>
+        </div>
+
+        <!-- 颜色转换器 -->
+        <div id="tab-color" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">颜色转换器</div>
+                <div class="row">
+                    <div class="color-preview" id="colorPreview" style="background:#667eea;"></div>
+                    <input type="color" id="colorPicker" value="#667eea"
+                        onchange="WebTools.colorPickerChange(this.value)">
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:60px;">HEX:</label>
+                    <input type="text" id="colorHex" placeholder="#667eea"
+                        oninput="WebTools.colorHexChange(this.value)">
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:60px;">RGB:</label>
+                    <input type="text" id="colorRgb" placeholder="rgb(102, 126, 234)"
+                        oninput="WebTools.colorRgbChange(this.value)">
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:60px;">HSL:</label>
+                    <input type="text" id="colorHsl" placeholder="hsl(229, 76%, 66%)"
+                        oninput="WebTools.colorHslChange(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <!-- 录屏录像 -->
+        <div id="tab-record" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">屏幕录制</div>
+                <div class="hint">选择要录制的内容：整个屏幕、应用窗口或浏览器标签页。<strong>注意：请在弹窗中勾选"共享音频"以录制系统声音。</strong></div>
+                <div class="btn-group">
+                    <button class="primary" id="screenRecordBtn"
+                        onclick="ScreenRecorder.startScreenRecord()">开始录屏</button>
+                    <button class="danger" id="screenStopBtn" onclick="ScreenRecorder.stopScreenRecord()"
+                        style="display:none;">停止录制</button>
+                </div>
+                <div class="record-status" id="screenRecordStatus"></div>
+                <video id="screenPreview" class="video-preview" controls style="display:none;"></video>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">摄像头录像</div>
+                <div class="hint">使用电脑摄像头进行录像，支持选择不同摄像头设备。<strong>首次使用需要授权摄像头和麦克风权限。</strong></div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">摄像头:</label>
+                    <select id="cameraSelect"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="">请先获取设备列表</option>
+                    </select>
+                    <button class="secondary" onclick="ScreenRecorder.getCameras()">获取设备</button>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" id="cameraRecordBtn"
+                        onclick="ScreenRecorder.startCameraRecord()">开始录像</button>
+                    <button class="danger" id="cameraStopBtn" onclick="ScreenRecorder.stopCameraRecord()"
+                        style="display:none;">停止录制</button>
+                </div>
+                <div class="record-status" id="cameraRecordStatus"></div>
+                <video id="cameraPreview" class="video-preview" autoplay muted playsinline
+                    style="display:none;"></video>
+                <video id="cameraPlayback" class="video-preview" controls style="display:none;"></video>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">录制列表</div>
+                <div class="hint">已录制的视频，点击播放或下载</div>
+                <div id="recordList" class="record-list"></div>
+            </div>
+        </div>
+
+        <!-- 正则表达式测试器 -->
+        <div id="tab-regex" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">正则表达式测试器</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">正则表达式:</label>
+                    <input type="text" id="regexPattern" placeholder="输入正则表达式，如: \d+、[a-z]+、^test"
+                        oninput="RegexTester.test()">
+                </div>
+                <div class="checkbox-row">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexGlobal" checked onchange="RegexTester.test()">
+                        <label for="regexGlobal">全局匹配 (g)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexIgnoreCase" onchange="RegexTester.test()">
+                        <label for="regexIgnoreCase">忽略大小写 (i)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexMultiline" onchange="RegexTester.test()">
+                        <label for="regexMultiline">多行模式 (m)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexDotAll" onchange="RegexTester.test()">
+                        <label for="regexDotAll">dotAll (s)</label>
+                    </div>
+                </div>
+                <label>测试文本</label>
+                <textarea id="regexInput" rows="6" placeholder="输入要测试的文本..." oninput="RegexTester.test()"></textarea>
+                <div class="btn-group">
+                    <button class="secondary" onclick="RegexTester.clear()">清空</button>
+                    <button class="secondary" onclick="RegexTester.copyMatches()">复制匹配结果</button>
+                </div>
+                <label>匹配结果</label>
+                <div class="result-box" id="regexResult"></div>
+                <label style="margin-top:12px;">捕获组</label>
+                <div class="result-box" id="regexGroups"></div>
+            </div>
+        </div>
+
+        <!-- 图片处理 -->
+        <div id="tab-image" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">图片压缩</div>
+                <input type="file" id="imageCompressInput" accept="image/*"
+                    onchange="ImageTools.loadImage(event, 'compress')">
+                <div class="row" style="margin-top:12px;">
+                    <label style="flex:none;width:80px;">质量:</label>
+                    <input type="range" id="imageQuality" min="0.1" max="1" step="0.1" value="0.7"
+                        oninput="ImageTools.updateQualityLabel()">
+                    <span id="qualityLabel" style="flex:none;width:50px;text-align:center;">70%</span>
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">输出格式:</label>
+                    <select id="imageFormat"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WebP</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ImageTools.compress()">压缩图片</button>
+                    <button class="secondary" onclick="ImageTools.download('compress')">下载结果</button>
+                </div>
+                <div id="imageCompressPreview" style="margin-top:12px;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">图片尺寸调整</div>
+                <input type="file" id="imageResizeInput" accept="image/*"
+                    onchange="ImageTools.loadImage(event, 'resize')">
+                <div class="row" style="margin-top:12px;">
+                    <label style="flex:none;width:60px;">宽度:</label>
+                    <input type="number" id="imageWidth" min="1" max="10000" placeholder="宽度">
+                    <label style="flex:none;width:60px;">高度:</label>
+                    <input type="number" id="imageHeight" min="1" max="10000" placeholder="高度">
+                </div>
+                <div class="checkbox-row">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="keepRatio" checked>
+                        <label for="keepRatio">保持宽高比</label>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ImageTools.resize()">调整尺寸</button>
+                    <button class="secondary" onclick="ImageTools.download('resize')">下载结果</button>
+                </div>
+                <div id="imageResizePreview" style="margin-top:12px;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">图片裁剪</div>
+                <input type="file" id="imageCropInput" accept="image/*" onchange="ImageTools.loadImage(event, 'crop')">
+                <div class="row" style="margin-top:12px;">
+                    <label style="flex:none;width:60px;">X:</label>
+                    <input type="number" id="cropX" min="0" placeholder="起始X">
+                    <label style="flex:none;width:60px;">Y:</label>
+                    <input type="number" id="cropY" min="0" placeholder="起始Y">
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:60px;">宽度:</label>
+                    <input type="number" id="cropWidth" min="1" placeholder="裁剪宽度">
+                    <label style="flex:none;width:60px;">高度:</label>
+                    <input type="number" id="cropHeight" min="1" placeholder="裁剪高度">
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ImageTools.crop()">裁剪图片</button>
+                    <button class="secondary" onclick="ImageTools.download('crop')">下载结果</button>
+                </div>
+                <div id="imageCropPreview" style="margin-top:12px;"></div>
+            </div>
+        </div>
+
+        <!-- 加密解密 -->
+        <div id="tab-crypto" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">Hash 计算</div>
+                <div class="hint">支持文本和文件的哈希计算</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">输入类型:</label>
+                    <select id="hashType"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;"
+                        onchange="CryptoTools.toggleHashInput()">
+                        <option value="text">文本</option>
+                        <option value="file">文件</option>
+                    </select>
+                </div>
+                <div id="hashTextInput">
+                    <label>输入文本</label>
+                    <textarea id="hashInput" rows="3" placeholder="请输入要计算Hash的文本..."></textarea>
+                </div>
+                <div id="hashFileInput" style="display:none;">
+                    <label>选择文件</label>
+                    <input type="file" id="hashFile" onchange="CryptoTools.selectHashFile(event)">
+                    <div class="hint" id="hashFileName"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.calculateHash('SHA-256')">SHA-256</button>
+                    <button class="primary" onclick="CryptoTools.calculateHash('SHA-1')">SHA-1</button>
+                    <button class="primary" onclick="CryptoTools.calculateHash('SHA-384')">SHA-384</button>
+                    <button class="primary" onclick="CryptoTools.calculateHash('SHA-512')">SHA-512</button>
+                </div>
+                <label>结果</label>
+                <div class="result-box" id="hashResult"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">对称加密/解密</div>
+                <div class="hint">使用密码进行对称加密，支持文本和文件</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">算法:</label>
+                    <select id="aesAlgorithm"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="AES-GCM">AES-GCM (推荐)</option>
+                        <option value="AES-CBC">AES-CBC</option>
+                        <option value="AES-CTR">AES-CTR</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">密钥长度:</label>
+                    <select id="aesKeyLength"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="128">128 位</option>
+                        <option value="192">192 位</option>
+                        <option value="256" selected>256 位</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">输入类型:</label>
+                    <select id="aesInputType"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;"
+                        onchange="CryptoTools.toggleAesInput()">
+                        <option value="text">文本</option>
+                        <option value="file">文件</option>
+                    </select>
+                </div>
+                <label>密码</label>
+                <input type="text" id="aesPassword" placeholder="输入加密/解密密码">
+                <div id="aesTextInput">
+                    <label style="margin-top:12px;">输入文本</label>
+                    <textarea id="aesInput" rows="4" placeholder="输入要加密或解密的文本..."></textarea>
+                </div>
+                <div id="aesFileInput" style="display:none;">
+                    <label style="margin-top:12px;">选择文件</label>
+                    <input type="file" id="aesFile" onchange="CryptoTools.selectAesFile(event)">
+                    <div class="hint" id="aesFileName"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.aesEncrypt()">加密</button>
+                    <button class="primary" onclick="CryptoTools.aesDecrypt()">解密</button>
+                    <button class="secondary" onclick="CryptoTools.downloadAesResult()">下载结果</button>
+                    <button class="secondary" onclick="CryptoTools.copyAesResult()">复制结果</button>
+                </div>
+                <label>结果</label>
+                <textarea id="aesResult" rows="4" readonly placeholder="结果将显示在这里..."></textarea>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">RSA 密钥生成</div>
+                <div class="hint">生成 RSA 公私钥对，用于非对称加密</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">密钥长度:</label>
+                    <select id="rsaKeySize"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="2048">2048 位</option>
+                        <option value="4096">4096 位</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.generateRSAKeys()">生成密钥对</button>
+                </div>
+                <label>公钥 (PEM格式)</label>
+                <textarea id="rsaPublicKey" rows="4" readonly placeholder="公钥将显示在这里..."></textarea>
+                <label style="margin-top:12px;">私钥 (PEM格式)</label>
+                <textarea id="rsaPrivateKey" rows="6" readonly placeholder="私钥将显示在这里..."></textarea>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">HMAC 消息认证码</div>
+                <div class="hint">使用密钥生成消息认证码，验证消息完整性和真实性</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">哈希算法:</label>
+                    <select id="hmacAlgorithm"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="SHA-256">SHA-256</option>
+                        <option value="SHA-384">SHA-384</option>
+                        <option value="SHA-512">SHA-512</option>
+                    </select>
+                </div>
+                <label>密钥</label>
+                <input type="text" id="hmacKey" placeholder="输入HMAC密钥">
+                <label style="margin-top:12px;">消息</label>
+                <textarea id="hmacMessage" rows="3" placeholder="输入要认证的消息..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.generateHMAC()">生成HMAC</button>
+                    <button class="secondary" onclick="CryptoTools.verifyHMAC()">验证HMAC</button>
+                </div>
+                <label>HMAC值</label>
+                <input type="text" id="hmacResult" readonly placeholder="HMAC值将显示在这里...">
+            </div>
+            <div class="tool-section">
+                <div class="section-title">RSA-OAEP 加密/解密</div>
+                <div class="hint">使用RSA公钥加密、私钥解密（需要先生成密钥对），支持文本和小文件</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">输入类型:</label>
+                    <select id="rsaInputType"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;"
+                        onchange="CryptoTools.toggleRsaInput()">
+                        <option value="text">文本</option>
+                        <option value="file">文件</option>
+                    </select>
+                </div>
+                <div id="rsaTextInput">
+                    <label>输入文本</label>
+                    <textarea id="rsaInput" rows="3" placeholder="输入要加密或解密的文本..."></textarea>
+                </div>
+                <div id="rsaFileInput" style="display:none;">
+                    <label>选择文件</label>
+                    <input type="file" id="rsaFile" onchange="CryptoTools.selectRsaFile(event)">
+                    <div class="hint" id="rsaFileName"></div>
+                </div>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.rsaEncrypt()">公钥加密</button>
+                    <button class="primary" onclick="CryptoTools.rsaDecrypt()">私钥解密</button>
+                    <button class="secondary" onclick="CryptoTools.downloadRsaResult()">下载结果</button>
+                    <button class="secondary" onclick="CryptoTools.copyRsaResult()">复制结果</button>
+                </div>
+                <label>结果</label>
+                <textarea id="rsaResult" rows="3" readonly placeholder="结果将显示在这里..."></textarea>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">数字签名</div>
+                <div class="hint">使用私钥签名、公钥验证消息真实性</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">签名算法:</label>
+                    <select id="signAlgorithm"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="RSA-PSS">RSA-PSS</option>
+                        <option value="RSASSA-PKCS1-v1_5">RSASSA-PKCS1-v1_5</option>
+                        <option value="ECDSA">ECDSA</option>
+                        <option value="Ed25519">Ed25519</option>
+                    </select>
+                </div>
+                <div class="btn-group" style="margin-bottom:12px;">
+                    <button class="primary" onclick="CryptoTools.generateSignKeys()">生成密钥对</button>
+                </div>
+                <label>私钥 (PEM格式)</label>
+                <textarea id="signPrivateKey" rows="3" readonly placeholder="私钥将显示在这里..."></textarea>
+                <label style="margin-top:12px;">公钥 (PEM格式)</label>
+                <textarea id="signPublicKey" rows="3" readonly placeholder="公钥将显示在这里..."></textarea>
+                <label style="margin-top:12px;">待签名消息</label>
+                <textarea id="signMessage" rows="2" placeholder="输入要签名的消息..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.signMessage()">签名</button>
+                    <button class="primary" onclick="CryptoTools.verifySignature()">验证</button>
+                </div>
+                <label>签名值</label>
+                <input type="text" id="signatureValue" placeholder="签名值或待验证的签名...">
+            </div>
+            <div class="tool-section">
+                <div class="section-title">密钥交换 (ECDH/X25519)</div>
+                <div class="hint">双方交换公钥，协商出共享密钥用于后续加密通信</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">算法:</label>
+                    <select id="kexAlgorithm"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="ECDH-P256">ECDH P-256</option>
+                        <option value="ECDH-P384">ECDH P-384</option>
+                        <option value="ECDH-P521">ECDH P-521</option>
+                        <option value="X25519">X25519</option>
+                    </select>
+                </div>
+                <div class="btn-group" style="margin-bottom:12px;">
+                    <button class="primary" onclick="CryptoTools.generateKexKeyPair('A')">生成甲方密钥对</button>
+                    <button class="primary" onclick="CryptoTools.generateKexKeyPair('B')">生成乙方密钥对</button>
+                </div>
+                <label>甲方私钥</label>
+                <textarea id="kexPrivateA" rows="2" readonly placeholder="甲方私钥..."></textarea>
+                <label style="margin-top:8px;">甲方公钥</label>
+                <textarea id="kexPublicA" rows="2" readonly placeholder="甲方公钥..."></textarea>
+                <label style="margin-top:8px;">乙方私钥</label>
+                <textarea id="kexPrivateB" rows="2" readonly placeholder="乙方私钥..."></textarea>
+                <label style="margin-top:8px;">乙方公钥</label>
+                <textarea id="kexPublicB" rows="2" readonly placeholder="乙方公钥..."></textarea>
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.deriveSharedKey('A')">甲方计算共享密钥</button>
+                    <button class="primary" onclick="CryptoTools.deriveSharedKey('B')">乙方计算共享密钥</button>
+                </div>
+                <label>甲方共享密钥</label>
+                <input type="text" id="sharedKeyA" readonly placeholder="甲方计算的共享密钥...">
+                <label style="margin-top:8px;">乙方共享密钥</label>
+                <input type="text" id="sharedKeyB" readonly placeholder="乙方计算的共享密钥...">
+            </div>
+            <div class="tool-section">
+                <div class="section-title">密钥派生 (PBKDF2/HKDF)</div>
+                <div class="hint">从密码或密钥材料派生出加密密钥</div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">算法:</label>
+                    <select id="kdfAlgorithm"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="PBKDF2">PBKDF2</option>
+                        <option value="HKDF">HKDF</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <label style="flex:none;width:80px;">派生长度:</label>
+                    <select id="kdfLength"
+                        style="flex:1;padding:10px;border:2px solid #e9ecef;border-radius:10px;font-size:14px;">
+                        <option value="128">128 位 (16字节)</option>
+                        <option value="256" selected>256 位 (32字节)</option>
+                        <option value="512">512 位 (64字节)</option>
+                    </select>
+                </div>
+                <label>输入密钥材料</label>
+                <input type="text" id="kdfInput" placeholder="密码或密钥材料">
+                <label style="margin-top:12px;">盐值 (可选，留空自动生成)</label>
+                <input type="text" id="kdfSalt" placeholder="盐值">
+                <div class="btn-group">
+                    <button class="primary" onclick="CryptoTools.deriveKeyMaterial()">派生密钥</button>
+                </div>
+                <label>派生结果</label>
+                <div class="result-box" id="kdfResult"></div>
+            </div>
+        </div>
+
+        <!-- 客户端信息 -->
+        <div id="tab-clientinfo" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">浏览器信息</div>
+                <div class="result-box" id="browserInfo" style="max-height:none;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">屏幕信息</div>
+                <div class="result-box" id="screenInfo" style="max-height:none;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">网络状态</div>
+                <div class="result-box" id="networkInfo" style="max-height:none;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">媒体设备</div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ClientInfo.getMediaDevices()">获取媒体设备</button>
+                </div>
+                <div class="result-box" id="mediaDevices" style="max-height:none;"></div>
+            </div>
+            <div class="tool-section">
+                <div class="section-title">电池状态</div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ClientInfo.getBattery()">获取电池状态</button>
+                </div>
+                <div class="result-box" id="batteryInfo" style="max-height:none;"></div>
+            </div>
+        </div>
+
+        <!-- 服务端信息 -->
+        <div id="tab-serverinfo" class="tab-content">
+            <div class="tool-section">
+                <div class="section-title">服务端系统信息</div>
+                <div class="hint">从服务端获取的系统、运行时、网络、进程等信息</div>
+                <div class="btn-group">
+                    <button class="primary" onclick="ServerInfo.fetch()">刷新信息</button>
+                </div>
+                <div id="serverInfoContent"></div>
             </div>
         </div>
     </div>
 
     <script>
         class WebTools {
-            // ================= JWT解析相关 =================
-            /**
-             * 解析JWT字符串，分离header和payload并显示
-             */
             static parseJWT() {
                 const input = document.getElementById('jwtInput').value.trim();
                 WebTools.clearJWTResult();
                 if (!input) return;
                 const parts = input.split('.');
                 if (parts.length < 2) {
-                    document.getElementById('jwtHeader').textContent = '格式错误';
+                    document.getElementById('jwtHeader').textContent = '格式错误: JWT应包含至少两部分';
                     return;
                 }
                 try {
@@ -251,27 +1113,17 @@
                 }
             }
 
-            /**
-             * base64url转base64并解码
-             */
             static decodeBase64Url(str) {
                 str = str.replace(/-/g, '+').replace(/_/g, '/');
                 while (str.length % 4) str += '=';
                 return decodeURIComponent(escape(window.atob(str)));
             }
 
-            /**
-             * 清空JWT解析结果显示
-             */
             static clearJWTResult() {
                 document.getElementById('jwtHeader').textContent = '';
                 document.getElementById('jwtPayload').textContent = '';
             }
 
-            // ================= UUID生成相关 =================
-            /**
-             * 生成指定数量的UUID并显示
-             */
             static generateUUIDs() {
                 const count = Math.max(1, Math.min(100, parseInt(document.getElementById('uuidCount').value) || 1));
                 const uuids = [];
@@ -281,26 +1133,19 @@
                 document.getElementById('uuidResult').value = uuids.join('\n');
             }
 
-            /**
-             * 复制UUID结果到剪贴板
-             */
             static copyUUIDs() {
                 const text = document.getElementById('uuidResult').value;
-                if (text) navigator.clipboard.writeText(text);
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
             }
 
-            // ================= 时间戳转换相关 =================
-            /**
-             * 格式化Date对象为 yyyy-MM-dd HH:mm:ss 字符串
-             */
             static formatDate(date) {
                 const pad = n => n.toString().padStart(2, '0');
                 return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
             }
 
-            /**
-             * 将时间戳转为日期字符串并显示
-             */
             static timestampToDate() {
                 const input = document.getElementById('timestampInput').value.trim();
                 if (!input) return;
@@ -316,12 +1161,9 @@
                     return;
                 }
                 document.getElementById('timeResult').textContent =
-                    `北京时间:${WebTools.formatDate(date)}\nISO格式:${date.toISOString()}`;
+                    `北京时间: ${WebTools.formatDate(date)}\nISO格式: ${date.toISOString()}\n本地时间: ${date.toLocaleString()}`;
             }
 
-            /**
-             * 将日期字符串转为时间戳并显示
-             */
             static dateToTimestamp() {
                 const input = document.getElementById('dateInput').value.trim();
                 if (!input) return;
@@ -331,23 +1173,15 @@
                     return;
                 }
                 document.getElementById('timeResult').textContent =
-                    `时间戳(毫秒):${date.getTime()}\n时间戳(秒):${Math.floor(date.getTime() / 1000)}`;
+                    `时间戳(毫秒): ${date.getTime()}\n时间戳(秒): ${Math.floor(date.getTime() / 1000)}`;
             }
 
-            /**
-             * 显示当前时间和时间戳
-             */
             static showNow() {
                 const now = new Date();
                 document.getElementById('timeResult').textContent =
-                    `当前北京时间:${WebTools.formatDate(now)}\n` +
-                    `当前时间戳(毫秒):${now.getTime()}\n当前时间戳(秒):${Math.floor(now.getTime() / 1000)}`;
+                    `当前北京时间: ${WebTools.formatDate(now)}\n当前时间戳(毫秒): ${now.getTime()}\n当前时间戳(秒): ${Math.floor(now.getTime() / 1000)}\nISO格式: ${now.toISOString()}`;
             }
 
-            // ================= Base64相关 =================
-            /**
-             * 对输入内容进行Base64编码
-             */
             static encodeBase64() {
                 const input = document.getElementById('base64Input').value;
                 try {
@@ -358,9 +1192,6 @@
                 }
             }
 
-            /**
-             * 对输入内容进行Base64解码
-             */
             static decodeBase64() {
                 const input = document.getElementById('base64Input').value;
                 try {
@@ -371,25 +1202,19 @@
                 }
             }
 
-            /**
-             * 复制Base64结果到剪贴板
-             */
             static copyBase64Result() {
                 const text = document.getElementById('base64Result').value;
-                if (text) navigator.clipboard.writeText(text);
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
             }
 
-            /**
-             * 清空Base64输入和结果
-             */
             static clearBase64() {
                 document.getElementById('base64Input').value = '';
                 document.getElementById('base64Result').value = '';
             }
 
-            /**
-             * 文件转Base64字符串并显示
-             */
             static fileToBase64(event) {
                 const file = event.target.files[0];
                 const area = document.getElementById('fileBase64Area');
@@ -398,19 +1223,16 @@
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const base64 = e.target.result;
-                    area.innerHTML = `<div>文件名:${file.name}</div><textarea rows=\"3\" style=\"width:100%;\">${base64}</textarea>`;
+                    area.innerHTML = `<div class="hint">文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(2)} KB</div><textarea rows="3" style="width:100%;font-size:12px;">${base64}</textarea>`;
                 };
                 reader.readAsDataURL(file);
             }
 
-            /**
-             * Base64字符串转文件并下载
-             */
             static base64ToFile() {
                 let base64 = document.getElementById('base64Input').value.trim();
                 const fileName = document.getElementById('fileNameInput').value.trim() || 'download.bin';
                 if (!base64) {
-                    alert('请输入Base64字符串');
+                    WebTools.showToast('请输入Base64字符串');
                     return;
                 }
                 let arr = base64.match(/^data:(.*?);base64,(.*)$/);
@@ -422,7 +1244,7 @@
                 try {
                     bstr = atob(base64);
                 } catch (e) {
-                    alert('Base64格式错误');
+                    WebTools.showToast('Base64格式错误');
                     return;
                 }
                 let u8arr = new Uint8Array(bstr.length);
@@ -437,10 +1259,56 @@
                 URL.revokeObjectURL(a.href);
             }
 
-            // ================= Token生成器相关 =================
-            /**
-             * 获取Token生成器的字符集
-             */
+            static encodeURL() {
+                const input = document.getElementById('urlInput').value;
+                try {
+                    document.getElementById('urlResult').value = encodeURIComponent(input);
+                } catch (e) {
+                    document.getElementById('urlResult').value = '编码失败: ' + e.message;
+                }
+            }
+
+            static decodeURL() {
+                const input = document.getElementById('urlInput').value;
+                try {
+                    document.getElementById('urlResult').value = decodeURIComponent(input);
+                } catch (e) {
+                    document.getElementById('urlResult').value = '解码失败: ' + e.message;
+                }
+            }
+
+            static copyURLResult() {
+                const text = document.getElementById('urlResult').value;
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
+            }
+
+            static clearURL() {
+                document.getElementById('urlInput').value = '';
+                document.getElementById('urlResult').value = '';
+            }
+
+            static parseURLParams() {
+                const input = document.getElementById('urlParseInput').value.trim();
+                if (!input) {
+                    document.getElementById('urlParseResult').textContent = '请输入URL';
+                    return;
+                }
+                try {
+                    const url = new URL(input);
+                    const params = new URLSearchParams(url.search);
+                    let result = `协议: ${url.protocol}\n主机: ${url.host}\n路径: ${url.pathname}\n\n查询参数:\n`;
+                    params.forEach((value, key) => {
+                        result += `  ${key}: ${value}\n`;
+                    });
+                    document.getElementById('urlParseResult').textContent = result;
+                } catch (e) {
+                    document.getElementById('urlParseResult').textContent = 'URL解析失败: ' + e.message;
+                }
+            }
+
             static getTokenCharset() {
                 let charset = '';
                 if (document.getElementById('tokenUpper').checked) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -450,9 +1318,6 @@
                 return charset;
             }
 
-            /**
-             * 刷新生成新的Token字符串
-             */
             static refreshToken() {
                 const len = parseInt(document.getElementById('tokenLength').value);
                 const charset = WebTools.getTokenCharset();
@@ -469,43 +1334,1529 @@
                 document.getElementById('tokenResult').value = result;
             }
 
-            /**
-             * 复制Token结果到剪贴板
-             */
             static copyToken() {
                 const text = document.getElementById('tokenResult').value;
-                if (text) navigator.clipboard.writeText(text);
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
             }
 
-            /**
-             * 滑块变化时同步到输入框并刷新Token
-             */
             static onTokenLengthChange(el) {
                 document.getElementById('tokenLengthInput').value = el.value;
                 WebTools.refreshToken();
             }
 
-            /**
-             * 输入框变化时同步到滑块并刷新Token
-             */
             static onTokenLengthInputChange(el) {
                 let v = el.value.replace(/[^\d]/g, '');
                 if (!v) v = 1;
                 v = Math.max(1, Math.min(2048, parseInt(v)));
                 el.value = v;
-                document.getElementById('tokenLength').value = v;
+                document.getElementById('tokenLength').value = Math.min(128, v);
                 WebTools.refreshToken();
+            }
+
+            static formatJSON() {
+                const input = document.getElementById('jsonInput').value.trim();
+                if (!input) return;
+                try {
+                    const obj = JSON.parse(input);
+                    document.getElementById('jsonResult').textContent = JSON.stringify(obj, null, 2);
+                } catch (e) {
+                    document.getElementById('jsonResult').textContent = 'JSON格式错误: ' + e.message;
+                }
+            }
+
+            static compressJSON() {
+                const input = document.getElementById('jsonInput').value.trim();
+                if (!input) return;
+                try {
+                    const obj = JSON.parse(input);
+                    document.getElementById('jsonResult').textContent = JSON.stringify(obj);
+                } catch (e) {
+                    document.getElementById('jsonResult').textContent = 'JSON格式错误: ' + e.message;
+                }
+            }
+
+            static copyJSONResult() {
+                const text = document.getElementById('jsonResult').textContent;
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
+            }
+
+            static clearJSON() {
+                document.getElementById('jsonInput').value = '';
+                document.getElementById('jsonResult').textContent = '';
+            }
+
+            static escapeJSON() {
+                const input = document.getElementById('jsonEscapeInput').value;
+                try {
+                    document.getElementById('jsonEscapeResult').value = JSON.stringify(input);
+                } catch (e) {
+                    document.getElementById('jsonEscapeResult').value = '转义失败: ' + e.message;
+                }
+            }
+
+            static unescapeJSON() {
+                const input = document.getElementById('jsonEscapeInput').value;
+                try {
+                    document.getElementById('jsonEscapeResult').value = JSON.parse(input);
+                } catch (e) {
+                    document.getElementById('jsonEscapeResult').value = '反转义失败: ' + e.message;
+                }
+            }
+
+            static colorPickerChange(hex) {
+                document.getElementById('colorHex').value = hex;
+                WebTools.updateColorFromHex(hex);
+            }
+
+            static colorHexChange(hex) {
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    document.getElementById('colorPicker').value = hex;
+                    WebTools.updateColorFromHex(hex);
+                }
+            }
+
+            static colorRgbChange(rgb) {
+                const match = rgb.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/i);
+                if (match) {
+                    const r = parseInt(match[1]), g = parseInt(match[2]), b = parseInt(match[3]);
+                    const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('colorHex').value = hex;
+                    document.getElementById('colorPicker').value = hex;
+                    document.getElementById('colorPreview').style.background = hex;
+                    WebTools.updateHslFromRgb(r, g, b);
+                }
+            }
+
+            static colorHslChange(hsl) {
+                const match = hsl.match(/hsl\s*\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*\)/i);
+                if (match) {
+                    const h = parseInt(match[1]), s = parseInt(match[2]), l = parseInt(match[3]);
+                    const rgb = WebTools.hslToRgb(h, s, l);
+                    const hex = '#' + rgb.map(x => x.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('colorHex').value = hex;
+                    document.getElementById('colorPicker').value = hex;
+                    document.getElementById('colorRgb').value = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    document.getElementById('colorPreview').style.background = hex;
+                }
+            }
+
+            static updateColorFromHex(hex) {
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+                document.getElementById('colorRgb').value = `rgb(${r}, ${g}, ${b})`;
+                document.getElementById('colorPreview').style.background = hex;
+                WebTools.updateHslFromRgb(r, g, b);
+            }
+
+            static updateHslFromRgb(r, g, b) {
+                r /= 255; g /= 255; b /= 255;
+                const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                        case g: h = ((b - r) / d + 2) / 6; break;
+                        case b: h = ((r - g) / d + 4) / 6; break;
+                    }
+                }
+                document.getElementById('colorHsl').value = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+            }
+
+            static hslToRgb(h, s, l) {
+                h /= 360; s /= 100; l /= 100;
+                let r, g, b;
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1 / 6) return p + (q - p) * 6 * t;
+                        if (t < 1 / 2) return q;
+                        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                        return p;
+                    };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1 / 3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1 / 3);
+                }
+                return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+            }
+
+            static showToast(message) {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;opacity:0;transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.style.opacity = '1', 10);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
             }
         }
 
-        // 页面加载后直接刷新一次
         WebTools.refreshToken();
 
+        class ScreenRecorder {
+            static screenStream = null;
+            static cameraStream = null;
+            static screenMediaRecorder = null;
+            static cameraMediaRecorder = null;
+            static screenChunks = [];
+            static cameraChunks = [];
+            static screenStartTime = 0;
+            static cameraStartTime = 0;
+            static screenTimerInterval = null;
+            static cameraTimerInterval = null;
+            static records = [];
+
+            static async getCameras() {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const videoDevices = devices.filter(d => d.kind === 'videoinput');
+                    const select = document.getElementById('cameraSelect');
+                    select.innerHTML = '';
+                    videoDevices.forEach((device, index) => {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.textContent = device.label || `摄像头 ${index + 1}`;
+                        select.appendChild(option);
+                    });
+                    if (videoDevices.length === 0) {
+                        select.innerHTML = '<option value="">未检测到摄像头</option>';
+                    }
+                    WebTools.showToast(`检测到 ${videoDevices.length} 个摄像头设备`);
+                } catch (e) {
+                    WebTools.showToast('获取设备失败: ' + e.message);
+                }
+            }
+
+            static async startScreenRecord() {
+                try {
+                    this.screenStream = await navigator.mediaDevices.getDisplayMedia({
+                        video: { cursor: 'always' },
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        }
+                    });
+                    const audioTracks = this.screenStream.getAudioTracks();
+                    const videoTracks = this.screenStream.getVideoTracks();
+                    if (audioTracks.length === 0) {
+                        WebTools.showToast('未检测到音频，请在共享时勾选"共享音频"');
+                    } else {
+                        WebTools.showToast('已获取音频轨道');
+                    }
+                    this.screenChunks = [];
+                    this.screenStartTime = Date.now();
+                    const mimeType = this.getSupportedMimeType();
+                    this.screenMediaRecorder = new MediaRecorder(this.screenStream, { mimeType });
+                    this.screenMediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) this.screenChunks.push(e.data);
+                    };
+                    this.screenMediaRecorder.onstop = () => this.saveScreenRecord();
+                    this.screenMediaRecorder.start(1000);
+                    this.screenStream.getVideoTracks()[0].onended = () => this.stopScreenRecord();
+                    document.getElementById('screenRecordBtn').style.display = 'none';
+                    document.getElementById('screenStopBtn').style.display = 'inline-block';
+                    const status = document.getElementById('screenRecordStatus');
+                    status.className = 'record-status recording';
+                    const audioInfo = audioTracks.length > 0 ? '🎤 含音频' : '🔇 无音频';
+                    status.textContent = '🔴 正在录制... 00:00 ' + audioInfo;
+                    this.screenTimerInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - this.screenStartTime) / 1000);
+                        const min = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                        const sec = (elapsed % 60).toString().padStart(2, '0');
+                        status.textContent = `🔴 正在录制... ${min}:${sec} ${audioInfo}`;
+                    }, 1000);
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        WebTools.showToast('录屏失败: ' + e.message);
+                    }
+                }
+            }
+
+            static stopScreenRecord() {
+                if (this.screenMediaRecorder && this.screenMediaRecorder.state !== 'inactive') {
+                    this.screenMediaRecorder.stop();
+                }
+                if (this.screenStream) {
+                    this.screenStream.getTracks().forEach(track => track.stop());
+                    this.screenStream = null;
+                }
+                if (this.screenTimerInterval) {
+                    clearInterval(this.screenTimerInterval);
+                    this.screenTimerInterval = null;
+                }
+                document.getElementById('screenRecordBtn').style.display = 'inline-block';
+                document.getElementById('screenStopBtn').style.display = 'none';
+                const status = document.getElementById('screenRecordStatus');
+                status.className = 'record-status';
+                status.textContent = '录屏已停止';
+            }
+
+            static saveScreenRecord() {
+                const blob = new Blob(this.screenChunks, { type: this.getSupportedMimeType() });
+                const duration = Math.floor((Date.now() - this.screenStartTime) / 1000);
+                const record = {
+                    id: Date.now(),
+                    name: `录屏_${this.formatTime(new Date())}`,
+                    type: 'screen',
+                    blob: blob,
+                    size: blob.size,
+                    duration: duration,
+                    url: URL.createObjectURL(blob)
+                };
+                this.records.push(record);
+                this.renderRecordList();
+                const preview = document.getElementById('screenPreview');
+                preview.src = record.url;
+                preview.style.display = 'block';
+                WebTools.showToast('录屏已保存');
+            }
+
+            static async startCameraRecord() {
+                const deviceId = document.getElementById('cameraSelect').value;
+                try {
+                    const constraints = {
+                        video: deviceId ? { deviceId: { exact: deviceId } } : { width: 1280, height: 720 },
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        }
+                    };
+                    this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    const audioTracks = this.cameraStream.getAudioTracks();
+                    if (audioTracks.length === 0) {
+                        WebTools.showToast('未检测到麦克风');
+                    } else {
+                        WebTools.showToast('已获取麦克风');
+                    }
+                    this.cameraChunks = [];
+                    this.cameraStartTime = Date.now();
+                    const mimeType = this.getSupportedMimeType();
+                    this.cameraMediaRecorder = new MediaRecorder(this.cameraStream, { mimeType });
+                    this.cameraMediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) this.cameraChunks.push(e.data);
+                    };
+                    this.cameraMediaRecorder.onstop = () => this.saveCameraRecord();
+                    this.cameraMediaRecorder.start(1000);
+                    const preview = document.getElementById('cameraPreview');
+                    preview.srcObject = this.cameraStream;
+                    preview.style.display = 'block';
+                    document.getElementById('cameraPlayback').style.display = 'none';
+                    document.getElementById('cameraRecordBtn').style.display = 'none';
+                    document.getElementById('cameraStopBtn').style.display = 'inline-block';
+                    const status = document.getElementById('cameraRecordStatus');
+                    status.className = 'record-status recording';
+                    const audioInfo = audioTracks.length > 0 ? '🎤 含音频' : '🔇 无音频';
+                    status.textContent = '🔴 正在录像... 00:00 ' + audioInfo;
+                    this.cameraTimerInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - this.cameraStartTime) / 1000);
+                        const min = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                        const sec = (elapsed % 60).toString().padStart(2, '0');
+                        status.textContent = `🔴 正在录像... ${min}:${sec} ${audioInfo}`;
+                    }, 1000);
+                } catch (e) {
+                    WebTools.showToast('录像失败: ' + e.message);
+                }
+            }
+
+            static stopCameraRecord() {
+                if (this.cameraMediaRecorder && this.cameraMediaRecorder.state !== 'inactive') {
+                    this.cameraMediaRecorder.stop();
+                }
+                if (this.cameraStream) {
+                    this.cameraStream.getTracks().forEach(track => track.stop());
+                    this.cameraStream = null;
+                }
+                if (this.cameraTimerInterval) {
+                    clearInterval(this.cameraTimerInterval);
+                    this.cameraTimerInterval = null;
+                }
+                document.getElementById('cameraPreview').style.display = 'none';
+                document.getElementById('cameraRecordBtn').style.display = 'inline-block';
+                document.getElementById('cameraStopBtn').style.display = 'none';
+                const status = document.getElementById('cameraRecordStatus');
+                status.className = 'record-status';
+                status.textContent = '录像已停止';
+            }
+
+            static saveCameraRecord() {
+                const blob = new Blob(this.cameraChunks, { type: this.getSupportedMimeType() });
+                const duration = Math.floor((Date.now() - this.cameraStartTime) / 1000);
+                const record = {
+                    id: Date.now(),
+                    name: `录像_${this.formatTime(new Date())}`,
+                    type: 'camera',
+                    blob: blob,
+                    size: blob.size,
+                    duration: duration,
+                    url: URL.createObjectURL(blob)
+                };
+                this.records.push(record);
+                this.renderRecordList();
+                const playback = document.getElementById('cameraPlayback');
+                playback.src = record.url;
+                playback.style.display = 'block';
+                WebTools.showToast('录像已保存');
+            }
+
+            static getSupportedMimeType() {
+                const types = [
+                    'video/webm;codecs=vp9,opus',
+                    'video/webm;codecs=vp8,opus',
+                    'video/webm;codecs=h264,opus',
+                    'video/webm',
+                    'video/mp4'
+                ];
+                for (const type of types) {
+                    if (MediaRecorder.isTypeSupported(type)) return type;
+                }
+                return 'video/webm';
+            }
+
+            static formatTime(date) {
+                const pad = n => n.toString().padStart(2, '0');
+                return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}_${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
+            }
+
+            static formatDuration(seconds) {
+                const min = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const sec = (seconds % 60).toString().padStart(2, '0');
+                return `${min}:${sec}`;
+            }
+
+            static formatSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            }
+
+            static renderRecordList() {
+                const container = document.getElementById('recordList');
+                if (this.records.length === 0) {
+                    container.innerHTML = '<div class="hint" style="text-align:center;padding:20px;">暂无录制记录</div>';
+                    return;
+                }
+                container.innerHTML = this.records.map(r => {
+                    const icon = r.type === 'screen' ? '🖥️' : '📷';
+                    const typeLabel = r.type === 'screen' ? '录屏' : '录像';
+                    return '<div class="record-item">' +
+                        '<div class="record-item-icon">' + icon + '</div>' +
+                        '<div class="record-item-info">' +
+                        '<div class="record-item-name">' + r.name + '</div>' +
+                        '<div class="record-item-meta">' + typeLabel + ' · ' + this.formatDuration(r.duration) + ' · ' + this.formatSize(r.size) + '</div>' +
+                        '</div>' +
+                        '<div class="record-item-actions">' +
+                        '<button class="secondary" onclick="ScreenRecorder.playRecord(' + r.id + ')">播放</button>' +
+                        '<button class="primary" onclick="ScreenRecorder.downloadRecord(' + r.id + ')">下载</button>' +
+                        '<button class="danger" onclick="ScreenRecorder.deleteRecord(' + r.id + ')">删除</button>' +
+                        '</div>' +
+                        '</div>';
+                }).join('');
+            }
+
+            static playRecord(id) {
+                const record = this.records.find(r => r.id === id);
+                if (!record) return;
+                const preview = document.getElementById('screenPreview');
+                const playback = document.getElementById('cameraPlayback');
+                if (record.type === 'screen') {
+                    preview.src = record.url;
+                    preview.style.display = 'block';
+                    playback.style.display = 'none';
+                    preview.play();
+                } else {
+                    playback.src = record.url;
+                    playback.style.display = 'block';
+                    preview.style.display = 'none';
+                    playback.play();
+                }
+            }
+
+            static downloadRecord(id) {
+                const record = this.records.find(r => r.id === id);
+                if (!record) return;
+                const ext = record.blob.type.includes('mp4') ? 'mp4' : 'webm';
+                const a = document.createElement('a');
+                a.href = record.url;
+                a.download = record.name + '.' + ext;
+                a.click();
+                WebTools.showToast('开始下载');
+            }
+
+            static deleteRecord(id) {
+                const index = this.records.findIndex(r => r.id === id);
+                if (index === -1) return;
+                URL.revokeObjectURL(this.records[index].url);
+                this.records.splice(index, 1);
+                this.renderRecordList();
+                WebTools.showToast('已删除');
+            }
+        }
+
+        ScreenRecorder.renderRecordList();
+
+        class RegexTester {
+            static test() {
+                const pattern = document.getElementById('regexPattern').value;
+                const text = document.getElementById('regexInput').value;
+                const resultEl = document.getElementById('regexResult');
+                const groupsEl = document.getElementById('regexGroups');
+                if (!pattern || !text) {
+                    resultEl.textContent = '请输入正则表达式和测试文本';
+                    groupsEl.textContent = '';
+                    return;
+                }
+                let flags = '';
+                if (document.getElementById('regexGlobal').checked) flags += 'g';
+                if (document.getElementById('regexIgnoreCase').checked) flags += 'i';
+                if (document.getElementById('regexMultiline').checked) flags += 'm';
+                if (document.getElementById('regexDotAll').checked) flags += 's';
+                try {
+                    const regex = new RegExp(pattern, flags);
+                    const matches = [...text.matchAll(regex)];
+                    if (matches.length === 0) {
+                        resultEl.textContent = '无匹配结果';
+                        groupsEl.textContent = '';
+                        return;
+                    }
+                    let result = `找到 ${matches.length} 处匹配:\n\n`;
+                    matches.forEach((m, i) => {
+                        result += `[${i + 1}] 位置 ${m.index}: "${m[0]}"\n`;
+                    });
+                    resultEl.textContent = result;
+                    let groupsResult = '';
+                    matches.forEach((m, i) => {
+                        if (m.length > 1) {
+                            groupsResult += `匹配 [${i + 1}] 捕获组:\n`;
+                            m.forEach((g, gi) => {
+                                if (gi > 0) groupsResult += `  组${gi}: "${g}"\n`;
+                            });
+                        }
+                    });
+                    groupsEl.textContent = groupsResult || '无捕获组';
+                } catch (e) {
+                    resultEl.textContent = '正则表达式错误: ' + e.message;
+                    groupsEl.textContent = '';
+                }
+            }
+
+            static clear() {
+                document.getElementById('regexPattern').value = '';
+                document.getElementById('regexInput').value = '';
+                document.getElementById('regexResult').textContent = '';
+                document.getElementById('regexGroups').textContent = '';
+            }
+
+            static copyMatches() {
+                const text = document.getElementById('regexResult').textContent;
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
+            }
+        }
+
+        class ImageTools {
+            static images = {};
+            static originalSize = {};
+
+            static loadImage(event, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.images[type] = img;
+                        this.originalSize[type] = { width: img.width, height: img.height };
+                        if (type === 'compress') {
+                            document.getElementById('imageCompressPreview').innerHTML =
+                                '<div class="hint">原始尺寸: ' + img.width + ' x ' + img.height + ' | 大小: ' + (file.size / 1024).toFixed(1) + ' KB</div>';
+                        } else if (type === 'resize') {
+                            document.getElementById('imageWidth').value = img.width;
+                            document.getElementById('imageHeight').value = img.height;
+                            document.getElementById('imageResizePreview').innerHTML =
+                                '<div class="hint">原始尺寸: ' + img.width + ' x ' + img.height + '</div>';
+                        } else if (type === 'crop') {
+                            document.getElementById('cropWidth').value = img.width;
+                            document.getElementById('cropHeight').value = img.height;
+                            document.getElementById('imageCropPreview').innerHTML =
+                                '<div class="hint">原始尺寸: ' + img.width + ' x ' + img.height + '</div>';
+                        }
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            static updateQualityLabel() {
+                const q = document.getElementById('imageQuality').value;
+                document.getElementById('qualityLabel').textContent = Math.round(q * 100) + '%';
+            }
+
+            static compress() {
+                const img = this.images['compress'];
+                if (!img) {
+                    WebTools.showToast('请先选择图片');
+                    return;
+                }
+                const quality = parseFloat(document.getElementById('imageQuality').value);
+                const format = document.getElementById('imageFormat').value;
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    this.images['compress_result'] = { url, blob, format };
+                    document.getElementById('imageCompressPreview').innerHTML =
+                        '<div class="hint">压缩后大小: ' + (blob.size / 1024).toFixed(1) + ' KB</div>' +
+                        '<img src="' + url + '" style="max-width:100%;margin-top:8px;border-radius:8px;">';
+                    WebTools.showToast('压缩完成');
+                }, format, quality);
+            }
+
+            static resize() {
+                const img = this.images['resize'];
+                if (!img) {
+                    WebTools.showToast('请先选择图片');
+                    return;
+                }
+                const newWidth = parseInt(document.getElementById('imageWidth').value);
+                const newHeight = parseInt(document.getElementById('imageHeight').value);
+                if (!newWidth || !newHeight) {
+                    WebTools.showToast('请输入有效的尺寸');
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    this.images['resize_result'] = { url, blob, format: 'image/png' };
+                    document.getElementById('imageResizePreview').innerHTML =
+                        '<div class="hint">新尺寸: ' + newWidth + ' x ' + newHeight + ' | 大小: ' + (blob.size / 1024).toFixed(1) + ' KB</div>' +
+                        '<img src="' + url + '" style="max-width:100%;margin-top:8px;border-radius:8px;">';
+                    WebTools.showToast('调整完成');
+                }, 'image/png');
+            }
+
+            static crop() {
+                const img = this.images['crop'];
+                if (!img) {
+                    WebTools.showToast('请先选择图片');
+                    return;
+                }
+                const x = parseInt(document.getElementById('cropX').value) || 0;
+                const y = parseInt(document.getElementById('cropY').value) || 0;
+                const w = parseInt(document.getElementById('cropWidth').value);
+                const h = parseInt(document.getElementById('cropHeight').value);
+                if (!w || !h) {
+                    WebTools.showToast('请输入有效的裁剪尺寸');
+                    return;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    this.images['crop_result'] = { url, blob, format: 'image/png' };
+                    document.getElementById('imageCropPreview').innerHTML =
+                        '<div class="hint">裁剪尺寸: ' + w + ' x ' + h + ' | 大小: ' + (blob.size / 1024).toFixed(1) + ' KB</div>' +
+                        '<img src="' + url + '" style="max-width:100%;margin-top:8px;border-radius:8px;">';
+                    WebTools.showToast('裁剪完成');
+                }, 'image/png');
+            }
+
+            static download(type) {
+                const data = this.images[type + '_result'];
+                if (!data) {
+                    WebTools.showToast('请先处理图片');
+                    return;
+                }
+                const ext = data.format.split('/')[1];
+                const a = document.createElement('a');
+                a.href = data.url;
+                a.download = 'image_' + Date.now() + '.' + ext;
+                a.click();
+            }
+        }
+
+        document.getElementById('imageWidth').addEventListener('input', function () {
+            if (document.getElementById('keepRatio').checked && ImageTools.originalSize['resize']) {
+                const ratio = ImageTools.originalSize['resize'].height / ImageTools.originalSize['resize'].width;
+                document.getElementById('imageHeight').value = Math.round(this.value * ratio);
+            }
+        });
+
+        class CryptoTools {
+            static async deriveKey(password, salt, algorithm, keyLength) {
+                const enc = new TextEncoder();
+                const keyMaterial = await crypto.subtle.importKey(
+                    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+                );
+                return crypto.subtle.deriveKey(
+                    { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                    keyMaterial,
+                    { name: algorithm, length: keyLength },
+                    false,
+                    ['encrypt', 'decrypt']
+                );
+            }
+
+            static aesFile = null;
+            static aesResultBlob = null;
+            static aesOperation = null;
+
+            static toggleAesInput() {
+                const type = document.getElementById('aesInputType').value;
+                document.getElementById('aesTextInput').style.display = type === 'text' ? 'block' : 'none';
+                document.getElementById('aesFileInput').style.display = type === 'file' ? 'block' : 'none';
+            }
+
+            static selectAesFile(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.aesFile = file;
+                    document.getElementById('aesFileName').textContent = `已选择: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                }
+            }
+
+            static getAesConfig() {
+                const algorithm = document.getElementById('aesAlgorithm').value;
+                const keyLength = parseInt(document.getElementById('aesKeyLength').value);
+                return { algorithm, keyLength };
+            }
+
+            static async aesEncrypt() {
+                const password = document.getElementById('aesPassword').value;
+                if (!password) {
+                    WebTools.showToast('请输入密码');
+                    return;
+                }
+                const type = document.getElementById('aesInputType').value;
+                let data;
+                if (type === 'text') {
+                    const text = document.getElementById('aesInput').value;
+                    if (!text) {
+                        WebTools.showToast('请输入文本');
+                        return;
+                    }
+                    data = new TextEncoder().encode(text);
+                } else {
+                    if (!this.aesFile) {
+                        WebTools.showToast('请选择文件');
+                        return;
+                    }
+                    data = new Uint8Array(await this.aesFile.arrayBuffer());
+                }
+                const { algorithm, keyLength } = this.getAesConfig();
+                try {
+                    const salt = crypto.getRandomValues(new Uint8Array(16));
+                    const ivLen = algorithm === 'AES-GCM' ? 12 : 16;
+                    const iv = crypto.getRandomValues(new Uint8Array(ivLen));
+                    const key = await this.deriveKey(password, salt, algorithm, keyLength);
+                    let encryptParams;
+                    if (algorithm === 'AES-GCM') {
+                        encryptParams = { name: algorithm, iv };
+                    } else if (algorithm === 'AES-CBC') {
+                        encryptParams = { name: algorithm, iv };
+                    } else if (algorithm === 'AES-CTR') {
+                        encryptParams = { name: algorithm, counter: iv, length: 64 };
+                    }
+                    const encrypted = await crypto.subtle.encrypt(encryptParams, key, data);
+                    const algoBytes = new Uint8Array([algorithm === 'AES-GCM' ? 0 : algorithm === 'AES-CBC' ? 1 : 2]);
+                    const keyLenBytes = new Uint8Array([keyLength / 8]);
+                    const combined = new Uint8Array(1 + 1 + salt.length + iv.length + encrypted.byteLength);
+                    combined.set(algoBytes, 0);
+                    combined.set(keyLenBytes, 1);
+                    combined.set(salt, 2);
+                    combined.set(iv, 2 + salt.length);
+                    combined.set(new Uint8Array(encrypted), 2 + salt.length + iv.length);
+                    if (type === 'text') {
+                        document.getElementById('aesResult').value = btoa(String.fromCharCode(...combined));
+                        this.aesResultBlob = null;
+                    } else {
+                        this.aesResultBlob = new Blob([combined], { type: 'application/octet-stream' });
+                        this.aesOperation = 'encrypt';
+                        document.getElementById('aesResult').value = `[文件已加密] ${this.aesFile.name} -> ${(combined.length / 1024).toFixed(1)} KB`;
+                    }
+                    WebTools.showToast('加密成功 (' + algorithm + ')');
+                } catch (e) {
+                    document.getElementById('aesResult').value = '加密失败: ' + e.message;
+                }
+            }
+
+            static async aesDecrypt() {
+                const password = document.getElementById('aesPassword').value;
+                if (!password) {
+                    WebTools.showToast('请输入密码');
+                    return;
+                }
+                const type = document.getElementById('aesInputType').value;
+                let combined;
+                if (type === 'text') {
+                    const text = document.getElementById('aesInput').value;
+                    if (!text) {
+                        WebTools.showToast('请输入密文');
+                        return;
+                    }
+                    combined = new Uint8Array(atob(text).split('').map(c => c.charCodeAt(0)));
+                } else {
+                    if (!this.aesFile) {
+                        WebTools.showToast('请选择文件');
+                        return;
+                    }
+                    combined = new Uint8Array(await this.aesFile.arrayBuffer());
+                }
+                try {
+                    const algoByte = combined[0];
+                    const algorithm = algoByte === 0 ? 'AES-GCM' : algoByte === 1 ? 'AES-CBC' : 'AES-CTR';
+                    const keyLength = combined[1] * 8;
+                    const salt = combined.slice(2, 18);
+                    const ivLen = algorithm === 'AES-GCM' ? 12 : 16;
+                    const iv = combined.slice(18, 18 + ivLen);
+                    const encrypted = combined.slice(18 + ivLen);
+                    const key = await this.deriveKey(password, salt, algorithm, keyLength);
+                    let decryptParams;
+                    if (algorithm === 'AES-GCM') {
+                        decryptParams = { name: algorithm, iv };
+                    } else if (algorithm === 'AES-CBC') {
+                        decryptParams = { name: algorithm, iv };
+                    } else if (algorithm === 'AES-CTR') {
+                        decryptParams = { name: algorithm, counter: iv, length: 64 };
+                    }
+                    const decrypted = await crypto.subtle.decrypt(decryptParams, key, encrypted);
+                    if (type === 'text') {
+                        document.getElementById('aesResult').value = new TextDecoder().decode(decrypted);
+                        this.aesResultBlob = null;
+                    } else {
+                        this.aesResultBlob = new Blob([decrypted], { type: 'application/octet-stream' });
+                        this.aesOperation = 'decrypt';
+                        document.getElementById('aesResult').value = `[文件已解密] ${(decrypted.byteLength / 1024).toFixed(1)} KB`;
+                    }
+                    WebTools.showToast('解密成功 (' + algorithm + ')');
+                } catch (e) {
+                    document.getElementById('aesResult').value = '解密失败: 密码错误或数据损坏';
+                }
+            }
+
+            static downloadAesResult() {
+                if (this.aesResultBlob) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(this.aesResultBlob);
+                    let filename;
+                    if (this.aesFile) {
+                        if (this.aesOperation === 'encrypt') {
+                            filename = this.aesFile.name + '.enc';
+                        } else {
+                            filename = this.aesFile.name.replace(/\.enc$/, '') || ('decrypted_' + Date.now());
+                        }
+                    } else {
+                        filename = this.aesOperation === 'encrypt' ? 'encrypted.bin' : 'decrypted.bin';
+                    }
+                    a.download = filename;
+                    a.click();
+                } else {
+                    const text = document.getElementById('aesResult').value;
+                    if (text) {
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'result.txt';
+                        a.click();
+                    } else {
+                        WebTools.showToast('没有可下载的结果');
+                    }
+                }
+            }
+
+            static copyAesResult() {
+                const text = document.getElementById('aesResult').value;
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
+            }
+
+            static async generateRSAKeys() {
+                try {
+                    const keySize = parseInt(document.getElementById('rsaKeySize').value);
+                    const keyPair = await crypto.subtle.generateKey(
+                        { name: 'RSA-OAEP', modulusLength: keySize, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+                        true,
+                        ['encrypt', 'decrypt']
+                    );
+                    this.rsaKeyPair = keyPair;
+                    const publicKeyData = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+                    const privateKeyData = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+                    document.getElementById('rsaPublicKey').value = this.formatPEM(publicKeyData, 'PUBLIC KEY');
+                    document.getElementById('rsaPrivateKey').value = this.formatPEM(privateKeyData, 'PRIVATE KEY');
+                    WebTools.showToast('密钥生成成功');
+                } catch (e) {
+                    WebTools.showToast('生成失败: ' + e.message);
+                }
+            }
+
+            static formatPEM(data, label) {
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(data)));
+                const lines = base64.match(/.{1,64}/g) || [];
+                return `-----BEGIN ${label}-----\n${lines.join('\n')}\n-----END ${label}-----`;
+            }
+
+            static hashFile = null;
+
+            static toggleHashInput() {
+                const type = document.getElementById('hashType').value;
+                document.getElementById('hashTextInput').style.display = type === 'text' ? 'block' : 'none';
+                document.getElementById('hashFileInput').style.display = type === 'file' ? 'block' : 'none';
+            }
+
+            static selectHashFile(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.hashFile = file;
+                    document.getElementById('hashFileName').textContent = `已选择: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                }
+            }
+
+            static async calculateHash(algorithm) {
+                const type = document.getElementById('hashType').value;
+                try {
+                    let data, resultPrefix;
+                    if (type === 'text') {
+                        const input = document.getElementById('hashInput').value;
+                        if (!input) {
+                            document.getElementById('hashResult').textContent = '请输入文本';
+                            return;
+                        }
+                        data = new TextEncoder().encode(input);
+                        resultPrefix = `${algorithm}:\n`;
+                    } else {
+                        if (!this.hashFile) {
+                            document.getElementById('hashResult').textContent = '请选择文件';
+                            return;
+                        }
+                        data = new Uint8Array(await this.hashFile.arrayBuffer());
+                        resultPrefix = `文件: ${this.hashFile.name}\n大小: ${(this.hashFile.size / 1024).toFixed(1)} KB\n算法: ${algorithm}\n\n`;
+                    }
+                    const hashBuffer = await crypto.subtle.digest(algorithm, data);
+                    const hashHex = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('hashResult').textContent = resultPrefix + hashHex;
+                } catch (e) {
+                    document.getElementById('hashResult').textContent = '计算失败: ' + e.message;
+                }
+            }
+
+            static async hashDigest(data, algorithm) {
+                const hashBuffer = await crypto.subtle.digest(algorithm, data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+
+            static async generateHMAC() {
+                const key = document.getElementById('hmacKey').value;
+                const message = document.getElementById('hmacMessage').value;
+                const algorithm = document.getElementById('hmacAlgorithm').value;
+                if (!key || !message) {
+                    WebTools.showToast('请输入密钥和消息');
+                    return;
+                }
+                try {
+                    const keyData = new TextEncoder().encode(key);
+                    const messageData = new TextEncoder().encode(message);
+                    const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: algorithm }, false, ['sign']);
+                    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+                    const hex = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('hmacResult').value = hex;
+                    this.hmacKeyObj = cryptoKey;
+                    WebTools.showToast('HMAC生成成功');
+                } catch (e) {
+                    WebTools.showToast('生成失败: ' + e.message);
+                }
+            }
+
+            static async verifyHMAC() {
+                const key = document.getElementById('hmacKey').value;
+                const message = document.getElementById('hmacMessage').value;
+                const hmacValue = document.getElementById('hmacResult').value;
+                const algorithm = document.getElementById('hmacAlgorithm').value;
+                if (!key || !message || !hmacValue) {
+                    WebTools.showToast('请输入密钥、消息和HMAC值');
+                    return;
+                }
+                try {
+                    const keyData = new TextEncoder().encode(key);
+                    const messageData = new TextEncoder().encode(message);
+                    const signature = new Uint8Array(hmacValue.match(/.{2}/g).map(b => parseInt(b, 16)));
+                    const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: algorithm }, false, ['verify']);
+                    const valid = await crypto.subtle.verify('HMAC', cryptoKey, signature, messageData);
+                    WebTools.showToast(valid ? '验证通过 ✓' : '验证失败 ✗');
+                } catch (e) {
+                    WebTools.showToast('验证失败: ' + e.message);
+                }
+            }
+
+            static rsaFile = null;
+            static rsaResultBlob = null;
+            static rsaOperation = null;
+
+            static toggleRsaInput() {
+                const type = document.getElementById('rsaInputType').value;
+                document.getElementById('rsaTextInput').style.display = type === 'text' ? 'block' : 'none';
+                document.getElementById('rsaFileInput').style.display = type === 'file' ? 'block' : 'none';
+            }
+
+            static selectRsaFile(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.rsaFile = file;
+                    const keySize = this.rsaKeyPair ? (this.rsaKeyPair.publicKey.algorithm.modulusLength / 8 - 42) : 214;
+                    document.getElementById('rsaFileName').textContent = `已选择: ${file.name} (${(file.size / 1024).toFixed(1)} KB) - RSA加密限制: ${keySize} 字节`;
+                }
+            }
+
+            static async rsaEncrypt() {
+                if (!this.rsaKeyPair) {
+                    WebTools.showToast('请先生成RSA密钥对');
+                    return;
+                }
+                const type = document.getElementById('rsaInputType').value;
+                let data;
+                if (type === 'text') {
+                    const text = document.getElementById('rsaInput').value;
+                    if (!text) {
+                        WebTools.showToast('请输入文本');
+                        return;
+                    }
+                    data = new TextEncoder().encode(text);
+                } else {
+                    if (!this.rsaFile) {
+                        WebTools.showToast('请选择文件');
+                        return;
+                    }
+                    data = new Uint8Array(await this.rsaFile.arrayBuffer());
+                }
+                const keySize = this.rsaKeyPair.publicKey.algorithm.modulusLength;
+                const maxDataSize = Math.floor(keySize / 8) - 42;
+                if (data.length > maxDataSize) {
+                    WebTools.showToast(`数据太大，RSA-${keySize} 最大加密 ${maxDataSize} 字节，当前 ${data.length} 字节`);
+                    return;
+                }
+                try {
+                    const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, this.rsaKeyPair.publicKey, data);
+                    if (type === 'text') {
+                        document.getElementById('rsaResult').value = btoa(String.fromCharCode(...new Uint8Array(encrypted)));
+                        this.rsaResultBlob = null;
+                    } else {
+                        this.rsaResultBlob = new Blob([encrypted], { type: 'application/octet-stream' });
+                        this.rsaOperation = 'encrypt';
+                        document.getElementById('rsaResult').value = `[文件已加密] ${this.rsaFile.name} -> ${(encrypted.byteLength / 1024).toFixed(1)} KB`;
+                    }
+                    WebTools.showToast('加密成功');
+                } catch (e) {
+                    document.getElementById('rsaResult').value = '加密失败: ' + e.message;
+                }
+            }
+
+            static async rsaDecrypt() {
+                if (!this.rsaKeyPair) {
+                    WebTools.showToast('请先生成RSA密钥对');
+                    return;
+                }
+                const type = document.getElementById('rsaInputType').value;
+                let data;
+                if (type === 'text') {
+                    const text = document.getElementById('rsaInput').value;
+                    if (!text) {
+                        WebTools.showToast('请输入密文');
+                        return;
+                    }
+                    data = new Uint8Array(atob(text).split('').map(c => c.charCodeAt(0)));
+                } else {
+                    if (!this.rsaFile) {
+                        WebTools.showToast('请选择文件');
+                        return;
+                    }
+                    data = new Uint8Array(await this.rsaFile.arrayBuffer());
+                }
+                try {
+                    const decrypted = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, this.rsaKeyPair.privateKey, data);
+                    if (type === 'text') {
+                        document.getElementById('rsaResult').value = new TextDecoder().decode(decrypted);
+                        this.rsaResultBlob = null;
+                    } else {
+                        this.rsaResultBlob = new Blob([decrypted], { type: 'application/octet-stream' });
+                        this.rsaOperation = 'decrypt';
+                        document.getElementById('rsaResult').value = `[文件已解密] ${(decrypted.byteLength / 1024).toFixed(1)} KB`;
+                    }
+                    WebTools.showToast('解密成功');
+                } catch (e) {
+                    document.getElementById('rsaResult').value = '解密失败: ' + e.message;
+                }
+            }
+
+            static downloadRsaResult() {
+                if (this.rsaResultBlob) {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(this.rsaResultBlob);
+                    let filename;
+                    if (this.rsaFile) {
+                        if (this.rsaOperation === 'encrypt') {
+                            filename = this.rsaFile.name + '.enc';
+                        } else {
+                            filename = this.rsaFile.name.replace(/\.enc$/, '') || ('decrypted_' + Date.now());
+                        }
+                    } else {
+                        filename = this.rsaOperation === 'encrypt' ? 'encrypted.bin' : 'decrypted.bin';
+                    }
+                    a.download = filename;
+                    a.click();
+                } else {
+                    const text = document.getElementById('rsaResult').value;
+                    if (text) {
+                        const blob = new Blob([text], { type: 'text/plain' });
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(blob);
+                        a.download = 'result.txt';
+                        a.click();
+                    } else {
+                        WebTools.showToast('没有可下载的结果');
+                    }
+                }
+            }
+
+            static copyRsaResult() {
+                const text = document.getElementById('rsaResult').value;
+                if (text) {
+                    navigator.clipboard.writeText(text);
+                    WebTools.showToast('已复制到剪贴板');
+                }
+            }
+
+            static async generateSignKeys() {
+                const algorithm = document.getElementById('signAlgorithm').value;
+                try {
+                    let keyPair, namedCurve;
+                    if (algorithm === 'RSA-PSS' || algorithm === 'RSASSA-PKCS1-v1_5') {
+                        keyPair = await crypto.subtle.generateKey(
+                            { name: algorithm, modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+                            true, ['sign', 'verify']
+                        );
+                    } else if (algorithm === 'ECDSA') {
+                        keyPair = await crypto.subtle.generateKey(
+                            { name: 'ECDSA', namedCurve: 'P-256' },
+                            true, ['sign', 'verify']
+                        );
+                        namedCurve = 'P-256';
+                    } else if (algorithm === 'Ed25519') {
+                        keyPair = await crypto.subtle.generateKey('Ed25519', true, ['sign', 'verify']);
+                    }
+                    this.signKeyPair = keyPair;
+                    this.signAlgorithm = algorithm;
+                    const privateKeyData = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+                    const publicKeyData = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+                    document.getElementById('signPrivateKey').value = this.formatPEM(privateKeyData, 'PRIVATE KEY');
+                    document.getElementById('signPublicKey').value = this.formatPEM(publicKeyData, 'PUBLIC KEY');
+                    WebTools.showToast('密钥对生成成功');
+                } catch (e) {
+                    WebTools.showToast('生成失败: ' + e.message);
+                }
+            }
+
+            static async signMessage() {
+                if (!this.signKeyPair) {
+                    WebTools.showToast('请先生成密钥对');
+                    return;
+                }
+                const message = document.getElementById('signMessage').value;
+                if (!message) {
+                    WebTools.showToast('请输入消息');
+                    return;
+                }
+                try {
+                    const data = new TextEncoder().encode(message);
+                    let signParams;
+                    if (this.signAlgorithm === 'RSA-PSS') {
+                        signParams = { name: this.signAlgorithm, saltLength: 32 };
+                    } else if (this.signAlgorithm === 'ECDSA') {
+                        signParams = { name: this.signAlgorithm, hash: 'SHA-256' };
+                    } else {
+                        signParams = this.signAlgorithm;
+                    }
+                    const signature = await crypto.subtle.sign(signParams, this.signKeyPair.privateKey, data);
+                    const hex = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('signatureValue').value = hex;
+                    WebTools.showToast('签名成功');
+                } catch (e) {
+                    WebTools.showToast('签名失败: ' + e.message);
+                }
+            }
+
+            static async verifySignature() {
+                if (!this.signKeyPair) {
+                    WebTools.showToast('请先生成密钥对');
+                    return;
+                }
+                const message = document.getElementById('signMessage').value;
+                const signatureHex = document.getElementById('signatureValue').value;
+                if (!message || !signatureHex) {
+                    WebTools.showToast('请输入消息和签名值');
+                    return;
+                }
+                try {
+                    const data = new TextEncoder().encode(message);
+                    const signature = new Uint8Array(signatureHex.match(/.{2}/g).map(b => parseInt(b, 16)));
+                    let signParams;
+                    if (this.signAlgorithm === 'RSA-PSS') {
+                        signParams = { name: this.signAlgorithm, saltLength: 32 };
+                    } else if (this.signAlgorithm === 'ECDSA') {
+                        signParams = { name: this.signAlgorithm, hash: 'SHA-256' };
+                    } else {
+                        signParams = this.signAlgorithm;
+                    }
+                    const valid = await crypto.subtle.verify(signParams, this.signKeyPair.publicKey, signature, data);
+                    WebTools.showToast(valid ? '验证通过 ✓' : '验证失败 ✗');
+                } catch (e) {
+                    WebTools.showToast('验证失败: ' + e.message);
+                }
+            }
+
+            static kexKeyPairs = {};
+
+            static async generateKexKeyPair(party) {
+                const algorithm = document.getElementById('kexAlgorithm').value;
+                try {
+                    let keyPair, keyAlg;
+                    if (algorithm === 'X25519') {
+                        keyAlg = 'X25519';
+                    } else {
+                        const curve = algorithm === 'ECDH-P256' ? 'P-256' : algorithm === 'ECDH-P384' ? 'P-384' : 'P-521';
+                        keyAlg = { name: 'ECDH', namedCurve: curve };
+                    }
+                    keyPair = await crypto.subtle.generateKey(keyAlg, true, ['deriveKey', 'deriveBits']);
+                    this.kexKeyPairs[party] = { keyPair, algorithm };
+                    const privateKeyData = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+                    const publicKeyData = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+                    document.getElementById('kexPrivate' + party).value = this.formatPEM(privateKeyData, 'PRIVATE KEY');
+                    document.getElementById('kexPublic' + party).value = this.formatPEM(publicKeyData, 'PUBLIC KEY');
+                    WebTools.showToast(party === 'A' ? '甲方密钥对生成成功' : '乙方密钥对生成成功');
+                } catch (e) {
+                    WebTools.showToast('生成失败: ' + e.message);
+                }
+            }
+
+            static async deriveSharedKey(party) {
+                const myKeyPair = this.kexKeyPairs[party]?.keyPair;
+                const otherParty = party === 'A' ? 'B' : 'A';
+                const otherPublicKeyPem = document.getElementById('kexPublic' + otherParty).value;
+                if (!myKeyPair || !otherPublicKeyPem) {
+                    WebTools.showToast('请先生成双方密钥对');
+                    return;
+                }
+                try {
+                    const pemContent = otherPublicKeyPem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\n/g, '');
+                    const publicKeyData = new Uint8Array(atob(pemContent).split('').map(c => c.charCodeAt(0)));
+                    const algorithm = this.kexKeyPairs[party].algorithm;
+                    let keyAlg;
+                    if (algorithm === 'X25519') {
+                        keyAlg = 'X25519';
+                    } else {
+                        const curve = algorithm === 'ECDH-P256' ? 'P-256' : algorithm === 'ECDH-P384' ? 'P-384' : 'P-521';
+                        keyAlg = { name: 'ECDH', namedCurve: curve };
+                    }
+                    const otherPublicKey = await crypto.subtle.importKey('spki', publicKeyData, keyAlg, false, []);
+                    const sharedBits = await crypto.subtle.deriveBits(
+                        { name: keyAlg.name || keyAlg, public: otherPublicKey },
+                        myKeyPair.privateKey,
+                        256
+                    );
+                    const sharedHex = Array.from(new Uint8Array(sharedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('sharedKey' + party).value = sharedHex;
+                    WebTools.showToast('共享密钥计算成功');
+                } catch (e) {
+                    WebTools.showToast('计算失败: ' + e.message);
+                }
+            }
+
+            static async deriveKeyMaterial() {
+                const algorithm = document.getElementById('kdfAlgorithm').value;
+                const length = parseInt(document.getElementById('kdfLength').value);
+                const input = document.getElementById('kdfInput').value;
+                let saltHex = document.getElementById('kdfSalt').value;
+                if (!input) {
+                    WebTools.showToast('请输入密钥材料');
+                    return;
+                }
+                try {
+                    const inputData = new TextEncoder().encode(input);
+                    let salt;
+                    if (saltHex) {
+                        salt = new Uint8Array(saltHex.match(/.{2}/g).map(b => parseInt(b, 16)));
+                    } else {
+                        salt = crypto.getRandomValues(new Uint8Array(16));
+                        saltHex = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+                    }
+                    let derivedBits;
+                    if (algorithm === 'PBKDF2') {
+                        const keyMaterial = await crypto.subtle.importKey('raw', inputData, 'PBKDF2', false, ['deriveBits']);
+                        derivedBits = await crypto.subtle.deriveBits(
+                            { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                            keyMaterial,
+                            length
+                        );
+                    } else {
+                        const keyMaterial = await crypto.subtle.importKey('raw', inputData, 'HKDF', false, ['deriveBits']);
+                        derivedBits = await crypto.subtle.deriveBits(
+                            { name: 'HKDF', hash: 'SHA-256', salt, info: new Uint8Array(0) },
+                            keyMaterial,
+                            length
+                        );
+                    }
+                    const derivedHex = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    document.getElementById('kdfResult').textContent = `算法: ${algorithm}\n盐值: ${saltHex}\n派生长度: ${length} 位\n\n派生密钥:\n${derivedHex}`;
+                    WebTools.showToast('派生成功');
+                } catch (e) {
+                    document.getElementById('kdfResult').textContent = '派生失败: ' + e.message;
+                }
+            }
+        }
+
+        class ClientInfo {
+            static init() {
+                this.showBrowserInfo();
+                this.showScreenInfo();
+                this.showNetworkInfo();
+            }
+
+            static showBrowserInfo() {
+                const ua = navigator.userAgent;
+                let browser = 'Unknown';
+                if (ua.includes('Chrome')) browser = 'Chrome';
+                else if (ua.includes('Firefox')) browser = 'Firefox';
+                else if (ua.includes('Safari')) browser = 'Safari';
+                else if (ua.includes('Edge')) browser = 'Edge';
+                const info = {
+                    '浏览器': browser,
+                    'User Agent': ua,
+                    '平台': navigator.platform,
+                    '语言': navigator.language,
+                    '语言列表': navigator.languages.join(', '),
+                    'Cookie启用': navigator.cookieEnabled ? '是' : '否',
+                    '在线状态': navigator.onLine ? '在线' : '离线',
+                    'Java启用': navigator.javaEnabled ? (navigator.javaEnabled() ? '是' : '否') : '不支持',
+                    'PDF查看器': navigator.pdfViewerEnabled ? '支持' : '不支持',
+                    '产品': navigator.product,
+                    'App名称': navigator.appName,
+                    'App版本': navigator.appVersion,
+                    '硬件并发数': navigator.hardwareConcurrency || '未知',
+                    '设备内存': navigator.deviceMemory ? navigator.deviceMemory + ' GB' : '未知',
+                    '最大触控点': navigator.maxTouchPoints || 0
+                };
+                document.getElementById('browserInfo').textContent = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join('\n');
+            }
+
+            static showScreenInfo() {
+                const info = {
+                    '屏幕分辨率': `${screen.width} x ${screen.height}`,
+                    '可用屏幕': `${screen.availWidth} x ${screen.availHeight}`,
+                    '色深': screen.colorDepth + ' bit',
+                    '像素深度': screen.pixelDepth + ' bit',
+                    '设备像素比': window.devicePixelRatio,
+                    '窗口内部尺寸': `${window.innerWidth} x ${window.innerHeight}`,
+                    '窗口外部尺寸': `${window.outerWidth} x ${window.outerHeight}`,
+                    '屏幕方向': screen.orientation ? screen.orientation.type : '未知'
+                };
+                document.getElementById('screenInfo').textContent = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join('\n');
+            }
+
+            static showNetworkInfo() {
+                const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                if (!conn) {
+                    document.getElementById('networkInfo').textContent = '浏览器不支持 Network Information API';
+                    return;
+                }
+                const info = {
+                    '网络类型': conn.effectiveType || '未知',
+                    '下行速度': conn.downlink ? conn.downlink + ' Mbps' : '未知',
+                    'RTT延迟': conn.rtt ? conn.rtt + ' ms' : '未知',
+                    '节省数据模式': conn.saveData ? '开启' : '关闭',
+                    '连接类型': conn.type || '未知'
+                };
+                document.getElementById('networkInfo').textContent = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join('\n');
+            }
+
+            static async getMediaDevices() {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const result = devices.map(d => `${d.kind}: ${d.label || '(未授权)'} [${d.deviceId.slice(0, 8)}...]`);
+                    document.getElementById('mediaDevices').textContent = result.join('\n') || '未检测到设备';
+                } catch (e) {
+                    document.getElementById('mediaDevices').textContent = '获取失败: ' + e.message;
+                }
+            }
+
+            static async getBattery() {
+                if (!navigator.getBattery) {
+                    document.getElementById('batteryInfo').textContent = '浏览器不支持 Battery API';
+                    return;
+                }
+                try {
+                    const battery = await navigator.getBattery();
+                    const info = {
+                        '电量': Math.round(battery.level * 100) + '%',
+                        '充电状态': battery.charging ? '充电中' : '使用电池',
+                        '充满时间': battery.chargingTime === Infinity ? '未知' : Math.round(battery.chargingTime / 60) + ' 分钟',
+                        '剩余时间': battery.dischargingTime === Infinity ? '未知' : Math.round(battery.dischargingTime / 60) + ' 分钟'
+                    };
+                    document.getElementById('batteryInfo').textContent = Object.entries(info).map(([k, v]) => `${k}: ${v}`).join('\n');
+                } catch (e) {
+                    document.getElementById('batteryInfo').textContent = '获取失败: ' + e.message;
+                }
+            }
+        }
+
+        ClientInfo.init();
+
+        class ServerInfo {
+            static async fetch() {
+                const container = document.getElementById('serverInfoContent');
+                container.innerHTML = '<div class="hint">正在获取服务端信息...</div>';
+                try {
+                    const response = await fetch('/tool/sys-info');
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    const data = await response.json();
+                    this.render(data, container);
+                } catch (e) {
+                    container.innerHTML = '<div class="result-box" style="color:#ff6b6b;">获取失败: ' + e.message + '</div>';
+                }
+            }
+
+            static render(data, container) {
+                const clientNow = new Date();
+                const serverTime = data.unix ? new Date(data.unix * 1000) : new Date(data.timestamp);
+                const timeDiff = Math.abs(clientNow - serverTime);
+                let html = '';
+                html += this.renderSection('时间信息', {
+                    '服务器时间': data.timestamp,
+                    '服务器时间戳': data.unix,
+                    '客户端时间': clientNow.toISOString(),
+                    '客户端时间戳': Math.floor(clientNow.getTime() / 1000),
+                    '时间差异': Math.floor(timeDiff / 1000) + ' 秒'
+                });
+                html += this.renderSection('基本信息', {
+                    '主机名': data.hostname
+                });
+                html += this.renderSection('操作系统', {
+                    '类型': data.os?.type,
+                    '架构': data.os?.arch,
+                    '家族': data.os?.family
+                });
+                html += this.renderSection('Go运行时', {
+                    '版本': data.runtime?.version,
+                    'Goroutines': data.runtime?.goroutines,
+                    'GOMAXPROCS': data.runtime?.gomaxprocs,
+                    'GC启用': data.runtime?.gc_enabled,
+                    'CGO启用': data.runtime?.cgo_enabled
+                });
+                html += this.renderSection('CPU信息', {
+                    '核心数': data.cpu?.cores,
+                    '字节序': data.cpu?.endianness
+                });
+                if (data.system_memory?.total) {
+                    html += this.renderSection('系统内存', {
+                        '总内存': data.system_memory?.total,
+                        '可用内存': data.system_memory?.available,
+                        '已用内存': data.system_memory?.used,
+                        '使用率': data.system_memory?.used_percent
+                    });
+                }
+                html += this.renderSection('进程信息', {
+                    'PID': data.process?.pid,
+                    'PPID': data.process?.ppid,
+                    '工作目录': data.process?.working_dir,
+                    '执行路径': data.process?.exec_path
+                });
+                html += this.renderSection('用户信息', {
+                    'UID': data.user?.uid,
+                    'GID': data.user?.gid,
+                    '用户名': data.user?.username,
+                    '名称': data.user?.name,
+                    '主目录': data.user?.home_dir
+                });
+                if (data.environment?.variables) {
+                    html += '<div class="tool-section" style="margin-top:12px;"><div class="section-title">环境变量 (' + data.environment.count + '个)</div>';
+                    html += '<div class="result-box" style="max-height:300px;overflow-y:auto;">';
+                    const sortedVars = Object.entries(data.environment.variables).sort((a, b) => a[0].localeCompare(b[0]));
+                    sortedVars.forEach(([k, v]) => {
+                        html += k + '=' + v + '\n';
+                    });
+                    html += '</div></div>';
+                }
+                if (data.network?.interfaces?.length > 0) {
+                    html += '<div class="tool-section" style="margin-top:12px;"><div class="section-title">网络接口</div>';
+                    data.network.interfaces.forEach(iface => {
+                        html += '<div class="result-box" style="margin-bottom:8px;">';
+                        html += '名称: ' + iface.name + '\n';
+                        html += 'MAC: ' + (iface.mac || '无') + '\n';
+                        html += 'MTU: ' + iface.mtu + '\n';
+                        html += '状态: ' + (iface.is_up ? 'UP' : 'DOWN') + '\n';
+                        html += '类型: ' + (iface.is_loopback ? '回环' : iface.is_multicast ? '多播' : '普通') + '\n';
+                        html += '标志: ' + iface.flags + '\n';
+                        if (iface.addresses?.length > 0) {
+                            html += '地址:\n  ' + iface.addresses.join('\n  ');
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                }
+                container.innerHTML = html;
+            }
+
+            static renderSection(title, data) {
+                if (!data) return '';
+                let content = '';
+                if (typeof data === 'object' && !Array.isArray(data)) {
+                    content = Object.entries(data).filter(([k, v]) => v !== undefined && v !== '').map(([k, v]) => `${k}: ${v}`).join('\n');
+                } else {
+                    content = String(data);
+                }
+                if (!content) return '';
+                return '<div class="tool-section" style="margin-top:12px;"><div class="section-title">' + title + '</div><div class="result-box" style="max-height:none;">' + content + '</div></div>';
+            }
+        }
+
         function showTab(tab) {
-            const tabs = ['jwt', 'uuid', 'time', 'base64', 'token'];
+            const tabs = ['jwt', 'uuid', 'time', 'base64', 'url', 'token', 'json', 'color', 'record', 'regex', 'image', 'crypto', 'clientinfo', 'serverinfo'];
             tabs.forEach(t => {
-                document.getElementById('tab-' + t).style.display = (t === tab) ? '' : 'none';
-                document.querySelector('.tab-btn[onclick*=\"' + t + '\"]').classList.toggle('active', t === tab);
+                document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+                document.querySelector('.tab-btn[onclick*="' + t + '"]').classList.toggle('active', t === tab);
             });
         }
     </script>

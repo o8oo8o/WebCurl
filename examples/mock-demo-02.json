@@ -1,0 +1,426 @@
+{
+	"listen": [
+		{
+			"host": "0.0.0.0",
+			"port": 4433,
+			"protocols": [
+				"http",
+				"https"
+			],
+			"cert_file": "./cert/server.crt",
+			"key_file": "./cert/server.key"
+		},
+		{
+			"host": "0.0.0.0",
+			"port": 8080,
+			"protocols": [
+				"http"
+			]
+		}
+	],
+	"static": [
+		{
+			"mount": "/static/",
+			"dir": "./www",
+			"download": false,
+			"index_files": [
+				"index.html",
+				"home.html"
+			],
+			"allow_methods": [
+				"GET",
+				"HEAD"
+			],
+			"headers": {
+				"Cache-Control": "max-age=86400",
+				"X-Custom-Header": "ok"
+			}
+		},
+		{
+			"mount": "/files/",
+			"dir": "./files",
+			"download": true
+		}
+	],
+	"routes": [
+		{
+			"method": "GET",
+			"path": "/home/{id}/{name}",
+			"responses": [
+				{
+					"body": {
+						"x-name": "{{param.name}}",
+						"x-age": "{{query.age}}",
+						"x-id": "{{param.id}}"
+					},
+					"headers": {
+						"X-Custom-Header": "ok"
+					}
+				}
+			]
+		},
+		{
+			"method": "POST",
+			"path": "/user/{name}/{id:[0-9]+}",
+			"match": {
+				"query": {
+					"age": ".*"
+				},
+				"headers": {
+					"Token-Value": "req.*"
+				},
+				"body": {
+					"root.users.0.info.data": "zhangsan-data"
+				}
+			},
+			"extract": {
+				"from": "body",
+				"rules": {
+					"userData": "root.users.0.info.data",
+					"userPhone": "root.users.0.phones.0"
+				}
+			},
+			"responses": [
+				{
+					"when": {
+						"param.name": "demo",
+						"query.age": "<20"
+					},
+					"body": {
+						"x-body-data_field": "{{extract.userData}}",
+						"x-body-phone_field": "{{extract.userPhone}}",
+						"x-query": "{{@int:query.age}}",
+						"x-param": "{{param.id}}",
+						"x-header": "{{header.Token-Value}}",
+						"x-when": "when param.name is demo, query.age is <20, header.Token-Value is req-token-data"
+					},
+					"headers": {
+						"Content-Type": "application/json",
+						"X-Custom-Header": "ok",
+						"X-Custom-Ext": "{{extract.userData}}-ext",
+						"x-query": "{{query.age}}-query",
+						"x-param": "{{param.id}}-param",
+						"x-header": "{{header.Token-Value}}-header"
+					},
+					"status": 206,
+					"delay_ms": 500
+				},
+				{
+					"when": {
+						"param.name": "demo",
+						"query.age": "77",
+						"header.Token-Value": "req-token-data"
+					},
+					"body": {
+						"x-body-data_field": "{{extract.userData}}",
+						"x-body-phone_field": "{{extract.userPhone}}",
+						"x-query": "{{@int:query.age}}",
+						"x-param": "{{param.id}}",
+						"x-header": "{{header.Token-Value}}",
+						"x-when": "when param.name is demo, query.age is 77, header.Token-Value is req-token-data"
+					},
+					"headers": {
+						"Content-Type": "application/json",
+						"X-Custom-Header": "ok",
+						"X-Custom-Ext": "{{extract.userData}}-ext",
+						"x-query": "{{query.age}}-query",
+						"x-param": "{{param.id}}-param",
+						"x-header": "{{header.Token-Value}}-header"
+					},
+					"status": 200,
+					"cookies": [
+						{
+							"name": "test-helder",
+							"value": "{{header.Token-Value}}-data",
+							"http_only": true,
+							"max_age": 3700
+						},
+						{
+							"name": "test-body",
+							"value": "{{extract.userData}}-data",
+							"http_only": true
+						},
+						{
+							"name": "test-param",
+							"value": "{{param.id}}-data",
+							"http_only": true
+						},
+						{
+							"name": "test-query",
+							"value": "{{query.age}}-data",
+							"http_only": true
+						}
+					],
+					"delay_ms": 500
+				},
+				{
+					"when": {
+						"query.age": "88"
+					},
+					"body": {
+						"x-body-data_field": "{{extract.userData}}",
+						"x-body-phone_field": "{{extract.userPhone}}",
+						"x-query": "{{query.age}}",
+						"x-param": "{{param.id}}",
+						"x-header": "{{header.Token-Value}}",
+						"x-when": "when query.age is not a number"
+					},
+					"headers": {
+						"Content-Type": "application/json",
+						"X-Custom-Header": "ok",
+						"X-Custom-Ext": "{{extract.userData}}-ext",
+						"x-query": "{{query.age}}-query",
+						"x-param": "{{param.id}}-param",
+						"x-header": "{{header.Token-Value}}-header"
+					},
+					"status": 200,
+					"cookies": [
+						{
+							"Name": "test-helder",
+							"Value": "{{header.Token-Value}}-data",
+							"HttpOnly": true
+						},
+						{
+							"Name": "test-body",
+							"Value": "{{extract.userData}}-data",
+							"HttpOnly": true
+						},
+						{
+							"Name": "test-param",
+							"Value": "{{param.id}}-data",
+							"HttpOnly": true
+						},
+						{
+							"Name": "test-query",
+							"Value": "{{query.age}}-data",
+							"HttpOnly": true
+						}
+					],
+					"delay_ms": 500
+				},
+				{
+					"status": 404,
+					"body": {
+						"error": "api not found"
+					}
+				}
+			]
+		},
+		{
+			"method": "GET",
+			"path": "/ping",
+			"responses": [
+				{
+					"body": "pong"
+				}
+			]
+		},
+		{
+			"method": "ANY",
+			"path": "/api/resource/{id}",
+			"match": {
+				"headers": {
+					"Authorization": "Bearer .+"
+				},
+				"query": {
+					"type": ".+",
+					"mode": "test"
+				},
+				"body": {
+					"action": "get",
+					"meta.version": "2023"
+				}
+			},
+			"extract": {
+				"from": "body",
+				"rules": {
+					"customerId": "customer.id"
+				}
+			},
+			"response_strategy": "random",
+			"responses": [
+				{
+					"when": {
+						"query.type": "A"
+					},
+					"status": 200,
+					"headers": {
+						"X-Mock": "api"
+					},
+					"body": {
+						"id": "{{param.id}}",
+						"customer": "{{extract.customerId}}",
+						"ok": true
+					}
+				},
+				{
+					"status": 404,
+					"body": {
+						"error": "not found"
+					}
+				}
+			]
+		},
+		{
+			"method": "GET",
+			"path": "/download/{filename}",
+			"responses": [
+				{
+					"file": "./files/{{param.filename}}",
+					"headers": {
+						"Content-Disposition": "attachment; filename=\"{{param.filename}}\""
+					}
+				}
+			]
+		},
+		{
+			"method": "POST",
+			"path": "/upload",
+			"responses": [
+				{
+					"status": 201,
+					"body": {
+						"result": "ok",
+						"filename": "{{form.file.filename}}"
+					}
+				}
+			]
+		}
+	],
+	"websockets": [
+		{
+			"path": "/ws/{room}",
+			"match": {
+				"query": {
+					"token": ".+"
+				},
+				"headers": {
+					"Sec-WebSocket-Protocol": "^token-.+"
+				}
+			},
+			"script": [
+				{
+					"send": "Welcome to room {{param.room}}!;token=={{query.token}}"
+				},
+				{
+					"delay_ms": 3000,
+					"timeout_ms": 500000,
+					"await": {
+						"cmd": "ping"
+					}
+				},
+				{
+					"delay_ms": 3000,
+					"send": "{\"pong\":true}"
+				},
+				{
+					"await": ".*abc.*"
+				},
+				{
+					"delay_ms": 3000,
+					"send": "{\"data\":true}"
+				},
+				{
+					"close": true
+				}
+			]
+		}
+	],
+	"sse": [
+		{
+			"path": "/sse/{topic}",
+			"method": "GET",
+			"status": 200,
+			"headers": {
+				"X-Stream-Id": "{{param.topic}}",
+				"X-Custom": "ok",
+				"Access-Control-Allow-Origin": "http://127.0.0.1:8080",
+				"Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+				"Access-Control-Allow-Headers": "Content-Type,Authorization",
+				"Access-Control-Allow-Credentials": "true"
+			},
+			"cookies": [
+				{
+					"Name": "sid",
+					"Value": "{{param.topic}}-{{query.mode}}",
+					"HttpOnly": true
+				}
+			],
+			"events": [
+				{
+					"id": "1",
+					"event": "welcome",
+					"data": "topic={{param.topic}}",
+					"retry": 1000,
+					"delay_ms": 1000
+				},
+				{
+					"event": "keep",
+					"data": "ping",
+					"delay_ms": 2000
+				},
+				{
+					"id": "3",
+					"event": "end",
+					"data": "topic={{param.topic}}",
+					"delay_ms": 3000,
+					"retry": 1000
+				}
+			],
+			"repeat": true
+		},
+		{
+			"path": "/sse/{topic}",
+			"method": "POST",
+			"match": {
+				"headers": {
+					"X-Auth": "^token-.+"
+				},
+				"query": {
+					"mode": "live"
+				},
+				"body": {
+					"client.version": "^v\\d+\\.\\d+$"
+				}
+			},
+			"status": 200,
+			"headers": {
+				"X-Stream-Id": "{{param.topic}}",
+				"X-Custom": "ok",
+				"Access-Control-Allow-Origin": "http://127.0.0.1:8080",
+				"Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+				"Access-Control-Allow-Headers": "Content-Type,Authorization",
+				"Access-Control-Allow-Credentials": "true"
+			},
+			"cookies": [
+				{
+					"Name": "sid",
+					"Value": "{{param.topic}}-{{query.mode}}",
+					"HttpOnly": true
+				}
+			],
+			"events": [
+				{
+					"id": "1",
+					"event": "welcome",
+					"data": "topic={{param.topic}}",
+					"retry": 1000,
+					"delay_ms": 5000
+				},
+				{
+					"event": "keep",
+					"data": "ping",
+					"delay_ms": 5000
+				},
+				{
+					"id": "3",
+					"event": "end",
+					"data": "topic={{param.topic}}",
+					"delay_ms": 3000,
+					"retry": 1000
+				}
+			],
+			"repeat": false
+		}
+	]
+}
