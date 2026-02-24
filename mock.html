@@ -300,6 +300,29 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
+        .log-clear-btn {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .log-clear-btn:hover {
+            background: linear-gradient(135deg, #ee5a5a 0%, #dd4a4a 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(238, 90, 90, 0.4);
+        }
+
+        .log-clear-btn:active {
+            transform: translateY(0);
+        }
+
         .log-container {
             flex-shrink: 0;
             height: calc(100vh / 6);
@@ -633,6 +656,7 @@
                     请求日志
                     <span class="log-tab-badge" id="requestLogBadge" style="display:none;">0</span>
                 </div>
+                <button class="log-clear-btn" id="btnClearLog" onclick="clearCurrentLog()">清除</button>
             </div>
             <div class="log-container" id="logContainer">
                 <div class="log-panel active" id="systemLogPanel"></div>
@@ -645,28 +669,32 @@
             return document.getElementById(id);
         }
 
-        const configInput = document.getElementById('configInput');
-        const statusBadge = document.getElementById('statusBadge');
-        const systemLogPanel = document.getElementById('systemLogPanel');
-        const requestLogPanel = document.getElementById('requestLogPanel');
-        const logContainer = document.getElementById('logContainer');
-        const logResizeHandle = document.getElementById('logResizeHandle');
-        const editorContainer = document.getElementById('editorContainer');
-        const requestLogBadge = document.getElementById('requestLogBadge');
-        const savedConfigSelect = document.getElementById('savedConfigSelect');
-        const btnDeleteConfig = document.getElementById('btnDeleteConfig');
+        // ========== DOM元素引用 ==========
+        const configInput = document.getElementById('configInput');         // 配置输入框
+        const statusBadge = document.getElementById('statusBadge');         // 状态徽章
+        const systemLogPanel = document.getElementById('systemLogPanel');   // 系统日志面板
+        const requestLogPanel = document.getElementById('requestLogPanel'); // 请求日志面板
+        const logContainer = document.getElementById('logContainer');       // 日志容器
+        const logResizeHandle = document.getElementById('logResizeHandle'); // 日志区域拖拽手柄
+        const editorContainer = document.getElementById('editorContainer'); // 编辑器容器
+        const requestLogBadge = document.getElementById('requestLogBadge'); // 请求日志未读徽章
+        const savedConfigSelect = document.getElementById('savedConfigSelect'); // 已保存配置下拉框
+        const btnDeleteConfig = document.getElementById('btnDeleteConfig'); // 删除配置按钮
+
+        // 操作按钮集合
         const buttons = {
-            load: document.getElementById('btnLoad'),
-            reload: document.getElementById('btnReload'),
-            start: document.getElementById('btnStart'),
-            stop: document.getElementById('btnStop'),
-            restart: document.getElementById('btnRestart')
+            load: document.getElementById('btnLoad'),       // 加载配置
+            reload: document.getElementById('btnReload'),   // 重载配置
+            start: document.getElementById('btnStart'),     // 启动服务
+            stop: document.getElementById('btnStop'),       // 停止服务
+            restart: document.getElementById('btnRestart')  // 重启服务
         };
 
-        const STORAGE_KEY = 'mockConfigs';
-        let requestLogCount = 0;
-        let currentLogTab = 'system';
-        let ws = null;
+        // ========== 全局状态变量 ==========
+        const STORAGE_KEY = 'mockConfigs';  // localStorage存储键
+        let requestLogCount = 0;            // 请求日志未读计数
+        let currentLogTab = 'system';       // 当前日志标签页
+        let ws = null;                      // WebSocket连接实例
 
         /**
          * 切换日志Tab页
@@ -674,13 +702,20 @@
          */
         function switchLogTab(tab) {
             currentLogTab = tab;
-            document.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.log-panel').forEach(p => p.classList.remove('active'));
+            const logTabs = document.querySelectorAll('.log-tab');
+            const logPanels = document.querySelectorAll('.log-panel');
+
+            // 移除所有活动状态
+            logTabs.forEach(t => t.classList.remove('active'));
+            logPanels.forEach(p => p.classList.remove('active'));
+
             if (tab === 'system') {
-                document.querySelector('.log-tab:first-child').classList.add('active');
+                // 激活系统日志标签和面板
+                logTabs[0].classList.add('active');
                 systemLogPanel.classList.add('active');
             } else {
-                document.querySelector('.log-tab:last-child').classList.add('active');
+                // 激活请求日志标签和面板
+                logTabs[1].classList.add('active');
                 requestLogPanel.classList.add('active');
                 requestLogBadge.style.display = 'none';
                 requestLogCount = 0;
@@ -728,12 +763,15 @@
          * @param {Object} data - 请求日志数据
          */
         function addRequestLog(data) {
+            // 根据HTTP方法确定样式类
             const methodClass = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(data.method)
                 ? data.method
                 : 'OTHER';
 
+            // 根据状态码确定样式类（2xx/3xx/4xx/5xx）
             const statusClass = 's' + Math.floor(data.status / 100) + 'xx';
 
+            // 构建日志项HTML
             const item = document.createElement('div');
             item.className = 'request-log-item';
             let html = '<div class="request-log-header" onclick="toggleRequestLogDetail(this.parentElement)">';
@@ -742,12 +780,14 @@
             html += '<span class="request-log-method ' + methodClass + '">' + data.method + '</span>';
             html += '<span class="request-log-path">' + data.url + '</span>';
             html += '</div>';
+            // 详情区域（可折叠）
             html += '<div class="request-log-detail">';
             if (Object.keys(data.headers || {}).length > 0) {
                 html += '<div class="request-log-detail-row"><span class="request-log-detail-label">Headers:</span><br>';
                 html += '<span style="color:#dfe6e9;font-size:10px;white-space:pre-wrap;">' + formatHeaders(data.headers) + '</span></div>';
             }
             if (data.body) {
+                // Body内容限制显示前500字符
                 html += '<div class="request-log-detail-row"><span class="request-log-detail-label">Body:</span><br>';
                 html += '<span style="color:#dfe6e9;font-size:10px;word-break:break-all;">' + escapeHtml(data.body.substring(0, 500));
                 if (data.body.length > 500) html += '...';
@@ -756,8 +796,10 @@
             html += '</div>';
             item.innerHTML = html;
 
+            // 插入到列表顶部（最新的在最前面）
             requestLogPanel.insertBefore(item, requestLogPanel.firstChild);
 
+            // 如果不在请求日志标签页，更新未读计数徽章
             if (currentLogTab !== 'request') {
                 requestLogCount++;
                 requestLogBadge.textContent = requestLogCount > 99 ? '99+' : requestLogCount;
@@ -778,41 +820,49 @@
 
         /**
          * 初始化日志区域拖拽调整高度
+         * 允许用户通过拖拽分割线调整日志区域和编辑器区域的高度
          */
         function initLogResize() {
-            let isResizing = false;
-            let startY = 0;
-            let startLogHeight = 0;
-            let startEditorHeight = 0;
+            let isResizing = false;     // 是否正在拖拽
+            let startY = 0;             // 拖拽起始Y坐标
+            let startLogHeight = 0;     // 日志区域初始高度
+            let startEditorHeight = 0;  // 编辑器区域初始高度
 
+            // 鼠标按下：开始拖拽
             logResizeHandle.addEventListener('mousedown', function (e) {
                 isResizing = true;
                 startY = e.clientY;
                 startLogHeight = logContainer.offsetHeight;
                 startEditorHeight = editorContainer.offsetHeight;
+                // 设置拖拽光标样式
                 document.body.style.cursor = 'ns-resize';
                 document.body.style.userSelect = 'none';
                 e.preventDefault();
             });
 
+            // 鼠标移动：调整高度
             document.addEventListener('mousemove', function (e) {
                 if (!isResizing) return;
                 const deltaY = e.clientY - startY;
+                // 限制高度范围：最小100px，最大70%视口高度
                 const newLogHeight = Math.max(100, Math.min(window.innerHeight * 0.7, startLogHeight - deltaY));
                 const newEditorHeight = Math.max(100, startEditorHeight + deltaY);
                 logContainer.style.height = newLogHeight + 'px';
                 editorContainer.style.height = newEditorHeight + 'px';
             });
 
+            // 鼠标释放：结束拖拽
             document.addEventListener('mouseup', function () {
                 if (isResizing) {
                     isResizing = false;
+                    // 恢复默认光标样式
                     document.body.style.cursor = '';
                     document.body.style.userSelect = '';
                 }
             });
         }
 
+        // 初始化拖拽功能
         initLogResize();
 
         /**
@@ -834,8 +884,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        connectWebSocket();
 
         /**
          * 从localStorage获取所有已保存的配置
@@ -1012,13 +1060,41 @@
         document.getElementById('btnExportConfig').addEventListener('click', exportConfig);
         btnDeleteConfig.addEventListener('click', deleteSavedConfig);
 
+        connectWebSocket();
         refreshSavedConfigList();
 
+
+        /**
+         * 输出系统日志到面板
+         * 在系统日志面板顶部追加带时间戳的日志消息
+         * @param {string} message - 日志消息内容
+         */
         function log(message) {
             const time = new Date().toLocaleTimeString();
             systemLogPanel.textContent = `[${time}] ${message}\n` + systemLogPanel.textContent;
         }
 
+        /**
+         * 清除当前日志面板的内容
+         * 根据当前选中的标签页清除对应的日志
+         * - 系统日志：清空并显示清除提示
+         * - 请求日志：清空所有记录并重置未读计数
+         */
+        function clearCurrentLog() {
+            if (currentLogTab === 'system') {
+                const time = new Date().toLocaleTimeString();
+                systemLogPanel.textContent = `[${time}] 系统日志已清除\n`;
+            } else {
+                requestLogPanel.textContent = '';
+                requestLogCount = 0;
+                requestLogBadge.style.display = 'none';
+            }
+        }
+
+        /**
+         * 从服务器获取当前配置
+         * 请求 /mock/api/config 接口，获取配置内容和运行状态
+         */
         async function fetchConfig() {
             try {
                 const res = await fetch('/mock/api/config');
@@ -1032,11 +1108,22 @@
             }
         }
 
+        /**
+         * 设置运行状态显示
+         * 更新状态徽章的文本和样式
+         * @param {boolean} running - 是否正在运行
+         */
         function setStatus(running) {
             statusBadge.textContent = running ? 'RUNNING' : 'STOPPED';
             statusBadge.classList.toggle('running', running);
         }
 
+        /**
+         * 发送JSON格式的POST请求
+         * @param {string} url - 请求URL
+         * @param {Object} payload - 请求体对象
+         * @returns {Promise<Object>} 响应JSON数据
+         */
         async function postJSON(url, payload) {
             const res = await fetch(url, {
                 method: 'POST',
@@ -1050,8 +1137,12 @@
             return res.json().catch(() => ({}));
         }
 
+        // ========== 按钮事件绑定 ==========
+
+        // 加载按钮：从服务器获取最新配置
         buttons.load.addEventListener('click', fetchConfig);
 
+        // 重载按钮：保存并重启服务
         buttons.reload.addEventListener('click', async () => {
             try {
                 await postJSON('/mock/api/reload', { config: configInput.value });
@@ -1062,6 +1153,7 @@
             }
         });
 
+        // 启动按钮：启动Mock服务
         buttons.start.addEventListener('click', async () => {
             try {
                 await postJSON('/mock/api/start');
@@ -1072,6 +1164,7 @@
             }
         });
 
+        // 停止按钮：停止Mock服务
         buttons.stop.addEventListener('click', async () => {
             try {
                 await postJSON('/mock/api/stop');
@@ -1082,6 +1175,7 @@
             }
         });
 
+        // 重启按钮：重启Mock服务
         buttons.restart.addEventListener('click', async () => {
             try {
                 await postJSON('/mock/api/restart');
@@ -1092,20 +1186,17 @@
             }
         });
 
+        // 页面加载时自动获取配置
         fetchConfig();
 
+        // JSON格式化相关按钮事件
         byId('btnFormatJson').addEventListener('click', formatJsonResponse);
         byId('btnCopyFormatted').addEventListener('click', copyFormattedJson);
         byId('btnShowRaw').addEventListener('click', showRawJson);
 
-
-
-
-
-
-        // JSON格式化高亮相关变量
-        let formattedJson = '';
-        let isJsonFormatted = false;
+        // ========== JSON格式化高亮相关 ==========
+        let formattedJson = '';      // 格式化后的JSON字符串（用于复制）
+        let isJsonFormatted = false; // 是否处于格式化显示状态
 
         /**
          * 格式化响应体中的JSON内容并高亮显示
@@ -1119,6 +1210,7 @@
             const btnCopyFormatted = byId('btnCopyFormatted');
             const btnShowRaw = byId('btnShowRaw');
 
+            // 检查必要元素是否存在
             if (!configTextarea || !jsonFormattedContainer) {
                 console.error('JSON格式化所需元素不存在');
                 return;
@@ -1131,11 +1223,14 @@
                     return;
                 }
 
+                // 解析JSON并格式化（缩进4空格）
                 const jsonObj = JSON.parse(rawJson);
                 formattedJson = JSON.stringify(jsonObj, null, 4);
 
+                // 渲染为可折叠的DOM结构
                 renderJsonWithDom(jsonObj);
 
+                // 切换显示：隐藏textarea，显示格式化容器
                 jsonFormattedContainer.style.display = 'block';
                 configTextarea.style.display = 'none';
                 btnFormatJson.style.display = 'none';
@@ -1149,6 +1244,10 @@
             }
         }
 
+        /**
+         * 显示原始JSON文本
+         * 隐藏格式化视图，恢复原始textarea显示
+         */
         function showRawJson() {
             const configTextarea = byId('configInput');
             const jsonFormattedContainer = byId('jsonFormattedContainer');
@@ -1156,8 +1255,10 @@
             const btnCopyFormatted = byId('btnCopyFormatted');
             const btnShowRaw = byId('btnShowRaw');
 
+            // 隐藏格式化容器，显示原始textarea
             jsonFormattedContainer.style.display = 'none';
             configTextarea.style.display = 'block';
+            // 切换按钮显示状态
             btnFormatJson.style.display = 'inline-block';
             btnCopyFormatted.style.display = 'none';
             btnShowRaw.style.display = 'none';
@@ -1167,9 +1268,6 @@
         /**
          * 复制格式化后的JSON字符串到剪贴板
          * @returns {void}
-         */
-        /**
-         * 复制格式化JSON到剪贴板
          */
         async function copyFormattedJson() {
             if (!formattedJson) {
@@ -1245,36 +1343,43 @@
          * @param {Array} arr - 要处理的数组
          */
         function processArray(parent, arr) {
+            // 空数组直接显示 []
             if (arr.length === 0) {
                 createAndAppendSpan(parent, '[]', 'json-bracket');
                 return;
             }
-            // 折叠按钮
+
+            // 创建折叠箭头按钮
             const arrow = document.createElement('span');
             arrow.textContent = '▼';
             arrow.className = 'json-arrow';
-            // 括号
+
+            // 开始括号 [
             const bracketSpan = document.createElement('span');
             bracketSpan.textContent = '[';
             bracketSpan.className = 'json-bracket';
-            // 容器
+
+            // 数组元素容器
             const itemsContainer = document.createElement('div');
             itemsContainer.className = 'json-container';
             arr.forEach((item, i) => {
                 const itemDiv = document.createElement('div');
                 processValue(itemDiv, item);
+                // 非最后一个元素添加逗号
                 if (i < arr.length - 1) {
                     createAndAppendSpan(itemDiv, ',', 'json-bracket');
                 }
                 itemsContainer.appendChild(itemDiv);
             });
-            // 结束括号
+
+            // 结束括号 ]
             const endBracketDiv = document.createElement('div');
             const endBracketSpan = document.createElement('span');
             endBracketSpan.textContent = ']';
             endBracketSpan.className = 'json-bracket';
             endBracketDiv.appendChild(endBracketSpan);
-            // 折叠逻辑
+
+            // 点击箭头切换折叠状态
             arrow.onclick = function () {
                 if (itemsContainer.style.display === 'none') {
                     itemsContainer.style.display = '';
@@ -1286,7 +1391,8 @@
                     arrow.textContent = '▶';
                 }
             };
-            // 组装
+
+            // 组装DOM结构
             const headerDiv = document.createElement('div');
             headerDiv.appendChild(arrow);
             headerDiv.appendChild(bracketSpan);
@@ -1303,38 +1409,47 @@
          */
         function processObject(parent, obj) {
             const keys = Object.keys(obj);
+            // 空对象直接显示 {}
             if (keys.length === 0) {
                 createAndAppendSpan(parent, '{}', 'json-bracket');
                 return;
             }
-            // 折叠按钮
+
+            // 创建折叠箭头按钮
             const arrow = document.createElement('span');
             arrow.textContent = '▼';
             arrow.className = 'json-arrow';
-            // 括号
+
+            // 开始括号 {
             const bracketSpan = document.createElement('span');
             bracketSpan.textContent = '{';
             bracketSpan.className = 'json-bracket';
-            // 属性容器
+
+            // 对象属性容器
             const propsContainer = document.createElement('div');
             propsContainer.className = 'json-container';
             keys.forEach((key, i) => {
                 const propDiv = document.createElement('div');
+                // 属性名（带引号）
                 createAndAppendSpan(propDiv, `"${key}":`, 'json-key');
                 createAndAppendSpan(propDiv, ' ', null);
+                // 属性值（递归处理）
                 processValue(propDiv, obj[key]);
+                // 非最后一个属性添加逗号
                 if (i < keys.length - 1) {
                     createAndAppendSpan(propDiv, ',', 'json-bracket');
                 }
                 propsContainer.appendChild(propDiv);
             });
-            // 结束括号
+
+            // 结束括号 }
             const endBracketDiv = document.createElement('div');
             const endBracketSpan = document.createElement('span');
             endBracketSpan.textContent = '}';
             endBracketSpan.className = 'json-bracket';
             endBracketDiv.appendChild(endBracketSpan);
-            // 折叠逻辑
+
+            // 点击箭头切换折叠状态
             arrow.onclick = function () {
                 if (propsContainer.style.display === 'none') {
                     propsContainer.style.display = '';
@@ -1346,7 +1461,8 @@
                     arrow.textContent = '▶';
                 }
             };
-            // 组装
+
+            // 组装DOM结构
             const headerDiv = document.createElement('div');
             headerDiv.appendChild(arrow);
             headerDiv.appendChild(bracketSpan);

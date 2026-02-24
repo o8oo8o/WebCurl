@@ -38,10 +38,243 @@
             margin-bottom: 20px;
         }
 
+        /* ========== 请求Tab栏样式 ========== */
+
+        /* 请求Tab栏容器 */
+        .request-tabs-bar {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 0;
+            border: 2px solid #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            height: 38px;
+        }
+
+        /* Tab滚动箭头按钮 */
+        .tab-scroll-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(248, 249, 250, 0.95) 0%, rgba(233, 236, 239, 0.9) 100%);
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            z-index: 10;
+            user-select: none;
+        }
+
+        .tab-scroll-btn:hover {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.2) 0%, rgba(102, 126, 234, 0.15) 100%);
+            color: #764ba2;
+        }
+
+        .tab-scroll-btn:active {
+            transform: scale(0.95);
+        }
+
+        .tab-scroll-btn.show {
+            display: flex;
+        }
+
+        .tab-scroll-btn.disabled {
+            color: #adb5bd;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        #tabScrollLeft {
+            border-radius: 10px 0 0 0;
+            background: linear-gradient(90deg, rgba(248, 249, 250, 1) 70%, rgba(248, 249, 250, 0) 100%);
+            padding-right: 4px;
+        }
+
+        #tabScrollRight {
+            border-radius: 0 0 0 0;
+            background: linear-gradient(270deg, rgba(248, 249, 250, 1) 70%, rgba(248, 249, 250, 0) 100%);
+            padding-left: 4px;
+        }
+
+        /* Tab列表容器 */
+        .request-tabs-list {
+            display: flex;
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
+        }
+
+        .request-tabs-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 单个请求Tab */
+        .request-tab-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: transparent;
+            color: #636e72;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border-right: 1px solid #dee2e6;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            min-width: 70px;
+            max-width: 160px;
+            height: 100%;
+        }
+
+        .request-tab-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .request-tab-item.active {
+            background: #ffffff;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Tab中的HTTP方法标签 */
+        .tab-method {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .tab-method.get {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tab-method.post {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .tab-method.put {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .tab-method.delete {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .tab-method.patch {
+            background: #e2d5f1;
+            color: #6f42c1;
+        }
+
+        .tab-method.head,
+        .tab-method.options {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .tab-method.ws {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .tab-method.sse {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Tab名称 */
+        .tab-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Tab关闭按钮 */
+        .tab-close-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: transparent;
+            color: #adb5bd;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .tab-close-btn:hover {
+            background: #ff7675;
+            color: white;
+        }
+
+        /* 新建Tab按钮 */
+        .new-tab-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 100%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 300;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            margin: 0 2px;
+        }
+
+        .new-tab-btn:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-radius: 8px;
+        }
+
         .url-section {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #ffffff;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .url-section select,
+        .url-section input,
+        .url-section button {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .url-section select {
+            width: 90px;
+        }
+
+        .url-section input[type="url"] {
+            flex: 1;
         }
 
         select,
@@ -1533,9 +1766,20 @@
         <div class="main-content">
             <div class="container">
                 <div class="request-section">
+                    <!-- 请求Tab栏 -->
+                    <div class="request-tabs-bar" id="requestTabsBar">
+                        <button class="tab-scroll-btn" id="tabScrollLeft" onclick="scrollTabs('left')"
+                            title="向左滚动">‹</button>
+                        <div class="request-tabs-list" id="requestTabsList">
+                            <!-- Tab项会动态生成 -->
+                        </div>
+                        <button class="tab-scroll-btn" id="tabScrollRight" onclick="scrollTabs('right')"
+                            title="向右滚动">›</button>
+                        <button class="new-tab-btn" onclick="RequestTabManager.createTab()" title="新建请求">+</button>
+                    </div>
+
                     <div class="url-section">
                         <button class="toggle-aside-btn" onclick="toggleAside()">◀</button>
-                        <button class="new-request-btn" onclick="newRequest()">新建</button>
                         <select id="httpMethod">
                             <option>GET</option>
                             <option>POST</option>
@@ -1650,8 +1894,7 @@
                             <div id="wsBodyRows"></div>
                             <div class="ws-body-actions">
                                 <button class="btn-action" onclick="addWsBodyRow()" type="button">添加行</button>
-                                <button class="btn-danger-action" onclick="if (currentWS) currentWS.close();"
-                                    type="button">关闭连接</button>
+                                <button class="btn-danger-action" onclick="closeCurrentWS()" type="button">关闭连接</button>
                                 <button class="btn-action" onclick="sendWsBody()" type="button">发送</button>
                             </div>
                         </div>
@@ -1835,6 +2078,12 @@ function postResponse(response) {
 
             <label>请求重试间隔 (秒, retry_delay)</label>
             <input type="number" id="settingRetryDelay" min="0" placeholder="0为无间隔" class="setting-input">
+
+            <label>流式转发 (stream)</label>
+            <select id="settingStream">
+                <option value="false">false - 默认，等待完整响应</option>
+                <option value="true">true - 实时流式接收数据</option>
+            </select>
 
             <label>SSE事件类型列表 (逗号分隔)</label>
             <input type="text" id="settingSseEventTypes" placeholder="例如: update,info,warn" class="setting-input">
@@ -2824,34 +3073,43 @@ function postResponse(response) {
          * 创建一个包含复选框、参数名、类型选择、值输入、备注和删除按钮的FormData行
          * @returns {HTMLElement} 创建的FormData行元素
          */
-        function createFormDataRow() {
+        /**
+         * 创建FormData行
+         * @param {Object|null} data - 初始化数据
+         * @returns {HTMLElement} 创建的FormData行元素
+         */
+        function createFormDataRow(data = null) {
             const row = document.createElement('div');
             row.className = 'formdata-row';
             row.innerHTML = `
-                <input type="checkbox" checked>
-                <input type="text" class="formdata-key" placeholder="参数名称">
+                <input type="checkbox" ${data?.enabled !== false ? 'checked' : ''}>
+                <input type="text" class="formdata-key" placeholder="参数名称" value="${data?.key || ''}">
                 <select class="formdata-type select-formdata-type" onchange="handleTypeChange(this)">
-                    <option value="text">文本</option>
-                    <option value="file">文件</option>
+                    <option value="text" ${data?.type === 'text' || !data ? 'selected' : ''}>文本</option>
+                    <option value="file" ${data?.type === 'file' ? 'selected' : ''}>文件</option>
                 </select>
                 <div class="formdata-value">
-                    <input type="text" class="text-input" placeholder="文本值">
+                    <input type="text" class="text-input" placeholder="文本值" value="${data?.value || ''}">
                     <input type="file" class="file-input" multiple onchange="handleFormDataFileChange(event)">
                     <div class="file-preview"></div>
                 </div>
-                <input type="text" placeholder="备注" class="formdata-remark"/>
+                <input type="text" placeholder="备注" class="formdata-remark" value="${data?.remark || ''}"/>
                 <button class="remove-btn" onclick="removeFormDataRow(this)">删除</button>
             `;
+            if (data?.type === 'file') {
+                handleTypeChange(row.querySelector('.formdata-type'));
+            }
             return row;
         }
 
         /**
          * 添加FormData行
          * 在FormData容器中添加一个新的FormData行
+         * @param {Object|null} data - 初始化数据
          */
-        function addFormDataRow() {
+        function addFormDataRow(data = null) {
             const container = byId('formDataRows');
-            const row = createFormDataRow();
+            const row = createFormDataRow(data);
             container.appendChild(row);
         }
 
@@ -2996,16 +3254,27 @@ function postResponse(response) {
 
         /**
          * 处理代理请求
-         * 构建FormData并发送到代理服务器
+         * 
+         * 当useProxy为true时，请求通过后端代理转发
+         * 代理模式支持：跨域请求、自定义SSL验证、重定向控制等
+         * 
+         * 核心流程：
+         * 1. 构建FormData包含请求参数
+         * 2. 发送到 /api/forward 接口
+         * 3. 处理响应并执行后置Hook
+         * 4. 根据Tab状态决定更新界面还是保存数据
+         * 
          * @param {string} url - 目标URL
          * @param {string} method - 请求方法
          * @param {string} bodyType - 请求体类型
          * @param {Object} headers - 请求头
          * @param {Object} settings - 请求设置
          * @param {boolean} download - 是否为下载请求
+         * @param {AbortSignal} signal - AbortController 的信号
+         * @param {string} currentTabId - 发起请求的Tab ID
          * @returns {Promise<void>}
          */
-        async function handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody) {
+        async function handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody, currentTabId) {
             const formData = new FormData();
             formData.append('url', url);
             formData.append('method', method);
@@ -3018,6 +3287,7 @@ function postResponse(response) {
             formData.append('follow_redirect', settings.follow_redirect || 'N');
             formData.append('retry_count', settings.retry_count || '0');
             formData.append('retry_delay', settings.retry_delay || '0');
+            formData.append('stream', settings.stream || 'false');
 
             const filesInfo = [];
             await processRequestBodyWithBody(formData, bodyType, filesInfo, requestBody);
@@ -3036,8 +3306,15 @@ function postResponse(response) {
                 const duration = Date.now() - startTime;
                 const contentType = response.headers.get('content-type');
 
+                // 检查是否为流式响应
+                if (settings.stream === 'true') {
+                    await handleStreamResponse(response, currentTabId);
+                    saveRequestToHistory();
+                    return;
+                }
+
                 if (contentType?.includes('text/event-stream')) {
-                    await handleSSEFetchResponse(response);
+                    await handleSSEFetchResponse(response, currentTabId);
                     saveRequestToHistory();
                     return;
                 }
@@ -3076,20 +3353,34 @@ function postResponse(response) {
                     responseText = hookResponse.body;
                 }
 
-                if (download) {
-                    await handleDownloadResponse(response, contentType);
+                // 检查是否还在同一个Tab
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    if (download) {
+                        await handleDownloadResponse(response, contentType);
+                    } else {
+                        await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
+                    }
+                    await updateResponseHeaders(response);
+                    RequestTabManager.saveCurrentResponseData();
                 } else {
-                    await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
+                    // 不在同一个Tab，将响应数据保存到发起请求的Tab中
+                    RequestTabManager.saveResponseToTab(currentTabId, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: responseHeaders,
+                        body: responseText,
+                        duration,
+                        contentType
+                    });
                 }
 
-                await updateResponseHeaders(response);
                 saveRequestToHistory();
             } catch (error) {
-                if (error.name !== 'AbortError') {
+                if (error.name !== 'AbortError' && RequestTabManager.activeTabId === currentTabId) {
                     await handleRequestError(error);
                 }
             } finally {
-                currentAbortController = null;
+                RequestTabManager.clearTabLoadingState(currentTabId);
             }
         }
 
@@ -3249,34 +3540,51 @@ function postResponse(response) {
 
         /**
          * 处理WebSocket/SSE请求
+         * 
+         * WebSocket和SSE连接通过后端代理建立
+         * 后端返回connect_id，前端通过该ID建立实际连接
+         * 
+         * 核心流程：
+         * 1. 关闭该Tab已有的WS/SSE连接
+         * 2. 发送请求到 /api/forward 获取 connect_id
+         * 3. 根据 method 建立 WS 或 SSE 连接
+         * 
          * @param {string} url - 目标URL
          * @param {string} method - 请求方法 (WS/SSE)
          * @param {Object} headers - 请求头
          * @param {Object} settings - 请求设置
          * @param {AbortSignal} signal - AbortController 的信号
+         * @param {string} currentTabId - 发起请求的Tab ID
          * @returns {Promise<void>}
          */
-        async function handleWSRequest(url, method, headers, settings, signal) {
-            // 断开已有连接
-            if (currentWS) {
-                try { currentWS.close(); } catch (e) { }
-                currentWS = null;
-            }
-            if (currentSSE) {
-                try { currentSSE.close(); } catch (e) { }
-                currentSSE = null;
+        async function handleWSRequest(url, method, headers, settings, signal, currentTabId) {
+            // 【关键】获取发起请求的Tab并关闭已有连接
+            // 使用 currentTabId 而不是 activeTabId，确保操作正确的Tab
+            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+            if (tab) {
+                if (tab.ws) {
+                    try { tab.ws.close(); } catch (e) { }
+                    tab.ws = null;
+                }
+                if (tab.sse) {
+                    try { tab.sse.close(); } catch (e) { }
+                    tab.sse = null;
+                }
             }
 
-            // 清空响应区域
-            const responseInfo = byId('responseInfo');
-            const responseBody = byId('responseBody');
-            const responseHeaders = byId('responseHeaders');
+            // 【关键】只有在当前Tab是发起请求的Tab时才清空响应区域
+            // 这解决了多Tab切换时响应内容串扰的问题
+            if (RequestTabManager.activeTabId === currentTabId) {
+                const responseInfo = byId('responseInfo');
+                const responseBody = byId('responseBody');
+                const responseHeaders = byId('responseHeaders');
 
-            if (responseInfo) responseInfo.innerHTML = '';
-            if (responseBody) responseBody.value = '';
-            if (responseHeaders) {
-                const tbody = responseHeaders.getElementsByTagName('tbody')[0];
-                if (tbody) tbody.innerHTML = '';
+                if (responseInfo) responseInfo.innerHTML = '';
+                if (responseBody) responseBody.value = '';
+                if (responseHeaders) {
+                    const tbody = responseHeaders.getElementsByTagName('tbody')[0];
+                    if (tbody) tbody.innerHTML = '';
+                }
             }
 
             // 构造 formData
@@ -3296,25 +3604,50 @@ function postResponse(response) {
                 const resp = await fetch('/api/forward', { method: 'POST', body: formData, signal: signal });
                 const data = await resp.json();
                 if (data.code !== 0) {
-                    if (responseInfo) {
-                        responseInfo.innerHTML = '连接失败: ' + (data.msg || '未知错误');
+                    // 【关键】先更新Tab的响应数据
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab) {
+                        tab.response.status = 0;
+                        tab.response.statusText = '连接失败: ' + (data.msg || '未知错误');
+                    }
+                    // 只有在同一个Tab时才更新界面
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        const responseInfo = byId('responseInfo');
+                        if (responseInfo) {
+                            responseInfo.innerHTML = '连接失败: ' + (data.msg || '未知错误');
+                        }
                     }
                     return;
                 }
 
                 const connect_id = data.connect_id;
                 if (method === 'WS') {
-                    await establishWSConnection(connect_id);
+                    await establishWSConnection(connect_id, currentTabId);
                 } else if (method === 'SSE') {
-                    await establishSSEConnection(connect_id);
+                    await establishSSEConnection(connect_id, currentTabId);
                 }
             } catch (err) {
-                if (responseInfo) {
+                // 【关键】先更新Tab的响应数据
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                if (tab) {
                     if (err.name === 'AbortError') {
-                        responseInfo.innerHTML = '请求已取消';
-                        responseInfo.className = 'response-info httpStatus4';
+                        tab.response.status = 0;
+                        tab.response.statusText = '请求已取消';
                     } else {
-                        responseInfo.innerHTML = '请求错误: ' + (err.message || err);
+                        tab.response.status = 0;
+                        tab.response.statusText = '请求错误: ' + (err.message || err);
+                    }
+                }
+                // 只有在同一个Tab时才显示错误
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseInfo = byId('responseInfo');
+                    if (responseInfo) {
+                        if (err.name === 'AbortError') {
+                            responseInfo.innerHTML = '请求已取消';
+                            responseInfo.className = 'response-info httpStatus4';
+                        } else {
+                            responseInfo.innerHTML = '请求错误: ' + (err.message || err);
+                        }
                     }
                 }
                 console.error('WS/SSE请求错误:', err);
@@ -3322,23 +3655,70 @@ function postResponse(response) {
         }
 
         /**
+         * 关闭当前Tab的WebSocket连接
+         */
+        function closeCurrentWS() {
+            const tab = RequestTabManager.tabs.find(t => t.id === RequestTabManager.activeTabId);
+            if (tab && tab.ws) {
+                try {
+                    tab.ws.close();
+                } catch (e) {
+                    console.warn('关闭WS连接时出错:', e);
+                }
+                tab.ws = null;
+            }
+        }
+
+        /**
          * 建立WebSocket连接
          * @param {string} connect_id - 连接ID
+         * @param {string} currentTabId - 发起请求的Tab ID
          * @returns {Promise<void>}
          */
-        async function establishWSConnection(connect_id) {
+        async function establishWSConnection(connect_id, currentTabId) {
             const wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
             const wsUrl = `${wsProto}://${location.host}/api/forward-ws?connect_id=${connect_id}`;
             const ws = new WebSocket(wsUrl);
-            currentWS = ws;
 
-            const responseBody = byId('responseBody');
-            if (responseBody) responseBody.value = '';
+            // 记录连接开始时间
+            const connectionStartTime = Date.now();
+
+            // 保存到发起请求的Tab
+            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+            if (tab) {
+                tab.ws = ws;
+            }
+
+            // 只有在同一个Tab时才更新界面
+            if (RequestTabManager.activeTabId === currentTabId) {
+                const responseBody = byId('responseBody');
+                if (responseBody) responseBody.value = '';
+            }
 
             ws.onopen = function () {
-                const responseInfo = byId('responseInfo');
-                if (responseInfo) {
-                    responseInfo.innerHTML = 'WebSocket 连接已建立';
+                // 【关键】设置Tab的响应状态，确保切换Tab时不会被清空
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                if (tab) {
+                    tab.response.status = 101;
+                    tab.response.statusText = 'Switching Protocols';
+                    tab.response.contentType = 'websocket';
+                    tab.response.duration = null; // 连接中，无持续时间
+                }
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseInfo = byId('responseInfo');
+                    if (responseInfo) {
+                        responseInfo.innerHTML = `
+                            状态码: 101 Switching Protocols<br>
+                            响应时间: 持续连接中<br>
+                            内容类型: websocket<br>
+                        `;
+                        responseInfo.className = 'response-info httpStatus1';
+                        responseInfo.dataset.status = '101';
+                        responseInfo.dataset.statusText = 'Switching Protocols';
+                        responseInfo.dataset.duration = '';
+                        responseInfo.dataset.contentType = 'websocket';
+                    }
                 }
                 saveRequestToHistory();
             };
@@ -3349,7 +3729,15 @@ function postResponse(response) {
                     if (typeof e.data === 'string') {
                         const obj = JSON.parse(e.data);
                         if (obj.type === 'headers' && obj.headers) {
-                            updateWSResponseHeaders(obj.headers);
+                            // 【关键】保存响应头到发起请求的Tab
+                            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                            if (tab) {
+                                tab.response.headers = obj.headers;
+                            }
+                            // 只有在同一个Tab时才更新界面
+                            if (RequestTabManager.activeTabId === currentTabId) {
+                                updateWSResponseHeaders(obj.headers);
+                            }
                             return;
                         }
                     }
@@ -3360,11 +3748,33 @@ function postResponse(response) {
 
                 // 处理普通消息
                 const responseBody = byId('responseBody');
+
+                // 获取当前Tab并更新响应体
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId !== currentTabId) {
+                    // 不在当前Tab时，只更新Tab的响应体，不更新界面
+                    if (tab && tab.response) {
+                        if (typeof e.data === 'string') {
+                            tab.response.body = (tab.response.body || '') + e.data + '\n';
+                        } else {
+                            tab.response.body = (tab.response.body || '') + '[Binary data]\n';
+                        }
+                    }
+                    return;
+                }
+
                 if (!responseBody) return;
 
                 if (typeof e.data === 'string') {
                     // 文本消息
                     responseBody.value += e.data + '\n';
+
+                    // 同步更新Tab的响应体
+                    if (tab && tab.response) {
+                        tab.response.body = responseBody.value || '';
+                    }
                 } else if (e.data instanceof Blob) {
                     // Blob 类型，转为 base64 或 hex 或 utf-8 字符串
                     const reader = new FileReader();
@@ -3380,6 +3790,11 @@ function postResponse(response) {
                         */
                         responseBody.value += '[Blob] data\n';
 
+                        // 同步更新Tab的响应体
+                        const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                        if (tab && tab.response) {
+                            tab.response.body = responseBody.value || '';
+                        }
                     };
                     reader.readAsArrayBuffer(e.data);
                 } else if (e.data instanceof ArrayBuffer) {
@@ -3390,24 +3805,69 @@ function postResponse(response) {
                     responseBody.value += '[ArrayBuffer] hex: ' + hex + '\n';
                     */
                     responseBody.value += '[ArrayBuffer] data\n';
+
+                    // 同步更新Tab的响应体
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab && tab.response) {
+                        tab.response.body = responseBody.value || '';
+                    }
                 } else {
                     responseBody.value += '[Unknown WS message type]\n';
+
+                    // 同步更新Tab的响应体
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab && tab.response) {
+                        tab.response.body = responseBody.value || '';
+                    }
                 }
             };
 
             ws.onerror = function (e) {
-                const responseInfo = byId('responseInfo');
-                if (responseInfo) {
-                    responseInfo.innerHTML = 'WebSocket 错误';
+                // 计算连接持续时间
+                const duration = Date.now() - connectionStartTime;
+                // 【关键】先更新Tab的响应数据
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                if (tab) {
+                    tab.response.statusText = 'WebSocket 错误';
+                    tab.response.duration = duration;
+                }
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseInfo = byId('responseInfo');
+                    if (responseInfo) {
+                        responseInfo.innerHTML = `
+                            状态码: 101 WebSocket 错误<br>
+                            响应时间: ${duration}ms<br>
+                            内容类型: websocket<br>
+                        `;
+                    }
                 }
             };
 
             ws.onclose = function () {
-                const responseInfo = byId('responseInfo');
-                if (responseInfo) {
-                    responseInfo.innerHTML = 'WebSocket 连接已关闭';
+                // 计算连接持续时间
+                const duration = Date.now() - connectionStartTime;
+                // 【关键】先更新Tab的响应数据
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                if (tab) {
+                    tab.response.statusText = '连接已关闭';
+                    tab.response.duration = duration;
                 }
-                currentWS = null;
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseInfo = byId('responseInfo');
+                    if (responseInfo) {
+                        responseInfo.innerHTML = `
+                            状态码: 101 连接已关闭<br>
+                            响应时间: ${duration}ms<br>
+                            内容类型: websocket<br>
+                        `;
+                    }
+                }
+                // 清除发起请求的Tab的ws引用
+                if (tab && tab.ws === ws) {
+                    tab.ws = null;
+                }
             };
 
             // 绑定发送/关闭按钮
@@ -3417,19 +3877,45 @@ function postResponse(response) {
         /**
          * 建立SSE连接
          * @param {string} connect_id - 连接ID
+         * @param {string} currentTabId - 发起请求的Tab ID
          * @returns {Promise<void>}
          */
-        async function establishSSEConnection(connect_id) {
+        async function establishSSEConnection(connect_id, currentTabId) {
             const sseUrl = `/api/forward-sse?connect_id=${connect_id}`;
             const es = new EventSource(sseUrl);
-            currentSSE = es;
 
-            const responseBody = byId('responseBody');
-            if (responseBody) responseBody.value = '';
+            // 记录连接开始时间
+            const connectionStartTime = Date.now();
 
-            const responseInfo = byId('responseInfo');
-            if (responseInfo) {
-                responseInfo.innerHTML = 'SSE 连接已建立';
+            // 保存到发起请求的Tab
+            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+            if (tab) {
+                tab.sse = es;
+                // 【关键】设置Tab的响应状态，确保切换Tab时不会被清空
+                tab.response.status = 200;
+                tab.response.statusText = 'OK';
+                tab.response.contentType = 'text/event-stream';
+                tab.response.duration = null; // 连接中，无持续时间
+            }
+
+            // 只有在同一个Tab时才更新界面
+            if (RequestTabManager.activeTabId === currentTabId) {
+                const responseBody = byId('responseBody');
+                if (responseBody) responseBody.value = '';
+
+                const responseInfo = byId('responseInfo');
+                if (responseInfo) {
+                    responseInfo.innerHTML = `
+                        状态码: 200 OK<br>
+                        响应时间: 持续连接中<br>
+                        内容类型: text/event-stream<br>
+                    `;
+                    responseInfo.className = 'response-info httpStatus2';
+                    responseInfo.dataset.status = '200';
+                    responseInfo.dataset.statusText = 'OK';
+                    responseInfo.dataset.duration = '';
+                    responseInfo.dataset.contentType = 'text/event-stream';
+                }
             }
             saveRequestToHistory();
 
@@ -3437,16 +3923,40 @@ function postResponse(response) {
             es.addEventListener('x-web-curl-headers', function (e) {
                 try {
                     const obj = JSON.parse(e.data);
-                    updateWSResponseHeaders(obj);
+                    // 【关键】保存响应头到发起请求的Tab
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab) {
+                        tab.response.headers = obj;
+                    }
+                    // 只有在同一个Tab时才更新界面
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        updateWSResponseHeaders(obj);
+                    }
                 } catch (err) {
                     console.warn('解析SSE响应头失败:', err);
                 }
             });
 
             es.onmessage = function (e) {
-                const responseBody = byId('responseBody');
-                if (responseBody) {
-                    responseBody.value += `[message] ${e.data || ''}\n`;
+                // 获取当前Tab并更新响应体
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseBody = byId('responseBody');
+                    if (responseBody) {
+                        responseBody.value += `[message] ${e.data || ''}\n`;
+
+                        // 同步更新Tab的响应体
+                        if (tab && tab.response) {
+                            tab.response.body = responseBody.value || '';
+                        }
+                    }
+                } else {
+                    // 不在当前Tab时，只更新Tab的响应体，不更新界面
+                    if (tab && tab.response) {
+                        tab.response.body = (tab.response.body || '') + `[message] ${e.data || ''}\n`;
+                    }
                 }
             };
 
@@ -3457,9 +3967,25 @@ function postResponse(response) {
                 sseEventTypeList.forEach(type => {
                     if (type && type !== 'message' && type !== 'x-web-curl-headers') {
                         es.addEventListener(type, function (e) {
-                            const responseBody = byId('responseBody');
-                            if (responseBody) {
-                                responseBody.value += `[${type}] ${e.data || ''}\n`;
+                            // 获取当前Tab并更新响应体
+                            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+
+                            // 只有在同一个Tab时才更新界面
+                            if (RequestTabManager.activeTabId === currentTabId) {
+                                const responseBody = byId('responseBody');
+                                if (responseBody) {
+                                    responseBody.value += `[${type}] ${e.data || ''}\n`;
+
+                                    // 同步更新Tab的响应体
+                                    if (tab && tab.response) {
+                                        tab.response.body = responseBody.value || '';
+                                    }
+                                }
+                            } else {
+                                // 不在当前Tab时，只更新Tab的响应体，不更新界面
+                                if (tab && tab.response) {
+                                    tab.response.body = (tab.response.body || '') + `[${type}] ${e.data || ''}\n`;
+                                }
                             }
                         });
                     }
@@ -3467,12 +3993,30 @@ function postResponse(response) {
             }
 
             es.onerror = function (e) {
-                const responseInfo = byId('responseInfo');
-                if (responseInfo) {
-                    responseInfo.innerHTML = 'SSE 连接已关闭';
+                // 计算连接持续时间
+                const duration = Date.now() - connectionStartTime;
+                // 【关键】先更新Tab的响应数据
+                const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                if (tab) {
+                    tab.response.statusText = '流式响应已结束';
+                    tab.response.duration = duration;
+                }
+                // 只有在同一个Tab时才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    const responseInfo = byId('responseInfo');
+                    if (responseInfo) {
+                        responseInfo.innerHTML = `
+                            状态码: 200 流式响应已结束<br>
+                            响应时间: ${duration}ms<br>
+                            内容类型: text/event-stream<br>
+                        `;
+                    }
                 }
                 es.close();
-                currentSSE = null;
+                // 清除发起请求的Tab的sse引用
+                if (tab && tab.sse === es) {
+                    tab.sse = null;
+                }
             };
         }
 
@@ -3711,73 +4255,6 @@ function postResponse(response) {
         }
 
         /**
-         * 处理普通HTTP响应（非下载）
-         * 在页面上显示响应信息、响应体和格式化按钮（如为JSON）
-         * @param {Response} response - fetch API 的响应对象
-         * @param {number} duration - 响应耗时，单位ms
-         * @param {string} contentType - 响应内容类型
-         * @returns {Promise<void>}
-         */
-        async function handleNormalResponse(response, duration, contentType) {
-            const responseInfo = byId('responseInfo');
-            const responseBody = byId('responseBody');
-
-            if (responseInfo) {
-                responseInfo.innerHTML = `
-                    状态码: ${response.status} ${response.statusText}<br>
-                    响应时间: ${duration}ms<br>
-                    内容类型: ${contentType || '未指定'}<br>
-                `;
-                responseInfo.classList = 'response-info httpStatus' + (response.status + "").substr(0, 1);
-            }
-
-            // 重置JSON格式化状态
-            resetJsonFormatState();
-
-            // 二进制内容类型检测
-            const binaryTypes = [
-                'application/octet-stream',
-                'application/pdf',
-                'image/',
-                'audio/',
-                'video/',
-                'application/zip',
-                'application/x-rar'
-            ];
-
-            const isBinaryContent = contentType && binaryTypes.some(type => contentType.includes(type));
-
-            if (isBinaryContent) {
-                if (responseBody) {
-                    responseBody.value = `[二进制内容] - ${contentType}\n建议使用"发送并下载"按钮下载此内容`;
-                }
-            } else {
-                const responseText = await response.text();
-                if (responseBody) {
-                    responseBody.value = responseText;
-                }
-
-                // 检测是否为JSON响应
-                const isJsonContentType = contentType?.includes('application/json');
-                const isJsonFormat = responseText.trim() && (
-                    responseText.trim().startsWith('{') ||
-                    responseText.trim().startsWith('[')
-                );
-
-                if (isJsonContentType || (isJsonFormat && (() => {
-                    try {
-                        JSON.parse(responseText.trim());
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                })())) {
-                    showJsonFormatButton();
-                }
-            }
-        }
-
-        /**
          * 重置JSON格式化状态
          * 隐藏格式化容器和按钮，显示原始响应内容
          */
@@ -3808,10 +4285,925 @@ function postResponse(response) {
             }
         }
 
-        // 全局变量，保存当前WS/SSE连接
-        let currentWS = null;
-        let currentSSE = null;
-        let currentAbortController = null;
+        /**
+         * 请求Tab管理器
+         * 管理多Tab请求页面的创建、切换、关闭等功能
+         */
+        const RequestTabManager = {
+            /** @type {Array<{id: string, name: string, method: string, data: Object}>} Tab列表 */
+            tabs: [],
+            /** @type {string|null} 当前激活的Tab ID */
+            activeTabId: null,
+            /** @type {number} Tab计数器，用于生成唯一ID */
+            tabCounter: 0,
+            /** @type {string} localStorage存储键 */
+            STORAGE_KEY: 'request_tabs',
+
+            /**
+             * 初始化Tab管理器
+             * 从localStorage加载已保存的Tab，如果没有则创建默认Tab
+             * 注意：localStorage只保存基本信息，需要补充运行时字段
+             */
+            init() {
+                const savedTabs = StorageManager.get(this.STORAGE_KEY, null);
+                if (savedTabs && savedTabs.tabs && savedTabs.tabs.length > 0) {
+                    // 加载保存的Tab，并补充运行时字段
+                    this.tabs = savedTabs.tabs.map(tab => ({
+                        ...tab,
+                        data: this.getEmptyTabData(),
+                        response: this.getEmptyResponseData(),
+                        isLoading: false,
+                        abortController: null,
+                        ws: null,
+                        sse: null
+                    }));
+                    this.tabCounter = savedTabs.tabCounter || this.tabs.length;
+                    this.activeTabId = savedTabs.activeTabId || this.tabs[0].id;
+                } else {
+                    // 创建默认Tab
+                    this.createTab('未命名请求', 'GET', null, true);
+                }
+                this.renderTabs();
+                this.loadTabData(this.activeTabId);
+                this.updateScrollButtons();
+
+                // 监听Tab列表滚动事件，实时更新按钮状态
+                const tabsList = byId('requestTabsList');
+                if (tabsList) {
+                    tabsList.addEventListener('scroll', () => this.updateScrollButtons());
+                }
+
+                // 监听窗口大小变化，更新按钮状态
+                window.addEventListener('resize', () => this.updateScrollButtons());
+            },
+
+            /**
+             * 保存Tab状态到localStorage
+             * 只保存基本信息（id, name, method），不保存请求/响应数据
+             */
+            saveTabs() {
+                StorageManager.set(this.STORAGE_KEY, {
+                    tabs: this.tabs.map(tab => ({
+                        id: tab.id,
+                        name: tab.name,
+                        method: tab.method
+                    })),
+                    tabCounter: this.tabCounter,
+                    activeTabId: this.activeTabId
+                });
+            },
+
+            /**
+             * 获取空的Tab数据结构
+             * @returns {Object} 空的请求数据
+             */
+            getEmptyTabData() {
+                return {
+                    method: 'GET',
+                    url: '',
+                    headers: [],
+                    bodyType: 'none',
+                    body: null,
+                    hooks: {
+                        preRequest: { enabled: true, script: '' },
+                        postResponse: { enabled: true, script: '' }
+                    }
+                };
+            },
+
+            /**
+             * 获取空的响应数据结构
+             * @returns {Object} 空的响应数据
+             */
+            getEmptyResponseData() {
+                return {
+                    status: null,
+                    statusText: '',
+                    headers: {},
+                    body: '',
+                    duration: null,
+                    contentType: null,
+                    json: null
+                };
+            },
+
+            /**
+             * 创建新Tab
+             * 每个Tab拥有独立的请求数据、响应数据、请求状态、AbortController和WS/SSE连接
+             * @param {string} name - Tab名称
+             * @param {string} method - HTTP方法
+             * @param {Object|null} data - 请求数据（可选）
+             * @param {boolean} isInit - 是否初始化时创建
+             * @returns {string} 新Tab的ID
+             */
+            createTab(name = '未命名请求', method = 'GET', data = null, isInit = false) {
+                // 如果不是初始化，先保存当前Tab数据
+                if (!isInit && this.activeTabId) {
+                    this.saveCurrentTabData();
+                }
+
+                const tabId = 'tab_' + (++this.tabCounter);
+                const tab = {
+                    id: tabId,
+                    name: name,
+                    method: method,
+                    data: data || this.getEmptyTabData(),
+                    // 每个Tab独立的响应数据
+                    response: this.getEmptyResponseData(),
+                    // 每个Tab独立的请求状态
+                    isLoading: false,
+                    abortController: null,
+                    ws: null,
+                    sse: null
+                };
+
+                this.tabs.push(tab);
+                this.activeTabId = tabId;
+                this.renderTabs();
+                this.saveTabs();
+
+                if (!isInit) {
+                    this.loadTabData(tabId);
+                    this.loadResponseData(tabId);
+                }
+
+                this.updateScrollButtons();
+                return tabId;
+            },
+
+            /**
+             * 切换Tab
+             * 
+             * 核心流程：
+             * 1. 保存当前Tab的请求数据和响应数据
+             * 2. 切换 activeTabId 到新Tab
+             * 3. 加载新Tab的请求数据和响应数据到界面
+             * 4. 更新发送按钮状态（可能新Tab正在请求中）
+             * 
+             * @param {string} tabId - 要切换到的Tab ID
+             */
+            switchTab(tabId) {
+                if (tabId === this.activeTabId) return;
+
+                // 【关键】保存当前Tab数据和响应
+                // 确保切换后数据不丢失
+                this.saveCurrentTabData();
+                this.saveCurrentResponseData();
+
+                // 切换到新Tab
+                this.activeTabId = tabId;
+                this.renderTabs();
+                this.loadTabData(tabId);
+                this.loadResponseData(tabId);
+
+                // 【关键】更新发送按钮状态
+                // 新Tab可能正在请求中，需要显示"取消"按钮
+                this.updateSendButtonState();
+                this.saveTabs();
+
+                // 滚动到可见区域
+                this.scrollToTab(tabId);
+            },
+
+            /**
+             * 关闭Tab
+             * @param {string} tabId - 要关闭的Tab ID
+             * @param {Event} event - 点击事件（用于阻止冒泡）
+             */
+            closeTab(tabId, event) {
+                if (event) {
+                    event.stopPropagation();
+                }
+
+                const index = this.tabs.findIndex(t => t.id === tabId);
+                if (index === -1) return;
+
+                // 取消该Tab正在进行的请求
+                const tabToClose = this.tabs[index];
+                if (tabToClose.abortController) {
+                    tabToClose.abortController.abort();
+                }
+                if (tabToClose.ws) {
+                    try {
+                        tabToClose.ws.close();
+                    } catch (e) {
+                        console.warn('关闭WS连接时出错:', e);
+                    }
+                }
+                if (tabToClose.sse) {
+                    try {
+                        tabToClose.sse.close();
+                    } catch (e) {
+                        console.warn('关闭SSE连接时出错:', e);
+                    }
+                }
+
+                // 至少保留一个Tab
+                if (this.tabs.length === 1) {
+                    // 清空当前Tab内容而不是关闭
+                    this.loadTabData(tabId, true);
+                    this.tabs[0].name = '未命名请求';
+                    this.tabs[0].method = 'GET';
+                    this.tabs[0].response = this.getEmptyResponseData();
+                    this.tabs[0].isLoading = false;
+                    this.tabs[0].abortController = null;
+                    this.tabs[0].ws = null;
+                    this.tabs[0].sse = null;
+                    this.renderTabs();
+                    this.saveTabs();
+                    clearResponse();
+                    return;
+                }
+
+                // 如果关闭的是当前激活的Tab，切换到相邻Tab
+                let newActiveId = this.activeTabId;
+                if (tabId === this.activeTabId) {
+                    const newIndex = index < this.tabs.length - 1 ? index : index - 1;
+                    newActiveId = this.tabs[newIndex].id;
+                }
+
+                this.tabs.splice(index, 1);
+                this.activeTabId = newActiveId;
+                this.renderTabs();
+                this.loadTabData(newActiveId);
+                this.loadResponseData(newActiveId);
+                this.updateSendButtonState();
+                this.saveTabs();
+                this.updateScrollButtons();
+            },
+
+            /**
+             * 保存当前Tab的数据
+             */
+            saveCurrentTabData() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (!tab) return;
+
+                tab.method = byId('httpMethod')?.value || 'GET';
+                tab.name = this.getTabName(tab.method);
+                tab.data = this.getCurrentRequestData();
+            },
+
+            /**
+             * 保存当前Tab的响应数据
+             * 注意：如果界面上没有数据但Tab已有数据，则保留原有数据（解决WS/SSE响应头丢失问题）
+             */
+            saveCurrentResponseData() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (!tab) return;
+
+                const responseInfo = byId('responseInfo');
+                const responseBody = byId('responseBody');
+                const currentHeaders = this.getCurrentResponseHeaders();
+
+                // 检查是否为流式连接（WebSocket/SSE）
+                const isStreaming = tab.response?.contentType === 'websocket' || tab.response?.contentType === 'text/event-stream';
+
+                // 如果是流式连接且Tab已有状态数据，保留原有状态
+                if (isStreaming && tab.response?.status) {
+                    // 只更新响应体和响应头，保留原有状态
+                    tab.response = {
+                        ...tab.response,
+                        headers: Object.keys(currentHeaders).length > 0 ? currentHeaders : (tab.response?.headers || {}),
+                        body: responseBody?.value || tab.response?.body || ''
+                    };
+                    return;
+                }
+
+                // 获取界面上的响应数据
+                const newResponse = {
+                    status: responseInfo?.dataset?.status || null,
+                    statusText: responseInfo?.dataset?.statusText || '',
+                    headers: Object.keys(currentHeaders).length > 0 ? currentHeaders : (tab.response?.headers || {}),
+                    body: responseBody?.value || '',
+                    duration: responseInfo?.dataset?.duration || null,
+                    contentType: responseInfo?.dataset?.contentType || null
+                };
+
+                tab.response = newResponse;
+            },
+
+            /**
+             * 获取当前响应头数据
+             * @returns {Object} 响应头数据
+             */
+            getCurrentResponseHeaders() {
+                const headers = {};
+                const responseHeaders = byId('responseHeaders');
+                if (responseHeaders) {
+                    const tbody = responseHeaders.getElementsByTagName('tbody')[0];
+                    if (tbody) {
+                        tbody.querySelectorAll('tr').forEach(row => {
+                            const cells = row.getElementsByTagName('td');
+                            if (cells.length >= 2) {
+                                headers[cells[0].textContent] = cells[1].textContent;
+                            }
+                        });
+                    }
+                }
+                return headers;
+            },
+
+            /**
+             * 加载响应数据到界面
+             * @param {string} tabId - Tab ID
+             */
+            loadResponseData(tabId) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (!tab) return;
+
+                const response = tab.response || this.getEmptyResponseData();
+                const responseInfo = byId('responseInfo');
+                const responseBody = byId('responseBody');
+
+                if (response.status !== null) {
+                    // 有响应数据
+                    if (responseInfo) {
+                        // 根据内容类型判断是否为WS/SSE连接
+                        const isStreaming = response.contentType === 'websocket' || response.contentType === 'text/event-stream';
+                        const durationText = response.duration ? `${response.duration}ms` : (isStreaming ? '持续连接中' : '未知');
+
+                        responseInfo.innerHTML = `
+                            状态码: ${response.status} ${response.statusText}<br>
+                            响应时间: ${durationText}<br>
+                            内容类型: ${response.contentType || '未指定'}<br>
+                        `;
+                        responseInfo.className = 'response-info httpStatus' + String(response.status).charAt(0);
+                        responseInfo.dataset.status = response.status;
+                        responseInfo.dataset.statusText = response.statusText;
+                        responseInfo.dataset.duration = response.duration || '';
+                        responseInfo.dataset.contentType = response.contentType || '';
+                    }
+
+                    if (responseBody) {
+                        responseBody.value = response.body || '';
+                    }
+
+                    // 恢复响应头
+                    this.loadResponseHeaders(response.headers);
+
+                    // 检查是否为JSON，显示格式化按钮
+                    if (response.body && (response.body.trim().startsWith('{') || response.body.trim().startsWith('['))) {
+                        try {
+                            JSON.parse(response.body);
+                            showJsonFormatButton();
+                        } catch {
+                            resetJsonFormatState();
+                        }
+                    } else {
+                        resetJsonFormatState();
+                    }
+                } else {
+                    // 无响应数据，清空
+                    clearResponse();
+                }
+            },
+
+            /**
+             * 加载响应头到界面
+             * 支持普通格式和WS/SSE格式（值可能是数组）
+             * @param {Object} headers - 响应头对象
+             */
+            loadResponseHeaders(headers) {
+                const responseHeaders = byId('responseHeaders');
+                if (!responseHeaders) return;
+
+                const tbody = responseHeaders.getElementsByTagName('tbody')[0];
+                if (!tbody) return;
+
+                tbody.innerHTML = '';
+                if (headers && Object.keys(headers).length > 0) {
+                    Object.entries(headers).forEach(([name, value]) => {
+                        const row = document.createElement('tr');
+                        // 处理数组格式的值（WS/SSE响应头）
+                        const displayValue = Array.isArray(value) ? value.join(', ') : value;
+                        row.innerHTML = `
+                            <td>${name}</td>
+                            <td>${displayValue}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            },
+
+            /**
+             * 更新发送按钮状态（根据当前Tab的isLoading）
+             */
+            updateSendButtonState() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                const sendBtn = byId('sendBtn');
+                const sendBtnGroup = byId('sendBtnGroup');
+
+                if (!tab || !sendBtn) return;
+
+                if (tab.isLoading) {
+                    sendBtn.disabled = false;
+                    sendBtn.classList.add('loading');
+                    sendBtn.textContent = '取消';
+                    sendBtnGroup?.classList.add('loading-group');
+                } else {
+                    sendBtn.disabled = false;
+                    sendBtn.classList.remove('loading');
+                    sendBtn.textContent = '发送';
+                    sendBtnGroup?.classList.remove('loading-group');
+                }
+            },
+
+            /**
+             * 设置当前Tab的加载状态
+             * @param {boolean} loading - 是否加载中
+             */
+            setLoading(loading) {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab) {
+                    tab.isLoading = loading;
+                }
+                this.updateSendButtonState();
+            },
+
+            /**
+             * 获取当前Tab的AbortController
+             * @returns {AbortController|null}
+             */
+            getAbortController() {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                return tab?.abortController || null;
+            },
+
+            /**
+             * 设置当前Tab的AbortController
+             * @param {AbortController|null} controller
+             */
+            setAbortController(controller) {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab) {
+                    tab.abortController = controller;
+                }
+            },
+
+            /**
+             * 设置指定Tab的AbortController
+             * @param {string} tabId - Tab ID
+             * @param {AbortController|null} controller
+             */
+            setAbortControllerForTab(tabId, controller) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.abortController = controller;
+                }
+            },
+
+            /**
+             * 清除指定Tab的加载状态
+             * @param {string} tabId - Tab ID
+             */
+            clearTabLoadingState(tabId) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.isLoading = false;
+                    tab.abortController = null;
+                }
+                // 只有当前Tab才更新按钮状态
+                if (tabId === this.activeTabId) {
+                    this.updateSendButtonState();
+                }
+            },
+
+            /**
+             * 保存响应数据到指定Tab
+             * @param {string} tabId - Tab ID
+             * @param {Object} responseData - 响应数据
+             */
+            saveResponseToTab(tabId, responseData) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.response = {
+                        status: responseData.status,
+                        statusText: responseData.statusText,
+                        headers: responseData.headers,
+                        body: responseData.body,
+                        duration: responseData.duration,
+                        contentType: responseData.contentType
+                    };
+                }
+            },
+
+            /**
+             * 根据URL或方法生成Tab名称
+             * @param {string} method - HTTP方法
+             * @returns {string} Tab名称
+             */
+            getTabName(method) {
+                const url = byId('url')?.value || '';
+                if (url) {
+                    try {
+                        const urlObj = new URL(url);
+                        return urlObj.pathname || urlObj.hostname || '未命名请求';
+                    } catch {
+                        return url.substring(0, 20) || '未命名请求';
+                    }
+                }
+                return '未命名请求';
+            },
+
+            /**
+             * 获取当前请求的所有数据
+             * @returns {Object} 请求数据
+             */
+            getCurrentRequestData() {
+                const method = byId('httpMethod')?.value || 'GET';
+                const url = byId('url')?.value || '';
+                const bodyType = getBodyType();
+
+                // 获取请求头
+                const headers = [];
+                docSelectAll('#headersList .header-row').forEach(row => {
+                    const inputs = row.getElementsByTagName('input');
+                    if (inputs[1]?.value) {
+                        headers.push({
+                            enabled: inputs[0]?.checked ?? true,
+                            name: inputs[1]?.value || '',
+                            value: inputs[2]?.value || '',
+                            remark: inputs[3]?.value || ''
+                        });
+                    }
+                });
+
+                // 获取请求体
+                let body = null;
+                if (bodyType === 'json') {
+                    const rows = [];
+                    docSelectAll('#jsonBodyRows .body-row').forEach(row => {
+                        rows.push({
+                            selected: row.querySelector('input[type="radio"]')?.checked || false,
+                            content: row.querySelector('textarea')?.value || '',
+                            remark: row.querySelector('.body-remark')?.value || ''
+                        });
+                    });
+                    body = { type: 'json', data: rows };
+                } else if (bodyType === 'text') {
+                    const rows = [];
+                    docSelectAll('#textBodyRows .body-row').forEach(row => {
+                        rows.push({
+                            selected: row.querySelector('input[type="radio"]')?.checked || false,
+                            content: row.querySelector('textarea')?.value || '',
+                            remark: row.querySelector('.body-remark')?.value || ''
+                        });
+                    });
+                    body = { type: 'text', data: rows };
+                } else if (bodyType === 'form') {
+                    const formData = [];
+                    docSelectAll('#formRows .header-row').forEach(row => {
+                        const inputs = row.getElementsByTagName('input');
+                        if (inputs[1]?.value) {
+                            formData.push({
+                                enabled: inputs[0]?.checked ?? true,
+                                name: inputs[1]?.value || '',
+                                value: inputs[2]?.value || '',
+                                remark: inputs[3]?.value || ''
+                            });
+                        }
+                    });
+                    body = { type: 'form', data: formData };
+                } else if (bodyType === 'formdata') {
+                    const formDataItems = [];
+                    docSelectAll('.formdata-row').forEach(row => {
+                        const key = row.querySelector('.formdata-key')?.value;
+                        if (key) {
+                            formDataItems.push({
+                                enabled: row.querySelector('input[type="checkbox"]')?.checked ?? true,
+                                key: key,
+                                type: row.querySelector('.formdata-type')?.value || 'text',
+                                value: row.querySelector('.text-input')?.value || '',
+                                remark: row.querySelector('.formdata-remark')?.value || ''
+                            });
+                        }
+                    });
+                    body = { type: 'formdata', data: formDataItems };
+                }
+
+                return {
+                    method,
+                    url,
+                    headers,
+                    bodyType,
+                    body,
+                    hooks: HookEngine.getHookScripts()
+                };
+            },
+
+            /**
+             * 加载Tab数据到界面
+             * @param {string} tabId - Tab ID
+             * @param {boolean} clearMode - 是否清空模式
+             */
+            loadTabData(tabId, clearMode = false) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (!tab) return;
+
+                const data = clearMode ? this.getEmptyTabData() : (tab.data || this.getEmptyTabData());
+
+                // 设置方法和URL
+                byId('httpMethod').value = data.method || 'GET';
+                byId('url').value = data.url || '';
+
+                // 设置请求头
+                const headersList = byId('headersList');
+                headersList.innerHTML = '';
+                if (data.headers && data.headers.length > 0) {
+                    data.headers.forEach(h => {
+                        const row = document.createElement('div');
+                        row.className = 'header-row';
+                        row.innerHTML = `
+                            <input type="checkbox" ${h.enabled ? 'checked' : ''}>
+                            <input type="text" placeholder="Header名称" value="${h.name || ''}" />
+                            <input type="text" placeholder="Header值" value="${h.value || ''}" />
+                            <input type="text" placeholder="备注" class="header-remark input-remark" value="${h.remark || ''}" />
+                            <button class="remove-btn" onclick="removeHeader(this)">删除</button>
+                        `;
+                        headersList.appendChild(row);
+                    });
+                } else {
+                    // 添加一个空行
+                    const row = document.createElement('div');
+                    row.className = 'header-row';
+                    row.innerHTML = `
+                        <input type="checkbox" checked>
+                        <input type="text" placeholder="Header名称" />
+                        <input type="text" placeholder="Header值" />
+                        <input type="text" placeholder="备注" class="header-remark input-remark" />
+                        <button class="remove-btn" onclick="removeHeader(this)">删除</button>
+                    `;
+                    headersList.appendChild(row);
+                }
+
+                // 设置请求体类型
+                const bodyType = data.bodyType || 'none';
+                const bodyTypeRadio = document.querySelector(`input[name="bodyType"][value="${bodyType}"]`);
+                if (bodyTypeRadio) {
+                    bodyTypeRadio.checked = true;
+                    updateBodyType(bodyType);
+                }
+
+                // 加载请求体数据
+                this.loadBodyData(data.body, bodyType);
+
+                // 加载Hook脚本
+                if (data.hooks) {
+                    HookEngine.setHookScripts(data.hooks);
+                } else {
+                    HookEngine.setHookScripts({
+                        preRequest: { enabled: true, script: '' },
+                        postResponse: { enabled: true, script: '' }
+                    });
+                }
+
+                // 清空响应区域
+                clearResponse();
+            },
+
+            /**
+             * 加载请求体数据
+             * @param {Object|null} body - 请求体数据
+             * @param {string} bodyType - 请求体类型
+             */
+            loadBodyData(body, bodyType) {
+                if (!body) return;
+
+                if (bodyType === 'json' && body.data) {
+                    const jsonBodyRows = byId('jsonBodyRows');
+                    jsonBodyRows.innerHTML = '';
+                    body.data.forEach(item => {
+                        const row = createJsonBodyRow();
+                        row.querySelector('input[type="radio"]').checked = item.selected || false;
+                        row.querySelector('textarea').value = item.content || '';
+                        row.querySelector('.body-remark').value = item.remark || '';
+                        jsonBodyRows.appendChild(row);
+                    });
+                } else if (bodyType === 'text' && body.data) {
+                    const textBodyRows = byId('textBodyRows');
+                    textBodyRows.innerHTML = '';
+                    body.data.forEach(item => {
+                        const row = createTextBodyRow();
+                        row.querySelector('input[type="radio"]').checked = item.selected || false;
+                        row.querySelector('textarea').value = item.content || '';
+                        row.querySelector('.body-remark').value = item.remark || '';
+                        textBodyRows.appendChild(row);
+                    });
+                } else if (bodyType === 'form' && body.data) {
+                    const formRows = byId('formRows');
+                    formRows.innerHTML = '';
+                    body.data.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = 'header-row';
+                        row.innerHTML = `
+                            <input type="checkbox" ${item.enabled ? 'checked' : ''}>
+                            <input type="text" placeholder="参数名" value="${item.name || ''}" />
+                            <input type="text" placeholder="参数值" value="${item.value || ''}" />
+                            <input type="text" placeholder="备注" class="input-remark" value="${item.remark || ''}" />
+                            <button class="remove-btn" onclick="removeHeader(this)">删除</button>
+                        `;
+                        formRows.appendChild(row);
+                    });
+                } else if (bodyType === 'formdata' && body.data) {
+                    const formDataList = byId('formDataList');
+                    formDataList.innerHTML = '';
+                    body.data.forEach(item => {
+                        addFormDataRow(item);
+                    });
+                }
+            },
+
+            /**
+             * 渲染Tab列表
+             */
+            renderTabs() {
+                const tabsList = byId('requestTabsList');
+                tabsList.innerHTML = this.tabs.map(tab => {
+                    const method = tab.method || 'GET';
+                    const methodClass = method.toLowerCase();
+                    const isActive = tab.id === this.activeTabId;
+                    return `
+                        <div class="request-tab-item ${isActive ? 'active' : ''}" 
+                             onclick="RequestTabManager.switchTab('${tab.id}')"
+                             data-tab-id="${tab.id}">
+                            <span class="tab-method ${methodClass}">${method}</span>
+                            <span class="tab-name" title="${tab.name}">${tab.name}</span>
+                            <span class="tab-close-btn" onclick="RequestTabManager.closeTab('${tab.id}', event)">×</span>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            /**
+             * 更新滚动按钮显示状态
+             */
+            updateScrollButtons() {
+                const tabsList = byId('requestTabsList');
+                const leftBtn = byId('tabScrollLeft');
+                const rightBtn = byId('tabScrollRight');
+
+                const hasOverflow = tabsList.scrollWidth > tabsList.clientWidth;
+
+                if (hasOverflow) {
+                    leftBtn.classList.add('show');
+                    rightBtn.classList.add('show');
+
+                    // 检测是否滚动到最左边
+                    if (tabsList.scrollLeft <= 5) {
+                        leftBtn.classList.add('disabled');
+                    } else {
+                        leftBtn.classList.remove('disabled');
+                    }
+
+                    // 检测是否滚动到最右边
+                    if (tabsList.scrollLeft >= tabsList.scrollWidth - tabsList.clientWidth - 5) {
+                        rightBtn.classList.add('disabled');
+                    } else {
+                        rightBtn.classList.remove('disabled');
+                    }
+                } else {
+                    leftBtn.classList.remove('show');
+                    rightBtn.classList.remove('show');
+                }
+            },
+
+            /**
+             * 滚动Tab列表
+             * @param {string} direction - 滚动方向：'left' 或 'right'
+             */
+            scrollTabs(direction) {
+                const tabsList = byId('requestTabsList');
+                const scrollAmount = 200;
+                if (direction === 'left') {
+                    tabsList.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                } else {
+                    tabsList.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                }
+                // 延迟更新按钮状态（等待滚动完成）
+                setTimeout(() => this.updateScrollButtons(), 300);
+            },
+
+            /**
+             * 滚动到指定Tab使其可见
+             * @param {string} tabId - Tab ID
+             */
+            scrollToTab(tabId) {
+                const tabElement = document.querySelector(`[data-tab-id="${tabId}"]`);
+                const tabsList = byId('requestTabsList');
+                if (tabElement && tabsList) {
+                    const tabRect = tabElement.getBoundingClientRect();
+                    const listRect = tabsList.getBoundingClientRect();
+                    const tabLeft = tabElement.offsetLeft;
+                    const tabWidth = tabElement.offsetWidth;
+                    const listWidth = tabsList.clientWidth;
+
+                    // 计算需要滚动的位置，使Tab居中
+                    const scrollLeft = tabLeft - (listWidth / 2) + (tabWidth / 2);
+                    tabsList.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+                }
+            },
+
+            /**
+             * 更新当前Tab的方法显示
+             * @param {string} method - HTTP方法
+             */
+            updateTabMethod(method) {
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab) {
+                    tab.method = method;
+                    this.renderTabs();
+                    this.saveTabs();
+                }
+            },
+
+            /**
+             * 从历史记录或接口集合加载数据到当前Tab
+             * @param {Object} data - 请求数据
+             */
+            loadFromExternal(data) {
+                this.saveCurrentTabData();
+
+                const tab = this.tabs.find(t => t.id === this.activeTabId);
+                if (tab) {
+                    tab.name = this.extractNameFromData(data);
+                    tab.method = data.method || 'GET';
+                    tab.data = this.convertExternalData(data);
+                    this.renderTabs();
+                    this.loadTabData(this.activeTabId);
+                    this.saveTabs();
+                }
+            },
+
+            /**
+             * 从外部数据提取名称
+             * @param {Object} data - 外部数据
+             * @returns {string} 名称
+             */
+            extractNameFromData(data) {
+                if (data.url) {
+                    try {
+                        const urlObj = new URL(data.url);
+                        return urlObj.pathname || urlObj.hostname || '未命名请求';
+                    } catch {
+                        return data.url.substring(0, 20) || '未命名请求';
+                    }
+                }
+                return '未命名请求';
+            },
+
+            /**
+             * 转换外部数据格式
+             * @param {Object} data - 外部数据
+             * @returns {Object} 内部数据格式
+             */
+            convertExternalData(data) {
+                // 转换请求头
+                const headers = [];
+                if (data.headers) {
+                    if (Array.isArray(data.headers)) {
+                        // 数组格式 [{name, value, enabled, remark}]
+                        data.headers.forEach(h => {
+                            if (h.name) {
+                                headers.push({
+                                    enabled: h.enabled !== false,
+                                    name: h.name,
+                                    value: h.value || '',
+                                    remark: h.remark || ''
+                                });
+                            }
+                        });
+                    } else if (typeof data.headers === 'object') {
+                        // 对象格式 {name: {value, enabled, remark}}
+                        Object.entries(data.headers).forEach(([name, info]) => {
+                            headers.push({
+                                enabled: info.enabled !== false,
+                                name: name,
+                                value: info.value || '',
+                                remark: info.remark || ''
+                            });
+                        });
+                    }
+                }
+
+                return {
+                    method: data.method || 'GET',
+                    url: data.url || '',
+                    headers,
+                    bodyType: data.body?.type || 'none',
+                    body: data.body,
+                    hooks: data.hooks || null
+                };
+            }
+        };
+
+        /**
+         * 滚动Tab列表（全局函数，供onclick调用）
+         * @param {string} direction - 滚动方向
+         */
+        function scrollTabs(direction) {
+            RequestTabManager.scrollTabs(direction);
+        }
 
         // localStorage管理工具
         const StorageManager = {
@@ -3856,35 +5248,6 @@ function postResponse(response) {
                 }
             }
         };
-
-        /**
-         * 设置请求按钮状态
-         * @param {boolean} loading - 是否处于加载状态
-         */
-        function setRequestButtonsState(loading) {
-            const sendBtn = byId('sendBtn');
-            const sendBtnGroup = byId('sendBtnGroup');
-
-            if (sendBtn) {
-                if (loading) {
-                    sendBtn.disabled = false;
-                    sendBtn.classList.add('loading');
-                    sendBtn.textContent = '取消';
-                } else {
-                    sendBtn.disabled = false;
-                    sendBtn.classList.remove('loading');
-                    sendBtn.textContent = '发送';
-                }
-            }
-
-            if (sendBtnGroup) {
-                if (loading) {
-                    sendBtnGroup.classList.add('loading-group');
-                } else {
-                    sendBtnGroup.classList.remove('loading-group');
-                }
-            }
-        }
 
         /**
          * 切换发送按钮下拉菜单
@@ -3935,41 +5298,61 @@ function postResponse(response) {
          * 调用 AbortController 中断正在进行的请求
          */
         function cancelRequest() {
-            if (currentAbortController) {
-                currentAbortController.abort();
-                currentAbortController = null;
+            const abortController = RequestTabManager.getAbortController();
+            if (abortController) {
+                abortController.abort();
+                RequestTabManager.setAbortController(null);
             }
-            if (currentWS) {
-                try {
-                    currentWS.close();
-                } catch (e) {
-                    console.warn('关闭WS连接时出错:', e);
+
+            const tab = RequestTabManager.tabs.find(t => t.id === RequestTabManager.activeTabId);
+            if (tab) {
+                if (tab.ws) {
+                    try {
+                        tab.ws.close();
+                    } catch (e) {
+                        console.warn('关闭WS连接时出错:', e);
+                    }
+                    tab.ws = null;
                 }
-                currentWS = null;
-            }
-            if (currentSSE) {
-                try {
-                    currentSSE.close();
-                } catch (e) {
-                    console.warn('关闭SSE连接时出错:', e);
+                if (tab.sse) {
+                    try {
+                        tab.sse.close();
+                    } catch (e) {
+                        console.warn('关闭SSE连接时出错:', e);
+                    }
+                    tab.sse = null;
                 }
-                currentSSE = null;
             }
-            setRequestButtonsState(false);
+
+            RequestTabManager.setLoading(false);
         }
 
         /**
          * 发送HTTP请求或建立WS/SSE连接
-         * 根据请求方法和代理模式选择不同的处理方式
+         * 
+         * 核心流程：
+         * 1. 保存当前Tab ID（用于响应时判断是否还在同一个Tab）
+         * 2. 创建AbortController并绑定到发起请求的Tab
+         * 3. 执行前置Hook脚本
+         * 4. 根据代理模式选择不同的请求方式
+         * 5. 处理响应并执行后置Hook脚本
+         * 6. 根据Tab状态决定更新界面还是保存数据
+         * 
          * @param {boolean} download - 是否为下载请求
          * @returns {Promise<void>}
          */
         async function sendRequest(download = false) {
-            clearResponse();
-            setRequestButtonsState(true);
+            // 【关键】保存当前Tab ID，用于判断请求完成后是否还在同一个Tab
+            // 这是解决多Tab请求串扰问题的核心
+            const currentTabId = RequestTabManager.activeTabId;
 
-            currentAbortController = new AbortController();
-            const signal = currentAbortController.signal;
+            clearResponse();
+            RequestTabManager.setLoading(true);
+
+            const abortController = new AbortController();
+            // 设置到发起请求的Tab，而不是当前Tab
+            RequestTabManager.setAbortControllerForTab(currentTabId, abortController);
+            const signal = abortController.signal;
 
             try {
                 const methodElement = byId('httpMethod');
@@ -4026,12 +5409,12 @@ function postResponse(response) {
                 };
 
                 if (useProxy && method !== 'WS' && method !== 'SSE') {
-                    await handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody);
+                    await handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody, currentTabId);
                     return;
                 }
 
                 if (useProxy && (method === 'WS' || method === 'SSE')) {
-                    await handleWSRequest(url, method, headers, settings, signal);
+                    await handleWSRequest(url, method, headers, settings, signal, currentTabId);
                     return;
                 }
 
@@ -4078,19 +5461,36 @@ function postResponse(response) {
                     responseText = hookResponse.body;
                 }
 
-                if (download) {
-                    await handleDownloadResponse(response, contentType);
+                // 检查是否还在同一个Tab，如果是才更新界面
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    if (download) {
+                        await handleDownloadResponse(response, contentType);
+                    } else {
+                        await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
+                    }
+                    await updateResponseHeaders(response);
+                    RequestTabManager.saveCurrentResponseData();
                 } else {
-                    await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
+                    // 不在同一个Tab，将响应数据保存到发起请求的Tab中
+                    RequestTabManager.saveResponseToTab(currentTabId, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        headers: responseHeaders,
+                        body: responseText,
+                        duration,
+                        contentType
+                    });
                 }
 
-                await updateResponseHeaders(response);
                 saveRequestToHistory();
             } catch (error) {
-                await handleRequestError(error);
+                // 只有在同一个Tab时才显示错误
+                if (RequestTabManager.activeTabId === currentTabId) {
+                    await handleRequestError(error);
+                }
             } finally {
-                currentAbortController = null;
-                setRequestButtonsState(false);
+                // 清除发起请求的Tab的状态，而不是当前Tab
+                RequestTabManager.clearTabLoadingState(currentTabId);
             }
         }
 
@@ -4115,6 +5515,11 @@ function postResponse(response) {
                     内容类型: ${contentType || '未指定'}<br>
                 `;
                 responseInfo.classList = 'response-info httpStatus' + (response.status + "").substr(0, 1);
+                // 保存响应数据到dataset，用于Tab切换时保存
+                responseInfo.dataset.status = response.status;
+                responseInfo.dataset.statusText = response.statusText;
+                responseInfo.dataset.duration = duration;
+                responseInfo.dataset.contentType = contentType || '';
             }
 
             resetJsonFormatState();
@@ -4209,24 +5614,6 @@ function postResponse(response) {
 
             // 重置JSON格式化状态
             resetJsonFormatState();
-
-            // 安全关闭连接
-            if (currentWS) {
-                try {
-                    currentWS.close();
-                } catch (e) {
-                    console.warn('关闭WS连接时出错:', e);
-                }
-                currentWS = null;
-            }
-            if (currentSSE) {
-                try {
-                    currentSSE.close();
-                } catch (e) {
-                    console.warn('关闭SSE连接时出错:', e);
-                }
-                currentSSE = null;
-            }
         }
 
         // 历史记录相关函数
@@ -4401,139 +5788,8 @@ function postResponse(response) {
             }
 
             try {
-                // 设置请求方法和URL
-                byId('httpMethod').value = historyItem.method || 'GET';
-                byId('url').value = historyItem.url || '';
-
-                // 设置请求头
-                const headersList = byId('headersList');
-                headersList.innerHTML = '';
-                if (historyItem.headers && typeof historyItem.headers === 'object') {
-                    Object.entries(historyItem.headers).forEach(([key, headerData]) => {
-                        // 添加键值有效性检查
-                        if (key) {
-                            const headerRow = document.createElement('div');
-                            headerRow.className = 'header-row';
-                            const isEnabled = typeof headerData === 'object' ? headerData.enabled : true;
-                            const value = typeof headerData === 'object' ? headerData.value : headerData;
-                            headerRow.innerHTML = `
-                                <input type="checkbox" ${isEnabled ? 'checked' : ''}>
-                                <input type="text" placeholder="Header名称" value="${key}"/>
-                                <input type="text" placeholder="Header值" value="${value}"/>
-                                <input type="text" placeholder="备注" class="header-remark input-remark" value="${headerData.remark}"/>
-                                <button class="remove-btn" onclick="removeHeader(this)">删除</button>
-                            `;
-                            headersList.appendChild(headerRow);
-                        }
-                    });
-                }
-                if (!headersList.children.length) {
-                    // 添加一个空的请求头行
-                    addHeader();
-                }
-
-                // 设置请求体
-                if (historyItem.body && typeof historyItem.body === 'object') {
-                    const bodyType = historyItem.body.type;
-                    const bodyTypeRadio = document.querySelector(`input[name="bodyType"][value="${bodyType}"]`);
-                    if (bodyTypeRadio) {
-                        bodyTypeRadio.checked = true;
-                        updateBodyType(bodyType);
-
-                        if (bodyType === 'form' && historyItem.body.data && typeof historyItem.body.data === 'object') {
-                            const formRows = byId('formRows');
-                            formRows.innerHTML = '';
-                            Object.entries(historyItem.body.data).forEach(([key, formData]) => {
-                                // 添加键值有效性检查
-                                if (key) {
-                                    const formRow = document.createElement('div');
-                                    formRow.className = 'header-row';
-                                    const isEnabled = typeof formData === 'object' ? formData.enabled : true;
-                                    const value = typeof formData === 'object' ? formData.value : formData;
-                                    formRow.innerHTML = `
-                                        <input type="checkbox" ${isEnabled ? 'checked' : ''}>
-                                        <input type="text" placeholder="参数名称" value="${key}"/>
-                                        <input type="text" placeholder="参数值" value="${value}"/>
-                                        <input type="text" placeholder="备注" class="header-remark input-remark" value="${formData.remark}"/>
-                                        <button class="remove-btn" onclick="removeFormRow(this)">删除</button>
-                                    `;
-                                    formRows.appendChild(formRow);
-                                }
-                            });
-                        } else if (bodyType === 'formdata' && Array.isArray(historyItem.body.data)) {
-                            const formDataRows = byId('formDataRows');
-                            formDataRows.innerHTML = '';
-                            historyItem.body.data.forEach(item => {
-                                // 添加数据有效性检查
-                                if (item && typeof item === 'object' && item.key) {
-                                    const row = createFormDataRow();
-                                    row.querySelector('input[type="checkbox"]').checked = item.enabled !== false;
-                                    row.querySelector('.formdata-key').value = item.key;
-                                    const typeSelect = row.querySelector('.formdata-type');
-                                    typeSelect.value = item.type || 'text';
-                                    if (item.type === 'text' && item.value !== undefined) {
-                                        row.querySelector('.text-input').value = item.value;
-                                    }
-                                    // 备注赋值
-                                    const remarkInput = row.querySelector('.formdata-remark');
-                                    if (remarkInput) remarkInput.value = item.remark || '';
-                                    handleTypeChange(typeSelect);
-                                    formDataRows.appendChild(row);
-                                }
-                            });
-                        } else if (bodyType === 'json' && Array.isArray(historyItem.body.data)) {
-                            const jsonBodyRows = byId('jsonBodyRows');
-                            jsonBodyRows.innerHTML = '';
-                            historyItem.body.data.forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    const row = createJsonBodyRow();
-                                    row.querySelector('input[type="radio"]').checked = item.selected || false;
-                                    row.querySelector('textarea').value = item.content || '';
-                                    row.querySelector('.body-remark').value = item.remark || '';
-                                    jsonBodyRows.appendChild(row);
-                                }
-                            });
-                        } else if (bodyType === 'text' && Array.isArray(historyItem.body.data)) {
-                            const textBodyRows = byId('textBodyRows');
-                            textBodyRows.innerHTML = '';
-                            historyItem.body.data.forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    const row = createTextBodyRow();
-                                    row.querySelector('input[type="radio"]').checked = item.selected || false;
-                                    row.querySelector('textarea').value = item.content || '';
-                                    row.querySelector('.body-remark').value = item.remark || '';
-                                    textBodyRows.appendChild(row);
-                                }
-                            });
-                        } else if (bodyType === 'binary' && Array.isArray(historyItem.body.data)) {
-                            const binaryBodyRows = byId('binaryBodyRows');
-                            binaryBodyRows.innerHTML = '';
-                            historyItem.body.data.forEach(item => {
-                                if (item && typeof item === 'object') {
-                                    const row = createBinaryBodyRow();
-                                    row.querySelector('input[type="radio"]').checked = item.selected || false;
-                                    row.querySelector('.body-remark').value = item.remark || '';
-                                    // 注意：文件内容无法恢复，只能显示文件名
-                                    binaryBodyRows.appendChild(row);
-                                }
-                            });
-                        } else if (['json', 'text'].includes(bodyType) && historyItem.body.data !== undefined) {
-                            byId('requestBody').value = historyItem.body.data;
-                        }
-                    }
-                } else {
-                    // 如果没有请求体，设置为默认值
-                    const noneRadio = document.querySelector('input[name="bodyType"][value="none"]');
-                    if (noneRadio) {
-                        noneRadio.checked = true;
-                        updateBodyType('none');
-                    }
-                }
-
-                // 加载Hook脚本
-                if (historyItem.hooks) {
-                    HookEngine.setHookScripts(historyItem.hooks);
-                }
+                // 使用RequestTabManager加载外部数据
+                RequestTabManager.loadFromExternal(historyItem);
             } catch (error) {
                 console.error('加载请求数据时出错:', error);
                 alert('加载请求数据时出错，请检查数据格式是否正确');
@@ -5350,6 +6606,7 @@ function postResponse(response) {
             byId('settingTimeout').value = currentSettings.timeout;
             byId('settingRetryCount').value = currentSettings.retry_count;
             byId('settingRetryDelay').value = currentSettings.retry_delay;
+            byId('settingStream').value = currentSettings.stream || 'false';
             byId('settingSseEventTypes').value = currentSettings.sse_event_types || '';
 
             byId('settingCache').value = currentSettings.cache;
@@ -5376,6 +6633,7 @@ function postResponse(response) {
                 timeout: byId('settingTimeout').value,
                 retry_count: byId('settingRetryCount').value,
                 retry_delay: byId('settingRetryDelay').value,
+                stream: byId('settingStream').value,
                 sse_event_types: byId('settingSseEventTypes').value,
 
                 cache: byId('settingCache').value,
@@ -5415,6 +6673,7 @@ function postResponse(response) {
                 timeout: '0',
                 retry_count: '0',
                 retry_delay: '0',
+                stream: 'false',
                 sse_event_types: ''
             };
             return { ...defaultSettings, ...settings };
@@ -5691,63 +6950,10 @@ function postResponse(response) {
 
         /**
          * 新建请求
-         * 清空当前请求的所有内容，包括URL、请求头、请求体、响应等
+         * 创建一个新的请求Tab页
          */
         function newRequest() {
-            // 清空URL
-            const urlInput = byId('url');
-            if (urlInput) urlInput.value = '';
-
-            // 清空请求头
-            const headersList = byId('headersList');
-            if (headersList) {
-                headersList.innerHTML = '';
-                addHeader();
-            }
-
-            // 清空多行请求体
-            const jsonBodyRows = byId('jsonBodyRows');
-            if (jsonBodyRows) {
-                jsonBodyRows.innerHTML = '';
-            }
-            const textBodyRows = byId('textBodyRows');
-            if (textBodyRows) {
-                textBodyRows.innerHTML = '';
-            }
-            const binaryBodyRows = byId('binaryBodyRows');
-            if (binaryBodyRows) {
-                binaryBodyRows.innerHTML = '';
-            }
-
-            // 清空form表单
-            const formRows = byId('formRows');
-            if (formRows) {
-                formRows.innerHTML = '';
-                addFormRow();
-            }
-
-            // 清空formdata
-            const formDataRows = byId('formDataRows');
-            if (formDataRows) {
-                formDataRows.innerHTML = '';
-                addFormDataRow();
-            }
-
-            // 清空WebSocket消息体
-            const wsBodyRows = byId('wsBodyRows');
-            if (wsBodyRows) {
-                wsBodyRows.innerHTML = '';
-            }
-
-            // 重置body类型为none
-            const noneRadio = document.querySelector('input[name="bodyType"][value="none"]');
-            if (noneRadio) {
-                noneRadio.checked = true;
-                updateBodyType('none');
-            }
-
-            // 清空响应信息
-            clearResponse();
+            RequestTabManager.createTab();
         }
 
         // JSON格式化高亮相关变量
@@ -5798,9 +7004,6 @@ function postResponse(response) {
         /**
          * 复制格式化后的JSON字符串到剪贴板
          * @returns {void}
-         */
-        /**
-         * 复制格式化JSON到剪贴板
          */
         async function copyFormattedJson() {
             if (!formattedJson) {
@@ -6009,29 +7212,158 @@ function postResponse(response) {
         }
 
         /**
+         * 流式响应处理函数
+         * 处理fetch返回的流式响应，实时显示数据
+         * @param {Response} response - fetch响应对象
+         * @returns {Promise<void>}
+         */
+        async function handleStreamResponse(response, currentTabId) {
+            const contentType = response.headers.get('content-type') || '';
+            const startTime = Date.now();
+
+            // 保存响应头和状态到Tab
+            const headers = {};
+            response.headers.forEach((value, key) => {
+                headers[key] = value;
+            });
+            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+            if (tab && tab.response) {
+                tab.response.headers = headers;
+                tab.response.status = response.status;
+                tab.response.statusText = response.statusText;
+                tab.response.contentType = contentType;
+            }
+
+            // 只有在同一个Tab时才更新界面
+            if (RequestTabManager.activeTabId === currentTabId) {
+                const responseInfo = byId('responseInfo');
+                const responseBody = byId('responseBody');
+                const responseHeadersTable = byId('responseHeaders')?.getElementsByTagName('tbody')[0];
+
+                if (responseInfo) {
+                    responseInfo.innerHTML = `
+                        状态码: ${response.status} ${response.statusText}<br>
+                        内容类型: ${contentType || '未指定'}<br>
+                        <span class="stream-status">流式响应接收中...</span>
+                    `;
+                    responseInfo.className = 'response-info httpStatus' + String(response.status).charAt(0);
+                }
+
+                if (responseHeadersTable) {
+                    responseHeadersTable.innerHTML = '';
+                    response.headers.forEach((value, key) => {
+                        const row = responseHeadersTable.insertRow();
+                        row.insertCell(0).textContent = key;
+                        row.insertCell(1).textContent = value;
+                    });
+                }
+
+                if (responseBody) responseBody.value = '';
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let result = '';
+
+            async function readStream() {
+                try {
+                    const { value, done } = await reader.read();
+
+                    if (done) {
+                        const duration = Date.now() - startTime;
+
+                        // 更新Tab的响应时间
+                        const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                        if (tab && tab.response) {
+                            tab.response.duration = duration;
+                        }
+
+                        // 只有在同一个Tab时才更新界面
+                        if (RequestTabManager.activeTabId === currentTabId) {
+                            const responseInfo = byId('responseInfo');
+                            if (responseInfo) {
+                                responseInfo.innerHTML = `
+                                    状态码: ${response.status} ${response.statusText}<br>
+                                    响应时间: ${duration}ms<br>
+                                    内容类型: ${contentType || '未指定'}<br>
+                                    <span class="stream-status">流式响应已完成</span>
+                                `;
+                            }
+                        }
+                        return;
+                    }
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    result += chunk;
+
+                    // 更新Tab的响应体
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab && tab.response) {
+                        tab.response.body = result || '';
+                    }
+
+                    // 只有在同一个Tab时才更新界面
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        const responseBody = byId('responseBody');
+                        if (responseBody) {
+                            responseBody.value = result;
+                            responseBody.scrollTop = responseBody.scrollHeight;
+                        }
+                    }
+
+                    await readStream();
+                } catch (error) {
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        const responseInfo = byId('responseInfo');
+                        if (responseInfo) responseInfo.innerHTML = '流式响应错误: ' + error.message;
+                    }
+                }
+            }
+
+            await readStream();
+        }
+
+        /**
          * SSE流式Fetch响应处理函数
          * 处理fetch返回的SSE流式响应，实时显示数据
          * @param {Response} response - fetch响应对象
          * @returns {Promise<void>}
          */
-        async function handleSSEFetchResponse(response) {
-            const responseInfo = byId('responseInfo');
-            const responseBody = byId('responseBody');
-            const responseHeadersTable = byId('responseHeaders')?.getElementsByTagName('tbody')[0];
+        async function handleSSEFetchResponse(response, currentTabId) {
+            const contentType = response.headers.get('content-type') || '';
 
-            if (responseInfo) responseInfo.innerHTML = 'SSE流式响应中...';
-
-            // 显示响应头
-            if (responseHeadersTable) {
-                responseHeadersTable.innerHTML = '';
-                response.headers.forEach((value, key) => {
-                    const row = responseHeadersTable.insertRow();
-                    row.insertCell(0).textContent = key;
-                    row.insertCell(1).textContent = value;
-                });
+            // 保存响应头和状态到Tab
+            const headers = {};
+            response.headers.forEach((value, key) => {
+                headers[key] = value;
+            });
+            const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+            if (tab && tab.response) {
+                tab.response.headers = headers;
+                tab.response.status = response.status;
+                tab.response.statusText = response.statusText;
+                tab.response.contentType = contentType || 'text/event-stream';
             }
 
-            if (responseBody) responseBody.value = '';
+            // 只有在同一个Tab时才更新界面
+            if (RequestTabManager.activeTabId === currentTabId) {
+                const responseInfo = byId('responseInfo');
+                const responseBody = byId('responseBody');
+                const responseHeadersTable = byId('responseHeaders')?.getElementsByTagName('tbody')[0];
+
+                if (responseInfo) responseInfo.innerHTML = 'SSE流式响应中...';
+
+                if (responseHeadersTable) {
+                    responseHeadersTable.innerHTML = '';
+                    response.headers.forEach((value, key) => {
+                        const row = responseHeadersTable.insertRow();
+                        row.insertCell(0).textContent = key;
+                        row.insertCell(1).textContent = value;
+                    });
+                }
+
+                if (responseBody) responseBody.value = '';
+            }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -6047,12 +7379,21 @@ function postResponse(response) {
                     const { value, done } = await reader.read();
 
                     if (done) {
-                        if (responseInfo) responseInfo.innerHTML = 'SSE流式响应已结束';
+                        // 更新Tab状态
+                        const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                        if (tab && tab.response) {
+                            tab.response.body = result || '';
+                        }
+
+                        // 只有在同一个Tab时才更新界面
+                        if (RequestTabManager.activeTabId === currentTabId) {
+                            const responseInfo = byId('responseInfo');
+                            if (responseInfo) responseInfo.innerHTML = 'SSE流式响应已结束';
+                        }
                         return;
                     }
 
                     const chunk = decoder.decode(value, { stream: true });
-                    //console.log('收到数据块:', chunk);
                     dataBuffer += chunk;
 
                     // 处理SSE事件
@@ -6061,28 +7402,40 @@ function postResponse(response) {
 
                     for (const line of lines) {
                         const trimmedLine = line.trim();
-                        // console.log('处理行:', trimmedLine);
 
-                        // 显示所有非空行，不仅仅是data:开头的
                         if (trimmedLine) {
                             if (trimmedLine.startsWith('data:')) {
                                 const data = trimmedLine.slice(5).trim();
                                 if (data) {
                                     result += data + '\n';
-                                    if (responseBody) responseBody.value = result;
                                 }
                             } else {
-                                // 显示非标准SSE格式的行
                                 result += trimmedLine + '\n';
-                                if (responseBody) responseBody.value = result;
                             }
+                        }
+                    }
+
+                    // 更新Tab的响应体
+                    const tab = RequestTabManager.tabs.find(t => t.id === currentTabId);
+                    if (tab && tab.response) {
+                        tab.response.body = result || '';
+                    }
+
+                    // 只有在同一个Tab时才更新界面
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        const responseBody = byId('responseBody');
+                        if (responseBody) {
+                            responseBody.value = result;
                         }
                     }
 
                     readStream();
                 } catch (err) {
                     console.error('SSE读取错误:', err);
-                    if (responseInfo) responseInfo.innerHTML = 'SSE读取失败：' + err;
+                    if (RequestTabManager.activeTabId === currentTabId) {
+                        const responseInfo = byId('responseInfo');
+                        if (responseInfo) responseInfo.innerHTML = 'SSE读取失败：' + err;
+                    }
                 }
             }
 
@@ -6165,7 +7518,9 @@ function postResponse(response) {
          * @returns {Promise<void>}
          */
         async function sendWsBody() {
-            if (!currentWS || currentWS.readyState !== 1) {
+            const tab = RequestTabManager.tabs.find(t => t.id === RequestTabManager.activeTabId);
+            const ws = tab?.ws;
+            if (!ws || ws.readyState !== 1) {
                 alert('WebSocket未连接');
                 return;
             }
@@ -6177,12 +7532,12 @@ function postResponse(response) {
                     const type = row.querySelector('.ws-body-type').value;
                     if (type === 'text') {
                         const val = row.querySelector('.ws-body-text').value;
-                        currentWS.send(val);
+                        ws.send(val);
                     } else if (type === 'binary') {
                         const val = row.querySelector('.ws-body-text').value;
                         try {
                             const bin = Uint8Array.from(atob(val), c => c.charCodeAt(0));
-                            currentWS.send(bin);
+                            ws.send(bin);
                         } catch (e) {
                             alert('Base64解码失败');
                         }
@@ -6191,7 +7546,7 @@ function postResponse(response) {
                         if (fileInput.files.length > 0) {
                             const file = fileInput.files[0];
                             const buf = await file.arrayBuffer();
-                            currentWS.send(buf);
+                            ws.send(buf);
                         } else {
                             alert('请选择文件');
                         }
@@ -6743,10 +8098,16 @@ function postResponse(response) {
          */
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                // 初始化请求Tab管理器（必须先执行）
+                RequestTabManager.init();
+
+                // 监听HTTP方法变化，更新Tab显示
+                byId('httpMethod')?.addEventListener('change', function () {
+                    RequestTabManager.updateTabMethod(this.value);
+                });
+
                 // 并行初始化所有组件
                 await Promise.all([
-                    addFormDataRow(),
-                    addFormRow(),
                     loadGlobalHeaders(),
                     updateHistoryDisplay(),
                     updateApisDisplay(),

@@ -854,10 +854,46 @@ func handleForward(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Response-Headers", string(headersJSON))
 	}
 
-	// 设置状态码并复制响应体
+	// 检查是否启用流式转发
+	stream := r.FormValue("stream")
+	if stream == "true" {
+		// 流式转发：实时读取并发送数据
+		streamResponse(w, resp)
+		return
+	}
+
+	// 默认：阻塞式复制整个响应体
 	w.WriteHeader(resp.StatusCode)
 	if _, err := io.Copy(w, resp.Body); err != nil {
 		http.Error(w, "复制响应体失败: "+err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// streamResponse 流式转发响应体，实时将后端数据推送给前端
+func streamResponse(w http.ResponseWriter, resp *http.Response) {
+	// 获取 Flusher 接口，用于实时推送数据
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Streaming unsupported!", http.StatusInternalServerError)
+		return
+	}
+
+	// 写入状态码
+	w.WriteHeader(resp.StatusCode)
+
+	// 使用缓冲读取器，每读取一块数据就立即发送给前端
+	buf := make([]byte, 32*1024) // 32KB 缓冲区
+	for {
+		n, err := resp.Body.Read(buf)
+		if n > 0 {
+			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
+				break
+			}
+			flusher.Flush() // 立即推送给前端
+		}
+		if err != nil {
+			break
+		}
 	}
 }
 

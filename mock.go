@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"context"
 	crand "crypto/rand"
 	_ "embed"
@@ -14,11 +16,13 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -64,16 +68,36 @@ type CookieConf struct {
 	SameSite string `json:"same_site,omitempty"` // lax/strict/none
 }
 
+// ChunkConfig 定义分块传输的单个块配置。
+type ChunkConfig struct {
+	Data    string `json:"data"`               // 块数据内容
+	DelayMs int    `json:"delay_ms,omitempty"` // 发送此块前的延迟（毫秒）
+}
+
+// CounterConfig 定义计数器模式的配置。
+type CounterConfig struct {
+	Key   string `json:"key"`             // 计数器唯一标识
+	Reset bool   `json:"reset,omitempty"` // 是否重置计数器
+	Max   int    `json:"max,omitempty"`   // 计数器最大值，达到后重置（默认无限）
+	Loop  bool   `json:"loop,omitempty"`  // 达到最大值后是否循环（默认false，超出后保持最大值）
+}
+
 // RouteResponse 表示一条响应分支，支持 when/file/template。
 type RouteResponse struct {
-	Status   int               `json:"status"`
-	Headers  map[string]string `json:"headers,omitempty"`
-	Body     any               `json:"body"`
-	File     string            `json:"file,omitempty"`
-	DelayMs  int               `json:"delay_ms,omitempty"`
-	Cookies  []CookieConf      `json:"cookies,omitempty"`
-	When     map[string]any    `json:"when,omitempty"`
-	Template string            `json:"template,omitempty"`
+	Status      int               `json:"status"`
+	Headers     map[string]string `json:"headers,omitempty"`
+	Body        any               `json:"body"`
+	File        string            `json:"file,omitempty"`
+	DelayMs     int               `json:"delay_ms,omitempty"`
+	SpeedKBps   int               `json:"speed_kbps,omitempty"`
+	Buffered    bool              `json:"buffered,omitempty"`
+	Cookies     []CookieConf      `json:"cookies,omitempty"`
+	When        map[string]any    `json:"when,omitempty"`
+	Template    string            `json:"template,omitempty"`
+	Compress    string            `json:"compress,omitempty"`    // 压缩方式: gzip, deflate, auto
+	Chunks      []ChunkConfig     `json:"chunks,omitempty"`      // 分块传输配置
+	Counter     *CounterConfig    `json:"counter,omitempty"`     // 计数器配置
+	Probability int               `json:"probability,omitempty"` // 概率权重（0-100），用于概率响应
 }
 
 // RouteRule 定义单条 Mock API，包括请求方法、路径和响应集合。
@@ -121,6 +145,15 @@ type SseConfig struct {
 	Cookies []CookieConf         `json:"cookies,omitempty"`
 }
 
+// LogConfig 定义请求日志持久化配置。
+type LogConfig struct {
+	Enable   bool   `json:"enable"`              // 是否启用日志持久化
+	Dir      string `json:"dir,omitempty"`       // 日志目录（默认 ./logs）
+	MaxSize  int64  `json:"max_size,omitempty"`  // 单个日志文件最大大小（MB，默认100）
+	MaxFiles int    `json:"max_files,omitempty"` // 最大日志文件数（默认10）
+	Format   string `json:"format,omitempty"`    // 日志格式: json, text（默认json）
+}
+
 // MockConfig 是整体配置的根节点，聚合所有特性。
 type MockConfig struct {
 	Listen     []ListenConfig    `json:"listen"`
@@ -128,6 +161,7 @@ type MockConfig struct {
 	Routes     []RouteRule       `json:"routes"`
 	Websockets []WebsocketConfig `json:"websockets,omitempty"`
 	Sse        []SseConfig       `json:"sse,omitempty"`
+	Log        *LogConfig        `json:"log,omitempty"` // 请求日志配置
 }
 
 // LoadConfig 从磁盘读取 JSON 配置并解析为 MockConfig。
@@ -218,6 +252,234 @@ func (h *WSHub) BroadcastRequest(log RequestLog) {
 	}
 }
 
+// LogRequest 统一处理请求日志：广播到 WebSocket 客户端并持久化到文件
+func LogRequest(log RequestLog) {
+	wsHub.BroadcastRequest(log)
+	globalLogPersister.WriteLog(log)
+}
+
+// ========== 计数器管理器 ==========
+// CounterManager 管理所有计数器，支持线程安全的增减和重置
+type CounterManager struct {
+	counters sync.Map // map[string]*int64
+}
+
+var globalCounterManager = &CounterManager{}
+
+// Get 获取计数器当前值，不存在返回0
+func (cm *CounterManager) Get(key string) int64 {
+	if v, ok := cm.counters.Load(key); ok {
+		return atomic.LoadInt64(v.(*int64))
+	}
+	return 0
+}
+
+// Increment 递增计数器并返回新值
+// reset 参数为 true 时，每次调用都重置计数器为 0 后再递增
+func (cm *CounterManager) Increment(key string, max int, loop bool, reset bool) int64 {
+	if reset {
+		// 重置计数器
+		cm.counters.Delete(key)
+	}
+
+	var counter *int64
+	if v, ok := cm.counters.Load(key); ok {
+		counter = v.(*int64)
+	} else {
+		newCounter := int64(0)
+		counter = &newCounter
+		cm.counters.Store(key, counter)
+	}
+
+	for {
+		old := atomic.LoadInt64(counter)
+		newVal := old + 1
+
+		// 处理最大值限制
+		if max > 0 && newVal > int64(max) {
+			if loop {
+				newVal = 1
+			} else {
+				newVal = int64(max)
+			}
+		}
+
+		if atomic.CompareAndSwapInt64(counter, old, newVal) {
+			return newVal
+		}
+	}
+}
+
+// Reset 重置计数器
+func (cm *CounterManager) Reset(key string) {
+	cm.counters.Delete(key)
+}
+
+// ========== 日志持久化管理器 ==========
+// LogPersister 管理请求日志的持久化存储
+type LogPersister struct {
+	config    *LogConfig
+	mu        sync.Mutex
+	file      *os.File
+	fileSize  int64
+	fileIndex int
+}
+
+var globalLogPersister *LogPersister
+
+// InitLogPersister 初始化日志持久化器
+func InitLogPersister(cfg *LogConfig) error {
+	if cfg == nil || !cfg.Enable {
+		return nil
+	}
+
+	// 复制配置，避免修改传入对象
+	config := &LogConfig{
+		Enable:   cfg.Enable,
+		Dir:      cfg.Dir,
+		MaxSize:  cfg.MaxSize,
+		MaxFiles: cfg.MaxFiles,
+		Format:   cfg.Format,
+	}
+
+	lp := &LogPersister{
+		config: config,
+	}
+
+	// 设置默认值
+	if lp.config.Dir == "" {
+		lp.config.Dir = "./logs"
+	}
+	if lp.config.MaxSize <= 0 {
+		lp.config.MaxSize = 100
+	}
+	if lp.config.MaxFiles <= 0 {
+		lp.config.MaxFiles = 10
+	}
+	if lp.config.Format == "" {
+		lp.config.Format = "json"
+	}
+
+	// 创建日志目录
+	if err := os.MkdirAll(lp.config.Dir, 0755); err != nil {
+		return err
+	}
+
+	globalLogPersister = lp
+	return lp.rotateFile()
+}
+
+// rotateFile 轮转日志文件
+func (lp *LogPersister) rotateFile() error {
+	if lp.file != nil {
+		lp.file.Close()
+	}
+
+	// 清理旧日志文件
+	lp.cleanOldFiles()
+
+	// 创建新日志文件
+	filename := fmt.Sprintf("mock_%s.log", time.Now().Format("20060102_150405"))
+	logPath := filepath.Join(lp.config.Dir, filename)
+	f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+
+	lp.file = f
+	lp.fileSize = 0
+	lp.fileIndex++
+	return nil
+}
+
+// cleanOldFiles 清理超出数量限制的旧日志文件
+func (lp *LogPersister) cleanOldFiles() {
+	entries, err := os.ReadDir(lp.config.Dir)
+	if err != nil {
+		return
+	}
+
+	type logFile struct {
+		name  string
+		mtime time.Time
+	}
+	var logFiles []logFile
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasPrefix(entry.Name(), "mock_") && strings.HasSuffix(entry.Name(), ".log") {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+			logFiles = append(logFiles, logFile{
+				name:  entry.Name(),
+				mtime: info.ModTime(),
+			})
+		}
+	}
+
+	// 按修改时间排序（旧的在前）
+	for i := 0; i < len(logFiles); i++ {
+		for j := i + 1; j < len(logFiles); j++ {
+			if logFiles[i].mtime.After(logFiles[j].mtime) {
+				logFiles[i], logFiles[j] = logFiles[j], logFiles[i]
+			}
+		}
+	}
+
+	// 删除超出数量的文件（保留最新的 MaxFiles-1 个，为新文件腾出空间）
+	if len(logFiles) >= lp.config.MaxFiles {
+		for i := 0; i < len(logFiles)-lp.config.MaxFiles+1; i++ {
+			os.Remove(filepath.Join(lp.config.Dir, logFiles[i].name))
+		}
+	}
+}
+
+// WriteLog 写入请求日志
+func (lp *LogPersister) WriteLog(log RequestLog) error {
+	if lp == nil || lp.file == nil {
+		return nil
+	}
+
+	lp.mu.Lock()
+	defer lp.mu.Unlock()
+
+	var data []byte
+	var err error
+
+	if lp.config.Format == "json" {
+		data, err = json.Marshal(log)
+		if err != nil {
+			return err
+		}
+		data = append(data, '\n')
+	} else {
+		data = []byte(fmt.Sprintf("[%s] %s %s - %d\n%s\n---\n",
+			log.Time, log.Method, log.URL, log.Status, log.Body))
+	}
+
+	// 检查文件大小，需要轮转
+	if lp.fileSize+int64(len(data)) > lp.config.MaxSize*1024*1024 {
+		if err := lp.rotateFile(); err != nil {
+			return err
+		}
+	}
+
+	n, err := lp.file.Write(data)
+	if err != nil {
+		return err
+	}
+	lp.fileSize += int64(n)
+	return nil
+}
+
+// Close 关闭日志文件
+func (lp *LogPersister) Close() error {
+	if lp != nil && lp.file != nil {
+		return lp.file.Close()
+	}
+	return nil
+}
+
 // AppManager 负责读取配置、生命周期管理以及热重载。
 type AppManager struct {
 	mu        sync.Mutex
@@ -293,6 +555,11 @@ func (m *AppManager) Start() error {
 
 // startWithConfigLocked 按给定配置启动实际 HTTP 服务。
 func (m *AppManager) startWithConfigLocked(cfg *MockConfig, raw []byte) error {
+	// 初始化日志持久化器
+	if err := InitLogPersister(cfg.Log); err != nil {
+		slog.Warn("日志持久化初始化失败", "error", err)
+	}
+
 	router := BuildRouter(cfg)
 	var servers []serverItem
 	var occupiedPorts []string
@@ -544,6 +811,10 @@ func callFunc(name, args string) string {
 				}
 			}
 		}
+		// 确保 min < max
+		if min >= max {
+			max = min + 1
+		}
 		return fmt.Sprint(min + int(time.Now().UnixNano()%(int64(max-min+1))))
 	case "random_string":
 		length := 16
@@ -571,6 +842,14 @@ func generateUUID() string {
 func generateRandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	b := make([]byte, length)
+	randomBytes := make([]byte, length)
+	if _, err := crand.Read(randomBytes); err == nil {
+		for i := range b {
+			b[i] = charset[int(randomBytes[i])%len(charset)]
+		}
+		return string(b)
+	}
+	// 降级：使用时间戳
 	for i := range b {
 		b[i] = charset[int(time.Now().UnixNano()+int64(i))%len(charset)]
 	}
@@ -771,7 +1050,11 @@ func injectFormVars(r *http.Request, vars map[string]string, bodyBytes []byte) {
 }
 
 // serveResponseFile 将本地文件作为响应体回传。
-func serveResponseFile(w http.ResponseWriter, r *http.Request, filePath string, status int) error {
+// 支持三种模式：
+// 1. 流式下载（默认）：使用 http.ServeContent，支持断点续传
+// 2. 缓冲式下载（buffered=true）：先读取整个文件到内存，再发送
+// 3. 限速下载（speedKBps>0）：按指定速率发送数据
+func serveResponseFile(w http.ResponseWriter, r *http.Request, filePath string, status int, speedKBps int, buffered bool) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		http.Error(w, "response file not found", http.StatusNotFound)
@@ -783,11 +1066,238 @@ func serveResponseFile(w http.ResponseWriter, r *http.Request, filePath string, 
 		http.Error(w, "response file unavailable", http.StatusInternalServerError)
 		return err
 	}
-	if status > 0 {
-		w.WriteHeader(status)
+
+	// 设置默认状态码
+	if status == 0 {
+		status = http.StatusOK
 	}
+
+	// 设置 Content-Length，让浏览器能显示下载进度
+	w.Header().Set("Content-Length", fmt.Sprint(info.Size()))
+
+	// 缓冲式下载：先读取整个文件到内存
+	if buffered {
+		data, err := io.ReadAll(f)
+		if err != nil {
+			http.Error(w, "failed to read file", http.StatusInternalServerError)
+			return err
+		}
+		w.WriteHeader(status)
+		// 限速发送缓冲数据
+		if speedKBps > 0 {
+			return writeWithSpeedLimit(w, data, speedKBps)
+		}
+		w.Write(data)
+		return nil
+	}
+
+	// 限速流式下载
+	if speedKBps > 0 {
+		w.WriteHeader(status)
+		return streamWithSpeedLimit(w, f, info.Size(), speedKBps)
+	}
+
+	// 默认流式下载（支持断点续传）
+	w.WriteHeader(status)
 	http.ServeContent(w, r, info.Name(), info.ModTime(), f)
 	return nil
+}
+
+// writeWithSpeedLimit 按指定速率发送数据（用于缓冲式下载）
+func writeWithSpeedLimit(w http.ResponseWriter, data []byte, speedKBps int) error {
+	if speedKBps <= 0 {
+		_, err := w.Write(data)
+		return err
+	}
+
+	chunkSize := speedKBps * 1024
+	for offset := 0; offset < len(data); {
+		end := offset + chunkSize
+		if end > len(data) {
+			end = len(data)
+		}
+		if _, err := w.Write(data[offset:end]); err != nil {
+			return err
+		}
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+		offset = end
+		if offset < len(data) {
+			time.Sleep(time.Second)
+		}
+	}
+	return nil
+}
+
+// streamWithSpeedLimit 按指定速率流式发送文件
+func streamWithSpeedLimit(w http.ResponseWriter, f *os.File, fileSize int64, speedKBps int) error {
+	if speedKBps <= 0 {
+		_, err := io.Copy(w, f)
+		return err
+	}
+
+	chunkSize := speedKBps * 1024
+	buf := make([]byte, chunkSize)
+	for {
+		n, err := f.Read(buf)
+		if n > 0 {
+			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
+				return writeErr
+			}
+			if flusher, ok := w.(http.Flusher); ok {
+				flusher.Flush()
+			}
+		}
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+		time.Sleep(time.Second)
+	}
+}
+
+// ========== 响应压缩 ==========
+// compressData 压缩数据，支持 gzip 和 deflate
+func compressData(data []byte, method string) ([]byte, error) {
+	var buf bytes.Buffer
+	switch strings.ToLower(method) {
+	case "gzip":
+		gw := gzip.NewWriter(&buf)
+		if _, err := gw.Write(data); err != nil {
+			gw.Close()
+			return nil, err
+		}
+		gw.Close()
+		return buf.Bytes(), nil
+	case "deflate":
+		dw, _ := flate.NewWriter(&buf, flate.DefaultCompression)
+		if _, err := dw.Write(data); err != nil {
+			dw.Close()
+			return nil, err
+		}
+		dw.Close()
+		return buf.Bytes(), nil
+	default:
+		return data, nil
+	}
+}
+
+// shouldCompress 判断是否应该压缩响应
+func shouldCompress(r *http.Request, acceptEncoding string) string {
+	if acceptEncoding == "" {
+		acceptEncoding = r.Header.Get("Accept-Encoding")
+	}
+	if acceptEncoding == "" {
+		return ""
+	}
+
+	// 优先使用 gzip
+	if strings.Contains(acceptEncoding, "gzip") {
+		return "gzip"
+	}
+	if strings.Contains(acceptEncoding, "deflate") {
+		return "deflate"
+	}
+	return ""
+}
+
+// ========== 分块传输 ==========
+// writeChunks 按配置分块发送数据
+func writeChunks(w http.ResponseWriter, chunks []ChunkConfig, vars map[string]string) error {
+	for _, chunk := range chunks {
+		// 延迟
+		if chunk.DelayMs > 0 {
+			time.Sleep(time.Duration(chunk.DelayMs) * time.Millisecond)
+		}
+
+		// 替换变量
+		data := replaceStringVars(chunk.Data, vars)
+
+		// 发送数据
+		if _, err := w.Write([]byte(data)); err != nil {
+			return err
+		}
+
+		// 刷新缓冲区
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
+	return nil
+}
+
+// ========== 概率响应选择 ==========
+// selectResponseByProbability 根据概率权重选择响应
+// 如果所有响应都没有设置 probability，则使用 when 条件匹配
+// 如果部分响应设置了 probability，则按权重随机选择
+func selectResponseByProbability(responses []RouteResponse, vars map[string]string, r *http.Request) *RouteResponse {
+	if len(responses) == 0 {
+		return nil
+	}
+
+	// 检查是否有任何响应设置了概率
+	hasProbability := false
+	totalWeight := 0
+	for i := range responses {
+		if responses[i].Probability > 0 {
+			hasProbability = true
+			totalWeight += responses[i].Probability
+		}
+	}
+
+	// 如果没有设置概率，使用原有的 when 匹配逻辑
+	if !hasProbability {
+		resp := &responses[0]
+		for i := range responses {
+			if whenMatches(responses[i].When, vars, r) {
+				resp = &responses[i]
+				break
+			}
+		}
+		return resp
+	}
+
+	// 按概率选择
+	// 使用 crypto/rand 生成安全的随机数
+	randomBytes := make([]byte, 8)
+	randomValue := 0
+	if _, err := crand.Read(randomBytes); err == nil {
+		for _, b := range randomBytes {
+			randomValue = (randomValue << 8) | int(b)
+		}
+	} else {
+		// 降级：使用时间戳作为随机源
+		randomValue = int(time.Now().UnixNano())
+	}
+	// 确保随机值为正数
+	randomValue = randomValue % totalWeight
+	if randomValue < 0 {
+		randomValue = -randomValue
+	}
+
+	// 累加权重找到对应的响应
+	currentWeight := 0
+	for i := range responses {
+		if responses[i].Probability > 0 {
+			currentWeight += responses[i].Probability
+			if randomValue < currentWeight {
+				return &responses[i]
+			}
+		}
+	}
+
+	// 如果概率总和不足100，剩余概率选择第一个未设置概率的响应
+	for i := range responses {
+		if responses[i].Probability == 0 {
+			return &responses[i]
+		}
+	}
+
+	// 默认返回第一个
+	return &responses[0]
 }
 
 // --- match 判定 --- //
@@ -807,14 +1317,15 @@ func readJSONBodySafe(r *http.Request) map[string]any {
 	return data
 }
 
-// matchRequest 根据 route.Match 条件判断请求是否命中。
-func matchRequest(route RouteRule, r *http.Request) bool {
-	if route.Match == nil {
+// matchCondition 通用的匹配条件校验，用于 route/ws/sse 的 match 字段
+// 支持 headers/query/body 的正则匹配
+func matchCondition(r *http.Request, m *RouteMatchCondition, bodyData map[string]any) bool {
+	if m == nil {
 		return true
 	}
 	// headers: 支持正则
-	if route.Match.Headers != nil {
-		for k, pattern := range route.Match.Headers {
+	if m.Headers != nil {
+		for k, pattern := range m.Headers {
 			val := r.Header.Get(k)
 			if matched, err := regexp.MatchString(pattern, val); err == nil {
 				if !matched {
@@ -828,9 +1339,9 @@ func matchRequest(route RouteRule, r *http.Request) bool {
 		}
 	}
 	// query: 支持正则
-	if route.Match.Query != nil {
+	if m.Query != nil {
 		vals := r.URL.Query()
-		for k, pattern := range route.Match.Query {
+		for k, pattern := range m.Query {
 			val := vals.Get(k)
 			if matched, err := regexp.MatchString(pattern, val); err == nil {
 				if !matched {
@@ -844,10 +1355,9 @@ func matchRequest(route RouteRule, r *http.Request) bool {
 		}
 	}
 	// body: 支持点路径与正则
-	if route.Match.Body != nil {
-		data := readJSONBodySafe(r)
-		for path, expect := range route.Match.Body {
-			actual := getValueByPath(data, path)
+	if m.Body != nil {
+		for path, expect := range m.Body {
+			actual := getValueByPath(bodyData, path)
 			if sv, ok := expect.(string); ok {
 				if matched, err := regexp.MatchString(sv, actual); err == nil {
 					if !matched {
@@ -866,6 +1376,14 @@ func matchRequest(route RouteRule, r *http.Request) bool {
 		}
 	}
 	return true
+}
+
+// matchRequest 根据 route.Match 条件判断请求是否命中。
+func matchRequest(route RouteRule, r *http.Request) bool {
+	if route.Match == nil {
+		return true
+	}
+	return matchCondition(r, route.Match, readJSONBodySafe(r))
 }
 
 // --- when 条件判定（统一：等值 + 操作符表达式） --- //
@@ -1161,13 +1679,13 @@ func singleRouteHandler(route RouteRule) http.HandlerFunc {
 
 		if route.Match != nil && !matchRequest(route, r) {
 			reqLog.Status = 404
-			wsHub.BroadcastRequest(reqLog)
+			LogRequest(reqLog)
 			w.WriteHeader(404)
 			return
 		}
 		if route.When != nil && !whenMatches(route.When, vars, r) {
 			reqLog.Status = 403
-			wsHub.BroadcastRequest(reqLog)
+			LogRequest(reqLog)
 			w.WriteHeader(403)
 			w.Write([]byte("route when failed"))
 			return
@@ -1178,30 +1696,73 @@ func singleRouteHandler(route RouteRule) http.HandlerFunc {
 		}
 		if len(route.Responses) == 0 {
 			reqLog.Status = http.StatusNotFound
-			wsHub.BroadcastRequest(reqLog)
+			LogRequest(reqLog)
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte("no response configured"))
 			return
 		}
-		resp := &route.Responses[0]
-		for i := range route.Responses {
-			res := &route.Responses[i]
-			if whenMatches(res.When, vars, r) {
-				resp = res
-				break
+
+		// ========== 响应选择逻辑 ==========
+		// 优先级：计数器模式 > 概率响应 > when 条件匹配
+		var resp *RouteResponse
+
+		// 检查是否有计数器配置（在第一个响应中）
+		if len(route.Responses) > 0 && route.Responses[0].Counter != nil {
+			// 计数器模式：先递增计数器并注入变量，再根据计数器值选择响应
+			counter := route.Responses[0].Counter
+
+			// 递增计数器（reset 参数仅在首次创建时生效）
+			count := globalCounterManager.Increment(counter.Key, counter.Max, counter.Loop, counter.Reset)
+
+			// 将计数器值注入变量（在 when 条件判断之前）
+			vars["counter"] = strconv.FormatInt(count, 10)
+			vars["counter."+counter.Key] = strconv.FormatInt(count, 10)
+
+			// 根据计数器值选择响应（索引从1开始）
+			idx := int(count) - 1
+			if idx >= len(route.Responses) {
+				if counter.Loop {
+					idx = idx % len(route.Responses)
+				} else {
+					idx = len(route.Responses) - 1
+				}
 			}
-		}
-		var bodyOut any
-		if resp.Template != "" || (resp.Body != nil && fmt.Sprint(resp.Body) != "") {
-			if resp.Template != "" {
-				bodyOut = renderTemplateIfNeeded("@"+resp.Template, vars)
+			if idx < 0 {
+				idx = 0
+			}
+			resp = &route.Responses[idx]
+			slog.Debug("counter mode", "key", counter.Key, "value", count)
+		} else {
+			// 检查是否有概率配置
+			hasProbability := false
+			for i := range route.Responses {
+				if route.Responses[i].Probability > 0 {
+					hasProbability = true
+					break
+				}
+			}
+			if hasProbability {
+				// 概率响应模式
+				resp = selectResponseByProbability(route.Responses, vars, r)
+				slog.Debug("probability mode", "selected", resp)
 			} else {
-				bodyOut = replaceVars(resp.Body, vars)
+				// 默认：when 条件匹配
+				resp = &route.Responses[0]
+				for i := range route.Responses {
+					if whenMatches(route.Responses[i].When, vars, r) {
+						resp = &route.Responses[i]
+						break
+					}
+				}
 			}
 		}
+
+		// ========== 延迟处理 ==========
 		if resp.DelayMs > 0 {
 			time.Sleep(time.Duration(resp.DelayMs) * time.Millisecond)
 		}
+
+		// ========== 设置响应头 ==========
 		for h, v := range resp.Headers {
 			hv := replaceVars(v, vars)
 			w.Header().Set(h, fmt.Sprint(hv))
@@ -1210,20 +1771,80 @@ func singleRouteHandler(route RouteRule) http.HandlerFunc {
 			base := buildCookieFromConf(ck)
 			http.SetCookie(w, applyCookieTemplates(base, vars))
 		}
+
+		// ========== 分块传输处理 ==========
+		if len(resp.Chunks) > 0 {
+			// 分块传输模式
+			status := resp.Status
+			if status == 0 {
+				status = 200
+			}
+			w.WriteHeader(status)
+
+			// 刷新缓冲区，确保客户端收到响应头
+			if flusher, ok := w.(http.Flusher); ok {
+				flusher.Flush()
+			}
+
+			if err := writeChunks(w, resp.Chunks, vars); err != nil {
+				slog.Error("write chunks failed", "error", err)
+			}
+			reqLog.Status = status
+			LogRequest(reqLog)
+			return
+		}
+
+		// ========== 文件下载处理 ==========
 		if resp.File != "" {
 			filePath := replaceStringVars(resp.File, vars)
-			if err := serveResponseFile(w, r, filePath, resp.Status); err != nil {
+			if err := serveResponseFile(w, r, filePath, resp.Status, resp.SpeedKBps, resp.Buffered); err != nil {
 				reqLog.Status = 500
-				wsHub.BroadcastRequest(reqLog)
+				LogRequest(reqLog)
 				return
 			}
 			reqLog.Status = resp.Status
 			if reqLog.Status == 0 {
 				reqLog.Status = 200
 			}
-			wsHub.BroadcastRequest(reqLog)
+			LogRequest(reqLog)
 			return
 		}
+
+		// ========== 响应体处理 ==========
+		var bodyOut any
+		if resp.Template != "" || (resp.Body != nil && fmt.Sprint(resp.Body) != "") {
+			if resp.Template != "" {
+				bodyOut = renderTemplateIfNeeded("@"+resp.Template, vars)
+			} else {
+				bodyOut = replaceVars(resp.Body, vars)
+			}
+		}
+
+		// 准备响应数据
+		var responseData []byte
+		if bodyOut != nil {
+			switch val := bodyOut.(type) {
+			case string:
+				responseData = []byte(val)
+			default:
+				responseData, _ = json.Marshal(val)
+			}
+		}
+
+		// ========== 压缩处理 ==========
+		compressMethod := resp.Compress
+		if compressMethod == "auto" {
+			compressMethod = shouldCompress(r, "")
+		}
+		if compressMethod != "" && len(responseData) > 0 {
+			compressed, err := compressData(responseData, compressMethod)
+			if err == nil {
+				responseData = compressed
+				w.Header().Set("Content-Encoding", compressMethod)
+			}
+		}
+
+		// ========== 发送响应 ==========
 		status := resp.Status
 		if status == 0 {
 			status = 200
@@ -1231,16 +1852,12 @@ func singleRouteHandler(route RouteRule) http.HandlerFunc {
 		if resp.Status > 0 {
 			w.WriteHeader(resp.Status)
 		}
-		if bodyOut != nil {
-			switch val := bodyOut.(type) {
-			case string:
-				w.Write([]byte(val))
-			default:
-				json.NewEncoder(w).Encode(val)
-			}
+		if len(responseData) > 0 {
+			w.Write(responseData)
 		}
+
 		reqLog.Status = status
-		wsHub.BroadcastRequest(reqLog)
+		LogRequest(reqLog)
 	}
 }
 
@@ -1358,107 +1975,31 @@ func gorillaWebsocketHandler(cfg WebsocketConfig) http.HandlerFunc {
 	}
 }
 
-// wsMatch: 与 sseMatch 类似，支持 headers/query 的正则匹配
+// wsMatch: WebSocket 匹配条件校验（不支持 body）
 func wsMatch(r *http.Request, m *RouteMatchCondition) bool {
 	if m == nil {
 		return true
 	}
-	if m.Headers != nil {
-		for k, pattern := range m.Headers {
-			val := r.Header.Get(k)
-			// 浏览器无法自定义 WS 头，允许使用 Sec-WebSocket-Protocol 作为替代承载
-			if val == "" {
-				val = r.Header.Get("Sec-WebSocket-Protocol")
-			}
-			if matched, err := regexp.MatchString(pattern, val); err == nil {
-				if !matched {
-					return false
-				}
-			} else {
-				if val != pattern {
-					return false
-				}
-			}
-		}
-	}
-	if m.Query != nil {
-		q := r.URL.Query()
-		for k, pattern := range m.Query {
-			val := q.Get(k)
-			if matched, err := regexp.MatchString(pattern, val); err == nil {
-				if !matched {
-					return false
-				}
-			} else {
-				if val != pattern {
-					return false
-				}
-			}
-		}
-	}
-	return true
+	// WebSocket 不支持 body 匹配，使用空 map
+	return matchCondition(r, &RouteMatchCondition{
+		Headers: m.Headers,
+		Query:   m.Query,
+	}, nil)
 }
 
-// muxSseHandler（同上但基于mux路径匹配）
 // sseMatch 校验 SSE 请求是否满足匹配条件。
-func sseMatch(r *http.Request, m *RouteMatchCondition, vars map[string]string) bool {
+func sseMatch(r *http.Request, m *RouteMatchCondition) bool {
 	if m == nil {
 		return true
 	}
-	// headers
-	if m.Headers != nil {
-		for k, pattern := range m.Headers {
-			val := r.Header.Get(k)
-			if matched, err := regexp.MatchString(pattern, val); err == nil {
-				if !matched {
-					return false
-				}
-			} else {
-				if val != pattern {
-					return false
-				}
-			}
-		}
+	// SSE 支持 body 匹配，需要读取 body
+	bodyData := map[string]any{}
+	if r.Method == "POST" || r.Method == "PUT" || r.Method == "PATCH" {
+		b, _ := io.ReadAll(r.Body)
+		r.Body = io.NopCloser(bytes.NewReader(b))
+		_ = json.Unmarshal(b, &bodyData)
 	}
-	// query
-	if m.Query != nil {
-		q := r.URL.Query()
-		for k, pattern := range m.Query {
-			val := q.Get(k)
-			if matched, err := regexp.MatchString(pattern, val); err == nil {
-				if !matched {
-					return false
-				}
-			} else {
-				if val != pattern {
-					return false
-				}
-			}
-		}
-	}
-	// body (点路径/正则)
-	if m.Body != nil {
-		data := readJSONBodySafe(r)
-		for path, expect := range m.Body {
-			actual := getValueByPath(data, path)
-			if sv, ok := expect.(string); ok {
-				if matched, err := regexp.MatchString(sv, actual); err == nil {
-					if !matched {
-						return false
-					}
-				} else {
-					if actual != sv {
-						return false
-					}
-				}
-			} else {
-				if actual != fmt.Sprint(expect) {
-					return false
-				}
-			}
-		}
-	}
-	return true
+	return matchCondition(r, m, bodyData)
 }
 
 // muxSseHandler 将 SseConfig 转换为 SSE handler。
@@ -1495,7 +2036,7 @@ func muxSseHandler(cfg SseConfig) http.HandlerFunc {
 			}
 		}
 		// match
-		if !sseMatch(r, cfg.Match, vars) {
+		if !sseMatch(r, cfg.Match) {
 			w.WriteHeader(404)
 			return
 		}
