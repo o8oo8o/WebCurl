@@ -2499,6 +2499,359 @@
         .json-formatted::-webkit-scrollbar-thumb:hover {
             background: #aab0b8 !important;
         }
+
+        /* ---------- 集合运行器 Runner ---------- */
+        .runner-overlay {
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(15, 23, 42, 0.45) !important;
+            backdrop-filter: blur(2px) !important;
+            z-index: 1000 !important;
+            display: none !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .runner-overlay.show {
+            display: flex !important;
+        }
+
+        .runner-dialog {
+            width: min(1100px, 94vw) !important;
+            height: min(84vh, 780px) !important;
+            background: var(--pm-surface) !important;
+            border: 1px solid var(--pm-border) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            overflow: hidden !important;
+            color: var(--pm-text) !important;
+        }
+
+        .runner-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px !important;
+            border-bottom: 1px solid var(--pm-border) !important;
+            background: var(--pm-surface-3) !important;
+        }
+
+        .runner-header h3 {
+            font-size: 15px !important;
+            color: var(--pm-text) !important;
+            border: none !important;
+            margin: 0 !important;
+        }
+
+        .runner-collection-name {
+            color: var(--pm-brand) !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+        }
+
+        .runner-close {
+            margin-left: auto !important;
+            background: transparent !important;
+            border: none !important;
+            color: var(--pm-text-muted) !important;
+            font-size: 16px !important;
+            cursor: pointer !important;
+            padding: 2px 8px !important;
+            box-shadow: none !important;
+        }
+
+        .runner-close:hover {
+            color: var(--pm-text) !important;
+            background: var(--pm-surface) !important;
+            transform: none !important;
+        }
+
+        .runner-body {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        .runner-left {
+            width: 340px;
+            flex: 0 0 340px;
+            border-right: 1px solid var(--pm-border);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .runner-left-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--pm-border);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--pm-text);
+        }
+
+        .runner-left-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .runner-left-actions button {
+            padding: 3px 8px !important;
+            font-size: 11px !important;
+        }
+
+        .runner-order-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .runner-order-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 8px;
+            border: 1px solid var(--pm-border);
+            border-radius: 4px;
+            margin-bottom: 5px;
+            background: var(--pm-surface);
+            cursor: grab;
+        }
+
+        .runner-order-item.dragging {
+            opacity: .4;
+        }
+
+        .runner-order-item input[type=checkbox] {
+            flex: none;
+            accent-color: var(--pm-brand) !important;
+        }
+
+        .runner-item-index {
+            width: 18px;
+            text-align: center;
+            color: var(--pm-text-faint);
+            font-size: 12px;
+            flex: none;
+        }
+
+        .runner-item-grip {
+            color: var(--pm-text-faint);
+            cursor: grab;
+            flex: none;
+            user-select: none;
+            letter-spacing: -2px;
+        }
+
+        .runner-item-name {
+            color: var(--pm-text);
+            font-size: 13px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .runner-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .runner-config {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--pm-border);
+        }
+
+        .runner-config .runner-row2 {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .runner-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .runner-field label,
+        .runner-config>label {
+            font-size: 12px;
+            color: var(--pm-text-muted);
+            font-weight: 600;
+        }
+
+        .runner-field input[type=number] {
+            width: 110px;
+        }
+
+        .runner-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+            margin-bottom: 10px;
+        }
+
+        .runner-options .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--pm-text);
+            margin: 0;
+        }
+
+        .runner-options .checkbox-item input {
+            accent-color: var(--pm-brand) !important;
+        }
+
+        .runner-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .runner-summary {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--pm-border);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 18px;
+            font-size: 12px;
+            color: var(--pm-text-muted);
+            background: var(--pm-surface-2);
+        }
+
+        .runner-summary b {
+            color: var(--pm-text);
+        }
+
+        .runner-summary .fail-count {
+            color: #e0533d;
+            font-weight: 700;
+        }
+
+        .runner-summary .pass-count {
+            color: #1f9d57;
+            font-weight: 700;
+        }
+
+        .runner-results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+        }
+
+        .runner-empty {
+            color: var(--pm-text-faint);
+            font-size: 13px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .runner-result-item {
+            border: 1px solid var(--pm-border);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            background: var(--pm-surface);
+            overflow: hidden;
+        }
+
+        .runner-result-item.fail {
+            border-color: #f0bcb4;
+            background: #fdf7f6;
+        }
+
+        .runner-result-item.skip {
+            border-style: dashed;
+        }
+
+        .rri-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 8px;
+            font-size: 12px;
+        }
+
+        .rri-iter {
+            color: var(--pm-text-faint);
+            flex: none;
+            width: 52px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rri-name {
+            color: var(--pm-text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .rri-status {
+            font-weight: 700;
+            flex: none;
+        }
+
+        .rri-time {
+            color: var(--pm-text-muted);
+            flex: none;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rri-tag {
+            flex: none;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+
+        .rri-tag.pass {
+            background: #e7f6ee;
+            color: #1f9d57;
+        }
+
+        .rri-tag.fail {
+            background: #fdecea;
+            color: #e0533d;
+        }
+
+        .rri-tag.skip {
+            background: #eef0f3;
+            color: #6b7280;
+        }
+
+        .rri-reason {
+            padding: 0 8px 6px;
+            color: #e0533d;
+            font-size: 12px;
+        }
+
+        .rri-asserts {
+            padding: 0 8px 6px;
+            font-size: 12px;
+            color: var(--pm-text-muted);
+        }
+
+        .rri-body {
+            margin: 0 8px 8px;
+            padding: 8px;
+            background: #21232a;
+            color: #d4d4d4;
+            border-radius: 3px;
+            font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -2536,6 +2889,7 @@
                         <button class="btn-action" onclick="exportApis()">导出</button>
                         <button class="btn-action" onclick="addApiCollection()">新增</button>
                         <button class="btn-danger-action" onclick="removeApiCollection()">删除</button>
+                        <button class="btn-action" onclick="openRunner()">runner</button>
                     </div>
                 </div>
                 <!-- 集合管理UI -->
@@ -2878,6 +3232,60 @@ function postResponse(response) {
         </div>
     </div>
 
+    <!-- ===== 集合运行器 Runner ===== -->
+    <div class="runner-overlay" id="runnerOverlay">
+        <div class="runner-dialog">
+            <div class="runner-header">
+                <h3>集合运行器</h3>
+                <span id="runnerCollectionName" class="runner-collection-name"></span>
+                <button class="runner-close" onclick="closeRunner()" title="关闭">✕</button>
+            </div>
+            <div class="runner-body">
+                <!-- 左：运行顺序 -->
+                <div class="runner-left">
+                    <div class="runner-left-head">
+                        <span>运行顺序</span>
+                        <div class="runner-left-actions">
+                            <button class="btn-action" onclick="runnerSelectAll(true)">全选</button>
+                            <button class="btn-action" onclick="runnerSelectAll(false)">取消</button>
+                            <button class="btn-action" onclick="runnerResetOrder()">还原</button>
+                        </div>
+                    </div>
+                    <div id="runnerOrderList" class="runner-order-list"></div>
+                </div>
+                <!-- 右：配置 + 结果 -->
+                <div class="runner-right">
+                    <div class="runner-config">
+                        <div class="runner-row2">
+                            <div class="runner-field">
+                                <label>Iterations 迭代次数</label>
+                                <input type="number" id="runnerIterations" value="1" min="1">
+                            </div>
+                            <div class="runner-field">
+                                <label>Delay 请求间隔(ms)</label>
+                                <input type="number" id="runnerDelay" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="runner-options">
+                            <label class="checkbox-item"><input type="checkbox" id="runnerStopOnError"> 出错即停</label>
+                            <label class="checkbox-item"><input type="checkbox" id="runnerTurnOffLogs" checked> 运行时关闭日志</label>
+                            <label class="checkbox-item"><input type="checkbox" id="runnerShowPasses"> 显示通过项</label>
+                        </div>
+                        <div class="runner-actions">
+                            <button id="runnerStartBtn" class="btn-primary" onclick="startRunner()">开始运行</button>
+                            <button id="runnerStopBtn" class="btn-danger-action" onclick="stopRunner()" style="display:none;">停止</button>
+                        </div>
+                    </div>
+                    <div id="runnerSummary" class="runner-summary"></div>
+                    <div id="runnerResults" class="runner-results">
+                        <div class="runner-empty">配置好参数后点击「开始运行」。通过项默认仅计入统计，失败/跳过项在此显示详情。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== /集合运行器 Runner ===== -->
+
     <div class="dialog-overlay" id="dialogOverlay"></div>
     <div class="settings-dialog" id="settingsDialog">
         <h3>请求配置</h3>
@@ -3036,12 +3444,19 @@ function postResponse(response) {
             /** @type {Array<{type: string, time: string, message: string}>} 控制台日志数组 */
             consoleLogs: [],
 
+            /** 断言结果数组，供集合运行器统计通过/失败 */
+            assertions: [],
+
+            /** 运行器执行时静默日志，避免海量请求刷爆 Hook 控制台 */
+            _muteLogs: false,
+
             /**
              * 记录日志到控制台
              * @param {string} type - 日志类型：info/success/error/warn
              * @param {...any} args - 日志内容
              */
             log(type, ...args) {
+                if (this._muteLogs) return;
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('zh-CN', { hour12: false });
                 const message = args.map(arg => {
@@ -3194,6 +3609,21 @@ function postResponse(response) {
                         const result = {};
                         headerConf.filter(h => h.enable !== false).forEach(h => { result[h.header_name] = h.header_value; });
                         return result;
+                    },
+
+                    /**
+                     * 断言：记录通过/失败（供集合运行器汇总；单请求也会输出到 Hook 控制台）
+                     * @param {boolean} condition - 断言条件
+                     * @param {string} message - 断言说明
+                     * @returns {boolean} 断言是否通过
+                     */
+                    assert: (condition, message) => {
+                        const ok = !!condition;
+                        const label = message || (ok ? '断言通过' : '断言失败');
+                        self.assertions.push({ pass: ok, message: label });
+                        if (ok) self.log('success', '✓ ' + label);
+                        else self.log('error', '✗ ' + label);
+                        return ok;
                     },
                 };
             },
@@ -7753,6 +8183,434 @@ function postResponse(response) {
             setCurrentCollectionName('默认集合');
             updateApiCollectionSelect();
             updateApisDisplay();
+        }
+
+        /* ============================================================
+           集合运行器（Collection Runner）
+           对当前选中集合里的接口按顺序批量执行，支持迭代、延迟、
+           变量串联、断言、出错即停。完全复用 replaceVariables / HookEngine /
+           代理转发（/api/forward），不触碰现有单请求发送逻辑。
+           ============================================================ */
+        const Runner = {
+            order: [],          // 当前集合的接口（按运行顺序），每项带 _id
+            originalOrder: [],  // 原始顺序快照（还原用）
+            cancelled: false,
+            running: false,
+            _idSeq: 0,
+        };
+
+        function runnerSleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function escapeRunnerHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
+
+        /** 打开运行器，载入当前集合 */
+        function openRunner() {
+            const collections = getApiCollections();
+            const current = getCurrentCollectionName();
+            const collection = collections.find(c => c.name === current);
+            const apis = collection ? collection.apis : [];
+            if (!apis.length) {
+                alert('当前集合没有接口，请先在主界面保存接口后再运行。');
+                return;
+            }
+
+            Runner._idSeq = 0;
+            Runner.order = apis.map(a => ({ ...a, _id: 'r' + (Runner._idSeq++) }));
+            Runner.originalOrder = Runner.order.map(x => ({ ...x, _id: x._id }));
+            Runner.cancelled = false;
+            Runner.running = false;
+
+            byId('runnerCollectionName').textContent = '集合：' + current + '（' + apis.length + ' 个接口）';
+            byId('runnerIterations').value = 1;
+            byId('runnerDelay').value = 0;
+            byId('runnerStartBtn').disabled = false;
+            byId('runnerStartBtn').textContent = '开始运行';
+            byId('runnerStopBtn').style.display = 'none';
+            byId('runnerSummary').innerHTML = '';
+            byId('runnerResults').innerHTML = '<div class="runner-empty">配置好参数后点击「开始运行」。通过项默认仅计入统计，失败/跳过项在此显示详情。</div>';
+
+            renderRunnerOrder();
+            byId('runnerOverlay').classList.add('show');
+        }
+
+        function closeRunner() {
+            if (Runner.running) {
+                if (!confirm('运行进行中，确定要关闭吗？将停止本次运行。')) return;
+                Runner.cancelled = true;
+            }
+            byId('runnerOverlay').classList.remove('show');
+        }
+
+        function renderRunnerOrder() {
+            const list = byId('runnerOrderList');
+            list.innerHTML = '';
+            Runner.order.forEach((item, idx) => {
+                const method = item.method || 'GET';
+                const row = document.createElement('div');
+                row.className = 'runner-order-item';
+                row.draggable = true;
+                row.dataset.id = item._id;
+                row.innerHTML = `
+                    <input type="checkbox" class="runner-item-check" checked>
+                    <span class="runner-item-index">${idx + 1}</span>
+                    <span class="runner-item-grip" title="拖动排序">⋮⋮</span>
+                    <span class="tab-method ${method.toLowerCase()}">${escapeRunnerHtml(method)}</span>
+                    <span class="runner-item-name" title="${escapeRunnerHtml(item.name || '')}">${escapeRunnerHtml(item.name || item.url || '')}</span>
+                `;
+                list.appendChild(row);
+            });
+            bindRunnerDnd();
+        }
+
+        /** 绑定拖拽排序 */
+        function bindRunnerDnd() {
+            const list = byId('runnerOrderList');
+            list.querySelectorAll('.runner-order-item').forEach(item => {
+                item.addEventListener('dragstart', e => {
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragend', () => {
+                    list.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+                    syncRunnerOrderFromDom();
+                });
+                item.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    const dragging = list.querySelector('.dragging');
+                    if (!dragging || dragging === item) return;
+                    const rect = item.getBoundingClientRect();
+                    const after = (e.clientY - rect.top) > rect.height / 2;
+                    if (after) item.after(dragging); else item.before(dragging);
+                });
+                item.addEventListener('drop', e => e.preventDefault());
+            });
+        }
+
+        /** 按 DOM 顺序回写 Runner.order 并重排序号 */
+        function syncRunnerOrderFromDom() {
+            const ids = Array.from(byId('runnerOrderList').querySelectorAll('.runner-order-item')).map(el => el.dataset.id);
+            const map = new Map(Runner.order.map(o => [o._id, o]));
+            Runner.order = ids.map(id => map.get(id)).filter(Boolean);
+            byId('runnerOrderList').querySelectorAll('.runner-item-index').forEach((el, i) => el.textContent = (i + 1));
+        }
+
+        function runnerSelectAll(checked) {
+            byId('runnerOrderList').querySelectorAll('.runner-item-check').forEach(c => c.checked = checked);
+        }
+
+        function runnerResetOrder() {
+            Runner.order = Runner.originalOrder.map(x => ({ ...x, _id: 'r' + (Runner._idSeq++) }));
+            renderRunnerOrder();
+        }
+
+        /* ---------- 请求构建（从保存的 api 对象，不读 DOM） ---------- */
+        function runnerNormalizeHeader(key) {
+            if (!key || !/^[a-zA-Z0-9\-]+$/.test(key)) return '';
+            return key.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join('-');
+        }
+
+        function runnerBuildHeaders(api) {
+            const headers = {};
+            // 全局请求头（getGlobalHeaders 已做变量替换与启用过滤）
+            Object.entries(getGlobalHeaders()).forEach(([k, v]) => {
+                const nk = runnerNormalizeHeader(k);
+                if (nk) headers[nk] = v;
+            });
+            // 接口请求头，优先级更高
+            const apiHeaders = api.headers || {};
+            Object.entries(apiHeaders).forEach(([k, v]) => {
+                if (v && v.enabled !== false && k) {
+                    const nk = runnerNormalizeHeader(replaceVariables(k).trim());
+                    if (nk) headers[nk] = replaceVariables((v.value || '')).trim();
+                }
+            });
+            return headers;
+        }
+
+        function runnerSelectedContent(data) {
+            if (!Array.isArray(data) || !data.length) return '';
+            const sel = data.find(d => d.selected);
+            return ((sel || data[0]).content) || '';
+        }
+
+        /** json/text/xml 返回字符串；form 返回 urlencoded 字符串；其它返回 null */
+        function runnerBuildBodyString(api, bodyType) {
+            const data = api.body && api.body.data;
+            if (bodyType === 'json' || bodyType === 'text' || bodyType === 'xml') {
+                return replaceVariables(runnerSelectedContent(data));
+            }
+            if (bodyType === 'form') {
+                const params = new URLSearchParams();
+                if (data && typeof data === 'object') {
+                    Object.entries(data).forEach(([k, v]) => {
+                        if (v && v.enabled !== false && k) params.append(replaceVariables(k), replaceVariables(v.value || ''));
+                    });
+                }
+                return params.toString();
+            }
+            return null;
+        }
+
+        /** 向代理 FormData 追加请求体（复用 /api/forward 约定） */
+        function runnerAppendProxyBody(fd, api, bodyType, hookBody) {
+            // 仅 json/text/xml 以字符串 body 发送（含 Hook 修改后的值）
+            if (hookBody != null && hookBody !== '' && (bodyType === 'json' || bodyType === 'text' || bodyType === 'xml')) {
+                fd.append('body', hookBody);
+                return;
+            }
+            if (bodyType === 'none') return;
+            const data = api.body && api.body.data;
+            if (bodyType === 'json' || bodyType === 'text' || bodyType === 'xml') {
+                const content = runnerSelectedContent(data);
+                if (content) fd.append('body', replaceVariables(content));
+            } else if (bodyType === 'form') {
+                if (data && typeof data === 'object') {
+                    Object.entries(data).forEach(([k, v]) => {
+                        if (v && v.enabled !== false && k) fd.append(replaceVariables(k), replaceVariables(v.value || ''));
+                    });
+                }
+            } else if (bodyType === 'formdata') {
+                // 仅支持文本字段；文件类无法在批量运行中重建
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        if (item && item.enabled !== false && item.key && item.type !== 'file') {
+                            fd.append(replaceVariables(item.key), replaceVariables(item.value || ''));
+                        }
+                    });
+                }
+            }
+        }
+
+        /* ---------- 核心：执行单个接口（自包含，不更新主界面） ---------- */
+        async function runnerSendOne(api) {
+            const settings = getRequestSettings();
+            const method = (api.method || 'GET').toUpperCase();
+            const bodyType = (api.body && api.body.type) || 'none';
+
+            if (method === 'WS' || method === 'SSE') {
+                return { skipped: true, reason: 'WebSocket / SSE 不支持批量运行' };
+            }
+            if (bodyType === 'binary') {
+                return { skipped: true, reason: 'Binary 文件请求体不支持批量运行' };
+            }
+
+            // 注入该接口的 Hook 脚本（HookEngine 从 DOM 读取）
+            HookEngine.setHookScripts(api.hooks || {});
+            HookEngine.assertions = [];
+
+            let url = replaceVariables(api.url || '').trim();
+            url = normalizeUrlWithProtocol(url, settings.default_protocol);
+            if (!url) return { error: 'URL 为空（可能变量未定义）' };
+
+            let headers = runnerBuildHeaders(api);
+            const bodyStr = runnerBuildBodyString(api, bodyType);
+
+            const preReq = await HookEngine.executePreRequest({
+                url, method, headers, body: bodyStr, bodyType, settings
+            });
+            url = preReq.url;
+            const finalMethod = preReq.method;
+            headers = preReq.headers;
+            const finalBody = preReq.body;
+
+            const startTime = Date.now();
+            try {
+                let status, statusText, respHeaders = {}, body = '', contentType;
+                if (useProxy) {
+                    const fd = new FormData();
+                    fd.append('url', url);
+                    fd.append('method', finalMethod);
+                    fd.append('body_type', bodyType === 'formdata' ? 'form-data' : (bodyType === 'form' ? 'x-www-form-urlencoded' : bodyType));
+                    fd.append('headers', JSON.stringify(Object.entries(headers).map(([name, value]) => ({ name, value }))));
+                    fd.append('time_out', settings.timeout || '0');
+                    fd.append('verify_ssl', settings.verify_ssl || 'N');
+                    fd.append('follow_redirect', settings.follow_redirect || 'N');
+                    fd.append('retry_count', settings.retry_count || '0');
+                    fd.append('retry_delay', settings.retry_delay || '0');
+                    fd.append('stream', 'false');
+                    runnerAppendProxyBody(fd, api, bodyType, finalBody);
+
+                    const resp = await fetch('/api/forward', { method: 'POST', body: fd });
+                    status = resp.status;
+                    statusText = resp.statusText;
+                    contentType = resp.headers.get('content-type');
+                    resp.headers.forEach((v, k) => respHeaders[k] = v);
+                    body = await resp.text();
+                } else {
+                    const requestOptions = { method: finalMethod, headers, redirect: settings.redirect };
+                    // 直连模式仅处理可序列化为字符串的请求体（none/json/text/form/xml），
+                    // formdata/binary 需代理模式；避免回退去读 DOM。
+                    if (bodyType !== 'none' && finalMethod !== 'GET' && bodyStr != null) {
+                        await setContentTypeAndBody(headers, bodyType, requestOptions, finalBody != null ? finalBody : bodyStr);
+                    }
+                    const resp = await fetch(url, requestOptions);
+                    status = resp.status;
+                    statusText = resp.statusText;
+                    contentType = resp.headers.get('content-type');
+                    resp.headers.forEach((v, k) => respHeaders[k] = v);
+                    body = await resp.text();
+                }
+
+                const duration = Date.now() - startTime;
+                const postResp = await HookEngine.executePostResponse({
+                    status, statusText, headers: respHeaders, body, duration, contentType
+                });
+                body = postResp.body !== undefined ? postResp.body : body;
+                return { status, statusText, duration, contentType, body, assertions: HookEngine.assertions.slice() };
+            } catch (e) {
+                return { error: (e && e.message) ? e.message : String(e), duration: Date.now() - startTime };
+            }
+        }
+
+        /* ---------- 结果渲染 ---------- */
+        function appendRunnerResult(r, failed, skipped) {
+            const container = byId('runnerResults');
+            const empty = container.querySelector('.runner-empty');
+            if (empty) empty.remove();
+
+            // 通过项默认只计入统计；勾选「显示通过项」才渲染（并限量）
+            if (!failed && !skipped && !(byId('runnerShowPasses') && byId('runnerShowPasses').checked)) {
+                return;
+            }
+
+            const item = document.createElement('div');
+            item.className = 'runner-result-item' + (skipped ? ' skip' : (failed ? ' fail' : ''));
+            const method = r.method || 'GET';
+            const statusKey = String(r.status || '').charAt(0);
+            const statusHtml = r.status ? `<span class="rri-status httpStatus${statusKey}">${r.status}</span>` : '';
+            const tag = skipped ? `<span class="rri-tag skip">跳过</span>` : (failed ? `<span class="rri-tag fail">失败</span>` : `<span class="rri-tag pass">通过</span>`);
+            let inner = `<div class="rri-head">
+                <span class="rri-iter">#${r.iter}-${r.idx}</span>
+                <span class="tab-method ${method.toLowerCase()}">${escapeRunnerHtml(method)}</span>
+                <span class="rri-name" title="${escapeRunnerHtml(r.name || '')}">${escapeRunnerHtml(r.name || '')}</span>
+                ${statusHtml}
+                <span class="rri-time">${r.duration != null ? r.duration + 'ms' : ''}</span>
+                ${tag}
+            </div>`;
+            if (r.error) inner += `<div class="rri-reason">${escapeRunnerHtml(r.error)}</div>`;
+            if (r.reason) inner += `<div class="rri-reason">${escapeRunnerHtml(r.reason)}</div>`;
+            if (r.assertions && r.assertions.length) {
+                inner += `<div class="rri-asserts">${r.assertions.map(a => (a.pass ? '✓ ' : '✗ ') + escapeRunnerHtml(a.message)).join('<br>')}</div>`;
+            }
+            if (r.body) {
+                const preview = r.body.length > 4000 ? r.body.slice(0, 4000) + '\n…(已截断)' : r.body;
+                inner += `<div class="rri-body">${escapeRunnerHtml(preview)}</div>`;
+            }
+            item.innerHTML = inner;
+            container.appendChild(item);
+
+            // 限量：通过项最多保留 300 条，避免海量 DOM
+            if (!failed && !skipped) {
+                const passes = container.querySelectorAll('.runner-result-item:not(.fail):not(.skip)');
+                if (passes.length > 300) passes[0].remove();
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function appendRunnerBanner(text) {
+            const container = byId('runnerResults');
+            const banner = document.createElement('div');
+            banner.className = 'runner-empty';
+            banner.style.textAlign = 'left';
+            banner.style.fontWeight = '600';
+            banner.style.color = 'var(--pm-brand)';
+            banner.textContent = '— ' + text + ' —';
+            container.insertBefore(banner, container.firstChild);
+        }
+
+        /* ---------- 开始 / 停止 ---------- */
+        async function startRunner() {
+            const checks = byId('runnerOrderList').querySelectorAll('.runner-item-check');
+            const selected = [];
+            Runner.order.forEach((item, idx) => {
+                if (checks[idx] && checks[idx].checked) selected.push(item);
+            });
+            if (!selected.length) { alert('请至少选择一个要运行的接口'); return; }
+
+            const iterations = Math.max(1, parseInt(byId('runnerIterations').value, 10) || 1);
+            const delay = Math.max(0, parseInt(byId('runnerDelay').value, 10) || 0);
+            const stopOnError = byId('runnerStopOnError').checked;
+            const turnOffLogs = byId('runnerTurnOffLogs').checked;
+
+            Runner.running = true;
+            Runner.cancelled = false;
+            byId('runnerStartBtn').disabled = true;
+            byId('runnerStopBtn').style.display = '';
+            byId('runnerResults').innerHTML = '';
+
+            // 快照：变量 + Hook 脚本，用于结束回滚
+            const envSnapshot = JSON.parse(JSON.stringify(StorageManager.get('env_conf', [])));
+            const hooksSnapshot = HookEngine.getHookScripts();
+            const prevMute = HookEngine._muteLogs;
+            if (turnOffLogs) HookEngine._muteLogs = true;
+
+            let sentCount = 0, passCount = 0, failCount = 0, skipCount = 0, curIter = 0;
+            const runStart = Date.now();
+            let stopped = false;
+
+            const updateSummary = () => {
+                byId('runnerSummary').innerHTML =
+                    '迭代：<b>' + curIter + '/' + iterations + '</b>' +
+                    ' · 已发送：<b>' + sentCount + '</b>' +
+                    ' · <span class="pass-count">通过 ' + passCount + '</span>' +
+                    ' · <span class="fail-count">失败 ' + failCount + '</span>' +
+                    ' · 跳过 ' + skipCount +
+                    ' · 耗时 ' + ((Date.now() - runStart) / 1000).toFixed(1) + 's';
+            };
+            updateSummary();
+
+            try {
+                for (let it = 0; it < iterations; it++) {
+                    curIter = it + 1;
+                    if (Runner.cancelled) { stopped = true; break; }
+
+                    for (let s = 0; s < selected.length; s++) {
+                        if (Runner.cancelled) { stopped = true; break; }
+                        const api = selected[s];
+                        const res = await runnerSendOne(api);
+                        sentCount++;
+
+                        const skipped = !!res.skipped;
+                        const failed = !skipped && (!!res.error || (res.assertions && res.assertions.some(a => !a.pass)));
+                        if (skipped) skipCount++;
+                        else if (failed) failCount++;
+                        else passCount++;
+
+                        appendRunnerResult({ iter: curIter, idx: s + 1, name: api.name, method: api.method, ...res }, failed, skipped);
+                        updateSummary();
+
+                        if (failed && stopOnError) { stopped = true; break; }
+                        if (delay > 0 && !(failed && stopOnError)) await runnerSleep(delay);
+                    }
+                    if (stopped) break;
+                }
+            } finally {
+                Runner.running = false;
+                byId('runnerStartBtn').disabled = false;
+                byId('runnerStartBtn').textContent = '重新运行';
+                byId('runnerStopBtn').style.display = 'none';
+                HookEngine._muteLogs = prevMute;
+                HookEngine.setHookScripts(hooksSnapshot);
+                StorageManager.set('env_conf', envSnapshot);
+                if (typeof loadVariables === 'function') loadVariables();
+                updateSummary();
+
+                if (stopped) {
+                    appendRunnerBanner(Runner.cancelled ? '运行已停止' : (failCount && stopOnError ? '因出错已停止' : '运行已停止'));
+                } else {
+                    appendRunnerBanner('运行完成');
+                }
+            }
+        }
+
+        function stopRunner() {
+            Runner.cancelled = true;
         }
 
         let isAsideVisible = true;

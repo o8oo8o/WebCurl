@@ -471,6 +471,40 @@
             line-height: 1;
         }
 
+        /* 复制按钮：行内小胶囊、固定靠右；显式覆盖全局 button 的 height/阴影/上浮/扫光 */
+        .request-log-copy-btn {
+            flex-shrink: 0;
+            margin-left: auto;
+            height: 18px;
+            padding: 0 8px;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 18px;
+            border: none;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #b2bec3;
+            box-shadow: none;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .request-log-copy-btn::before {
+            content: none;
+        }
+
+        .request-log-copy-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .request-log-copy-btn.copied {
+            background: #00b894;
+            color: #fff;
+        }
+
         .request-log-detail {
             margin-top: 1px;
             padding: 2px 4px;
@@ -1018,6 +1052,7 @@
             html += '<span class="request-log-status ' + statusClass + '">' + data.status + '</span>';
             html += '<span class="request-log-method ' + methodClass + '">' + data.method + '</span>';
             html += '<span class="request-log-path">' + data.url + '</span>';
+            html += '<button type="button" class="request-log-copy-btn" onclick="copyRequestLog(event, this)" title="复制完整请求信息">复制</button>';
             html += '</div>';
             // 详情区域（可折叠）
             html += '<div class="request-log-detail">';
@@ -1034,6 +1069,10 @@
             }
             html += '</div>';
             item.innerHTML = html;
+
+            // 将完整请求数据挂在按钮上，供“复制”使用（Body 可能很大，不放进 HTML 属性）
+            const copyBtn = item.querySelector('.request-log-copy-btn');
+            if (copyBtn) copyBtn._logData = data;
 
             // 插入到列表顶部（最新的在最前面）
             requestLogPanel.insertBefore(item, requestLogPanel.firstChild);
@@ -1055,6 +1094,77 @@
          */
         function toggleRequestLogDetail(item) {
             item.classList.toggle('collapsed');
+        }
+
+        /**
+         * 写入剪贴板：优先 Clipboard API，不可用时回退到隐藏 textarea + execCommand
+         * @param {string} text - 要复制的文本
+         * @returns {Promise<boolean>} 是否复制成功
+         */
+        async function copyToClipboard(text) {
+            try {
+                if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                }
+            } catch (err) {
+                console.warn('Clipboard API 复制失败，尝试回退方案:', err);
+            }
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.top = '-9999px';
+                ta.style.left = '-9999px';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch (err) {
+                console.error('回退复制方案失败:', err);
+                return false;
+            }
+        }
+
+        /**
+         * 复制单条请求日志的完整信息（时间/状态/方法/路径/Headers/Body，Body 不截断）
+         * @param {Event} event - 点击事件，用于阻止冒泡，避免触发行折叠
+         * @param {HTMLElement} btn - 被点击的按钮
+         */
+        async function copyRequestLog(event, btn) {
+            if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+            const data = btn && btn._logData;
+            if (!data) { alert('无可复制内容'); return; }
+
+            // 组装纯文本（与界面展示结构一致；Headers 不做 HTML 转义，Body 不截断）
+            let text = '';
+            text += (data.time != null ? data.time : '') + '\n';
+            text += (data.status != null ? data.status : '') + '\n';
+            text += (data.method || '') + '\n';
+            text += (data.url || '') + '\n';
+            if (data.headers && Object.keys(data.headers).length) {
+                text += 'Headers:\n';
+                text += Object.entries(data.headers).map(([k, v]) => k + ': ' + v).join('\n') + '\n';
+            }
+            if (data.body) {
+                text += 'Body:\n' + data.body;
+            }
+
+            const ok = await copyToClipboard(text);
+            if (ok && btn) {
+                const original = btn.textContent;
+                btn.textContent = '✓';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.classList.remove('copied');
+                }, 1500);
+            } else {
+                alert('复制失败，请手动复制');
+            }
         }
 
         /**
