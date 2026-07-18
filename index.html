@@ -769,12 +769,6 @@
             border-radius: 10px;
         }
 
-        .setting-input-integrity {
-            display: none;
-            width: 100%;
-            margin-top: 5px;
-        }
-
         .collection-selector {
             margin-bottom: 10px;
             display: flex;
@@ -2875,8 +2869,6 @@
                 <div class="history-header">
                     <div class="btn-group">
                         <button class="btn-danger-action" onclick="clearHistory()">清空</button>
-                        <button class="btn-action" onclick="importHistory()">导入</button>
-                        <button class="btn-action" onclick="exportHistory()">导出</button>
                     </div>
                 </div>
                 <div id="historyList"></div>
@@ -2903,8 +2895,6 @@
                 <div class="history-header">
                     <div class="btn-group">
                         <button class="btn-danger-action" onclick="clearVariables()">清空</button>
-                        <button class="btn-action" onclick="importVariables()">导入</button>
-                        <button class="btn-action" onclick="exportVariables()">导出</button>
                         <button class="btn-action" onclick="addVariableRow()">添加</button>
                         <button class="btn-action" onclick="saveVariables()">保存</button>
                     </div>
@@ -3328,69 +3318,6 @@ function postResponse(response) {
 
             <label>SSE事件类型列表 (逗号分隔)</label>
             <input type="text" id="settingSseEventTypes" placeholder="例如: update,info,warn" class="setting-input">
-
-            <hr class="divider">
-
-            <label>缓存策略 (cache)</label>
-            <select id="settingCache">
-                <option value="default">default - 默认，先在缓存里面寻找匹配的请求</option>
-                <option value="no-store">no-store - 直接请求远程服务器，不更新缓存</option>
-                <option value="reload">reload - 直接请求远程服务器，更新缓存</option>
-                <option value="no-cache">no-cache - 将服务器资源跟本地缓存进行比较</option>
-                <option value="force-cache">force-cache - 缓存优先</option>
-                <option value="only-if-cached">only-if-cached - 只检查缓存</option>
-            </select>
-
-            <label>请求模式 (mode)</label>
-            <select id="settingMode">
-                <option value="cors">cors - 允许跨域请求</option>
-                <option value="same-origin">same-origin - 只允许同源请求</option>
-                <option value="no-cors">no-cors - 仅限简单请求方法和标头</option>
-                <option value="navigate">navigate - navigate</option>
-            </select>
-
-            <label>发送凭证 (credentials)</label>
-            <select id="settingCredentials">
-                <option value="same-origin">same-origin - 同源发送Cookie</option>
-                <option value="include">include - 同源和跨域都发送Cookie</option>
-                <option value="omit">omit - 不发送Cookie</option>
-            </select>
-
-            <label>重定向处理 (redirect)</label>
-            <select id="settingRedirect">
-                <option value="follow">follow - 自动跟随跳转</option>
-                <option value="error">error - 跳转时报错</option>
-                <option value="manual">manual - 手动处理跳转</option>
-            </select>
-
-            <label>Referrer 策略 (referrerPolicy)</label>
-            <select id="settingReferrerPolicy">
-                <option value="no-referrer-when-downgrade">no-referrer-when-downgrade - 默认规则</option>
-                <option value="no-referrer">no-referrer - 不发送Referrer</option>
-                <option value="origin">origin - 只发送域名</option>
-                <option value="origin-when-cross-origin">origin-when-cross-origin - 跨域时只发送域名</option>
-                <option value="same-origin">same-origin - 仅同源发送</option>
-                <option value="strict-origin">strict-origin - 安全降级时不发送</option>
-                <option value="strict-origin-when-cross-origin">strict-origin-when-cross-origin - 安全跨域规则</option>
-                <option value="unsafe-url">unsafe-url - 总是发送完整URL</option>
-            </select>
-
-            <label>Referrer</label>
-            <select id="settingReferrer">
-                <option value="about:client">about:client - 默认行为</option>
-                <option value="">空 - 不发送referrer</option>
-                <option value="custom">自定义</option>
-            </select>
-            <input type="text" id="settingReferrerCustom" placeholder="自定义referrer URL" class="setting-input-integrity">
-
-            <label>完整性校验 (integrity)</label>
-            <input type="text" id="settingIntegrity" placeholder="输入哈希值" class="setting-input">
-
-            <label>保持连接 (keepalive)</label>
-            <select id="settingKeepalive">
-                <option value="false">false - 默认</option>
-                <option value="true">true - 保持连接</option>
-            </select>
         </div>
         <div class="dialog-buttons">
             <button onclick="closeSettings()">取消</button>
@@ -3401,40 +3328,11 @@ function postResponse(response) {
     <script>
         "use strict";
         /**
-         * 全局变量：是否使用代理模式
-         * @type {boolean}
-         */
-        let useProxy = false;
-
-        /**
          * 函数别名称
          */
         const byId = id => document.getElementById(id);
         const docSelectAll = e => document.querySelectorAll(e);
 
-
-        /**
-         * 初始化代理模式状态
-         * 页面加载时请求 /api/mode 接口获取当前运行模式
-         * @returns {Promise<void>}
-         */
-        async function initUseProxy() {
-            try {
-                const modeResp = await fetch('/api/mode');
-                if (modeResp.ok) {
-                    const modeData = await modeResp.json();
-                    if (modeData && modeData.mode === 'proxy') {
-                        useProxy = true;
-                    } else {
-                        useProxy = false;
-                    }
-                } else {
-                    useProxy = false;
-                }
-            } catch (e) {
-                useProxy = false;
-            }
-        }
 
         /**
          * Hook脚本执行引擎
@@ -4517,8 +4415,8 @@ function postResponse(response) {
 
         /**
          * 处理代理请求
-         * 
-         * 当useProxy为true时，请求通过后端代理转发
+         *
+         * 所有请求均通过后端代理转发
          * 代理模式支持：跨域请求、自定义SSL验证、重定向控制等
          * 
          * 核心流程：
@@ -5296,41 +5194,6 @@ function postResponse(response) {
                 const row = responseHeadersTable.insertRow();
                 row.insertCell(0).textContent = key;
                 row.insertCell(1).textContent = Array.isArray(values) ? values.join(', ') : values;
-            }
-        }
-
-        /**
-         * 设置Content-Type并获取请求体
-         * @param {Object} headers - 请求头对象
-         * @param {string} bodyType - 请求体类型
-         * @param {Object} requestOptions - 请求选项
-         * @returns {Promise<void>}
-         */
-        async function setContentTypeAndBody(headers, bodyType, requestOptions, requestBody) {
-            switch (bodyType) {
-                case 'form':
-                    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-                    break;
-                case 'json':
-                    headers['Content-Type'] = 'application/json';
-                    break;
-                case 'text':
-                    const customContentType = headers['Content-Type'];
-                    if (customContentType && customContentType.startsWith('text/')) {
-                        headers['Content-Type'] = customContentType;
-                    } else {
-                        headers['Content-Type'] = 'text/plain';
-                    }
-                    break;
-                case 'binary':
-                    headers['Content-Type'] = 'application/octet-stream';
-                    break;
-            }
-
-            if (requestBody !== undefined && requestBody !== null) {
-                requestOptions.body = requestBody;
-            } else {
-                requestOptions.body = await getRequestBody(bodyType);
             }
         }
 
@@ -6468,47 +6331,220 @@ function postResponse(response) {
             RequestTabManager.scrollTabs(direction);
         }
 
-        // localStorage管理工具
-        const StorageManager = {
+        // 存储管理：统一走 IndexedDB（单后端、大容量），上层用同步 API。
+        // 启动时 StorageManager.init() 把 IndexedDB 全量加载进内存缓存，
+        // get/set/remove 同步读写内存、set/remove 异步写穿 IndexedDB；
+        // 同时把旧 localStorage 数据一次性迁移进 IndexedDB。
+
+        // 存储配额超限时的统一提示（静默吞 QuotaExceededError 会导致数据丢失，这里给用户可见反馈）
+        function notifyStorageQuotaError(key) {
+            console.error(`存储写入失败（可能已超配额）[${key}]`);
+            try {
+                alert('数据存储失败：浏览器存储空间可能已满。\n该次保存未生效，请及时通过「导出配置」备份数据，或清理无用接口/历史记录后重试。');
+            } catch (e) { /* alert 在某些环境不可用，忽略 */ }
+        }
+
+        // IndexedDB 基础封装：单库单 store，按我们的 key 字符串做 kv 存储
+        const IndexedDBManager = {
+            DB_NAME: 'webcurl_db',
+            DB_VERSION: 1,
+            STORE_NAME: 'kv',
+            _dbPromise: null,
+
+            // 打开/复用数据库连接（Promise 复用，避免每次操作都触发 onupgradeneeded 竞态）
+            open() {
+                if (this._dbPromise) return this._dbPromise;
+                this._dbPromise = new Promise((resolve, reject) => {
+                    if (typeof indexedDB === 'undefined') {
+                        reject(new Error('当前环境不支持 IndexedDB（可能是隐私模式）'));
+                        return;
+                    }
+                    const req = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+                    req.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+                            db.createObjectStore(this.STORE_NAME); // 用 out-of-line key，key 由调用方传入
+                        }
+                    };
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+                return this._dbPromise;
+            },
+
+            // 通用事务执行器：读/写均走同一条路径，事务结束后自动关闭
+            _run(mode, fn) {
+                return this.open().then(db => new Promise((resolve, reject) => {
+                    const tx = db.transaction(this.STORE_NAME, mode);
+                    const store = tx.objectStore(this.STORE_NAME);
+                    let result;
+                    const inner = fn(store);
+                    if (inner && typeof inner.then === 'function') {
+                        inner.then(r => { result = r; }).catch(reject);
+                    } else if (inner && 'onsuccess' in inner) {
+                        inner.onsuccess = () => { result = inner.result; };
+                        inner.onerror = () => reject(inner.error);
+                    } else {
+                        result = inner;
+                    }
+                    tx.oncomplete = () => resolve(result);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                }));
+            },
+
             /**
-             * 安全地从localStorage获取数据
+             * 异步读取（值统一做 JSON 反序列化）
+             * @returns {Promise<any>}
+             */
+            get(key, defaultValue = null) {
+                return this._run('readonly', store => store.get(key))
+                    .then(raw => (raw === undefined ? defaultValue : JSON.parse(raw)))
+                    .catch(err => {
+                        console.error(`读取IndexedDB失败 [${key}]:`, err);
+                        return defaultValue;
+                    });
+            },
+
+            /**
+             * 异步写入（值统一做 JSON 序列化）
+             * @returns {Promise<boolean>} 是否成功
+             */
+            set(key, value) {
+                return this._run('readwrite', store => store.put(JSON.stringify(value), key))
+                    .then(() => true)
+                    .catch(err => {
+                        console.error(`写入IndexedDB失败 [${key}]:`, err);
+                        notifyStorageQuotaError(key);
+                        return false;
+                    });
+            },
+
+            /**
+             * 异步删除
+             * @returns {Promise<boolean>}
+             */
+            remove(key) {
+                return this._run('readwrite', store => store.delete(key))
+                    .then(() => true)
+                    .catch(err => {
+                        console.error(`删除IndexedDB失败 [${key}]:`, err);
+                        return false;
+                    });
+            },
+
+            /**
+             * 一次性加载全部 key→value（启动预加载用），值统一 JSON 反序列化
+             * @returns {Promise<Object>} { key: 已解析值 }
+             */
+            loadAll() {
+                return this.open().then(db => new Promise((resolve, reject) => {
+                    const tx = db.transaction(this.STORE_NAME, 'readonly');
+                    const store = tx.objectStore(this.STORE_NAME);
+                    const out = Object.create(null);
+                    const req = store.openCursor();
+                    req.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            try { out[cursor.key] = JSON.parse(cursor.value); } catch (e) { /* 跳过损坏值 */ }
+                            cursor.continue();
+                        }
+                    };
+                    tx.oncomplete = () => resolve(out);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                })).catch(err => {
+                    console.error('加载IndexedDB全部数据失败:', err);
+                    return Object.create(null);
+                });
+            }
+        };
+
+        // 统一存储门面：内存缓存（启动加载）+ IndexedDB 写穿
+        // - get/set/remove：同步，读写内存缓存；set/remove 同时异步落盘 IndexedDB
+        // - 必须在 DOMContentLoaded 最先 await StorageManager.init() 预热缓存，之后所有读取都是同步
+        const StorageManager = {
+            _cache: Object.create(null), // key -> 已解析值
+            _ready: null,                // 预加载 Promise
+
+            /**
+             * 启动预加载：IndexedDB 全量读入内存，并完成 localStorage→IndexedDB 一次性迁移
+             * 必须在 DOMContentLoaded 最先 await
+             * @returns {Promise<void>}
+             */
+            init() {
+                if (this._ready) return this._ready;
+                this._ready = (async () => {
+                    // 1) IndexedDB 全量加载
+                    let cache;
+                    try {
+                        cache = await IndexedDBManager.loadAll();
+                    } catch (e) {
+                        console.error('IndexedDB 预加载失败，使用空内存模式（隐私模式可能无法持久化）', e);
+                        cache = Object.create(null);
+                    }
+                    // 2) 一次性迁移：localStorage 里、IndexedDB 还没有的 key 搬进缓存
+                    const migratedKeys = [];
+                    try {
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const k = localStorage.key(i);
+                            if (k === null || k in cache) continue;
+                            try {
+                                cache[k] = JSON.parse(localStorage.getItem(k));
+                                migratedKeys.push(k);
+                            } catch (e) { /* 跳过无法解析的旧数据 */ }
+                        }
+                    } catch (e) { /* localStorage 不可用时忽略 */ }
+                    // 3) savedApis 老格式 → apiCollections
+                    const sa = cache.savedApis;
+                    if ((!Array.isArray(cache.apiCollections) || cache.apiCollections.length === 0)
+                        && Array.isArray(sa) && sa.length > 0) {
+                        cache.apiCollections = [{ name: '默认集合', apis: sa }];
+                        delete cache.savedApis;
+                    }
+                    // 4) 保证至少有一个默认集合
+                    if (!Array.isArray(cache.apiCollections) || cache.apiCollections.length === 0) {
+                        cache.apiCollections = [{ name: '默认集合', apis: [] }];
+                    }
+                    this._cache = cache;
+                    // 5) 迁移/规范化产生的数据落盘 IndexedDB（异步，不阻塞）
+                    migratedKeys.forEach(k => IndexedDBManager.set(k, cache[k]).catch(() => {}));
+                    if (!migratedKeys.includes('apiCollections')) {
+                        // 首次启动或刚迁移 savedApis 时，确保默认集合落盘
+                        IndexedDBManager.set('apiCollections', cache.apiCollections).catch(() => {});
+                    }
+                })();
+                return this._ready;
+            },
+
+            /**
+             * 同步读取（内存缓存）
              * @param {string} key - 存储键
              * @param {any} defaultValue - 默认值
              * @returns {any} 解析后的数据
              */
             get(key, defaultValue = null) {
-                try {
-                    const item = localStorage.getItem(key);
-                    return item ? JSON.parse(item) : defaultValue;
-                } catch (error) {
-                    console.error(`读取localStorage失败 [${key}]:`, error);
-                    return defaultValue;
-                }
+                const v = this._cache[key];
+                return (v === undefined) ? defaultValue : v;
             },
 
             /**
-             * 安全地向localStorage存储数据
+             * 同步写内存 + 异步写穿 IndexedDB
              * @param {string} key - 存储键
              * @param {any} value - 要存储的数据
              */
             set(key, value) {
-                try {
-                    localStorage.setItem(key, JSON.stringify(value));
-                } catch (error) {
-                    console.error(`写入localStorage失败 [${key}]:`, error);
-                }
+                this._cache[key] = value;
+                IndexedDBManager.set(key, value).catch(() => {});
             },
 
             /**
-             * 从localStorage删除数据
+             * 同步删内存 + 异步删 IndexedDB
              * @param {string} key - 存储键
              */
             remove(key) {
-                try {
-                    localStorage.removeItem(key);
-                } catch (error) {
-                    console.error(`删除localStorage失败 [${key}]:`, error);
-                }
+                delete this._cache[key];
+                IndexedDBManager.remove(key).catch(() => {});
             }
         };
 
@@ -6657,95 +6693,13 @@ function postResponse(response) {
                 headers = hookRequest.headers;
                 requestBody = hookRequest.body;
 
-                const requestOptions = {
-                    method,
-                    headers,
-                    cache: settings.cache,
-                    mode: settings.mode,
-                    credentials: settings.credentials,
-                    redirect: settings.redirect,
-                    referrer: settings.referrer,
-                    referrerPolicy: settings.referrerPolicy,
-                    integrity: settings.integrity || undefined,
-                    keepalive: settings.keepalive,
-                    signal: signal
-                };
-
-                if (useProxy && method !== 'WS' && method !== 'SSE') {
+                // 始终走后端代理转发（/api/forward），WS/SSE 走 handleWSRequest
+                if (method !== 'WS' && method !== 'SSE') {
                     await handleProxyRequest(url, method, bodyType, headers, settings, download, signal, requestBody, currentTabId);
                     return;
                 }
 
-                if (useProxy && (method === 'WS' || method === 'SSE')) {
-                    await handleWSRequest(url, method, headers, settings, signal, currentTabId);
-                    return;
-                }
-
-                if (bodyType !== 'none' && method !== 'GET') {
-                    await setContentTypeAndBody(headers, bodyType, requestOptions, requestBody);
-                }
-
-                const startTime = Date.now();
-                const response = await fetch(url, requestOptions);
-                const duration = Date.now() - startTime;
-                const contentType = response.headers.get('content-type');
-
-                const responseHeaders = {};
-                response.headers.forEach((value, key) => {
-                    responseHeaders[key] = value;
-                });
-
-                let responseText = '';
-                const binaryTypes = [
-                    'application/octet-stream',
-                    'application/pdf',
-                    'image/',
-                    'audio/',
-                    'video/',
-                    'application/zip',
-                    'application/x-rar'
-                ];
-                const isBinaryContent = contentType && binaryTypes.some(type => contentType.includes(type));
-
-                if (!isBinaryContent) {
-                    responseText = await response.text();
-                }
-
-                const hookResponse = await HookEngine.executePostResponse({
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers: responseHeaders,
-                    body: responseText,
-                    duration,
-                    contentType
-                });
-
-                if (hookResponse.body !== undefined && hookResponse.body !== responseText) {
-                    responseText = hookResponse.body;
-                }
-
-                // 检查是否还在同一个Tab，如果是才更新界面
-                if (RequestTabManager.activeTabId === currentTabId) {
-                    if (download) {
-                        await handleDownloadResponse(response, contentType);
-                    } else {
-                        await handleNormalResponseWithBody(response, duration, contentType, responseText, isBinaryContent);
-                    }
-                    await updateResponseHeaders(response);
-                    RequestTabManager.saveCurrentResponseData();
-                } else {
-                    // 不在同一个Tab，将响应数据保存到发起请求的Tab中
-                    RequestTabManager.saveResponseToTab(currentTabId, {
-                        status: response.status,
-                        statusText: response.statusText,
-                        headers: responseHeaders,
-                        body: responseText,
-                        duration,
-                        contentType
-                    });
-                }
-
-                saveRequestToHistory();
+                await handleWSRequest(url, method, headers, settings, signal, currentTabId);
             } catch (error) {
                 // 只有在同一个Tab时才显示错误
                 if (RequestTabManager.activeTabId === currentTabId) {
@@ -6881,6 +6835,24 @@ function postResponse(response) {
 
         // 历史记录相关函数
         const MAX_HISTORY_ITEMS = 50; // 最大历史记录数
+
+        // 历史记录：统一走 StorageManager（内存缓存 + IndexedDB 写穿），以下为同步便捷封装
+        /**
+         * 同步读取历史记录
+         * @returns {Array}
+         */
+        function getRequestHistory() {
+            const h = StorageManager.get('requestHistory', []);
+            return Array.isArray(h) ? h : [];
+        }
+
+        /**
+         * 写入历史记录（同步写内存 + 异步落盘）
+         * @param {Array} history
+         */
+        function setRequestHistory(history) {
+            StorageManager.set('requestHistory', Array.isArray(history) ? history : []);
+        }
 
         /**
          * 保存当前请求到历史记录
@@ -7020,8 +6992,8 @@ function postResponse(response) {
                 timestamp: new Date().toISOString()
             };
 
-            // 获取现有历史记录
-            let history = StorageManager.get('requestHistory', []);
+            // 获取现有历史记录（内存缓存，IndexedDB 落盘）
+            let history = getRequestHistory();
 
             // 添加新记录到开头
             history.unshift(historyItem);
@@ -7031,8 +7003,8 @@ function postResponse(response) {
                 history = history.slice(0, MAX_HISTORY_ITEMS);
             }
 
-            // 保存回localStorage
-            StorageManager.set('requestHistory', history);
+            // 保存回IndexedDB（同步写缓存 + 异步落盘）
+            setRequestHistory(history);
 
             // 更新显示
             updateHistoryDisplay();
@@ -7061,11 +7033,11 @@ function postResponse(response) {
 
         /**
          * 更新历史记录显示
-         * 从localStorage读取历史记录并在页面上显示
+         * 从内存缓存读取历史记录并在页面上显示（缓存由 StorageManager.init() 启动时填充）
          */
         function updateHistoryDisplay() {
             const historyList = byId('historyList');
-            const history = StorageManager.get('requestHistory', []);
+            const history = getRequestHistory();
 
             historyList.innerHTML = history.map((item, index) => {
                 const date = new Date(item.timestamp);
@@ -7108,100 +7080,13 @@ function postResponse(response) {
 
         /**
          * 清空所有历史记录
-         * 删除localStorage中的所有历史记录
+         * 删除IndexedDB中的所有历史记录
          */
         function clearHistory() {
             if (confirm('确定要清空所有历史记录吗？此操作不可撤销。')) {
                 StorageManager.remove('requestHistory');
                 updateHistoryDisplay();
             }
-        }
-
-        /**
-         * 导出历史记录
-         * 将历史记录导出为JSON文件
-         */
-        function exportHistory() {
-            const history = StorageManager.get('requestHistory', []);
-            if (history.length === 0) {
-                return alert('历史记录为空，无需导出');
-            }
-
-            const dataStr = JSON.stringify(history, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'history_export.json';
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-
-        /**
-         * 导入历史记录
-         * 从JSON文件导入历史记录
-         */
-        function importHistory() {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-
-            fileInput.addEventListener('change', async (event) => {
-                const file = event.target.files[0];
-                if (!file) {
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        const content = e.target.result;
-                        const history = JSON.parse(content);
-
-                        // 数据有效性检查
-                        if (!Array.isArray(history)) {
-                            throw new Error('导入的历史记录数据格式不正确');
-                        }
-
-                        // 限制导入的历史记录数量
-                        const MAX_IMPORT_ITEMS = 50;
-                        if (history.length > MAX_IMPORT_ITEMS) {
-                            if (!confirm(`导入的历史记录项超过${MAX_IMPORT_ITEMS}条，是否继续？`)) {
-                                return;
-                            }
-                        }
-
-                        // 获取现有历史记录
-                        let existingHistory = StorageManager.get('requestHistory', []);
-
-                        // 合并历史记录
-                        const mergedHistory = [...existingHistory, ...history];
-
-                        // 去重，保留最新的记录
-                        const uniqueHistory = Array.from(new Map(mergedHistory.map(item => [item.url + JSON.stringify(item.headers), item])).values());
-
-                        // 限制历史记录数量
-                        const finalHistory = uniqueHistory.slice(-MAX_HISTORY_ITEMS);
-
-                        // 保存到localStorage
-                        StorageManager.set('requestHistory', finalHistory);
-
-                        alert('历史记录导入成功');
-                        updateHistoryDisplay();
-                    } catch (error) {
-                        alert('导入历史记录时发生错误: ' + error.message);
-                    }
-                };
-
-                reader.readAsText(file);
-            });
-
-            fileInput.click();
-            document.body.removeChild(fileInput);
         }
 
         /**
@@ -7421,23 +7306,326 @@ function postResponse(response) {
             }
         }
 
+        /* ============================================================
+           Postman Collection v2.1 / Environment 双向互转
+           - 导出：WebCurl 集合 → Postman collection.json；变量 → environment.json
+           - 导入：Postman collection.json（v2.1/v2.0，含文件夹）→ 扁平化进当前集合；
+                  environment.json → 变量
+           - WS/SSE 作为普通条目保留（method 标 WS/SSE，WS 消息体以 raw JSON 携带）
+           ============================================================ */
+        function genPostmanId() {
+            try {
+                if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                    return window.crypto.randomUUID();
+                }
+            } catch (e) { }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        /** 选取多备选 body 中的当前选中内容（json/text/xml） */
+        function pickSelectedContent(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) return '';
+            const sel = arr.find(x => x && x.selected);
+            return ((sel || arr[0]).content) || '';
+        }
+
+        /** WebCurl body → Postman body（无 body 返回 undefined） */
+        function wcBodyToPostman(body) {
+            if (!body || !body.type || body.type === 'none') return undefined;
+            const t = body.type;
+            const data = body.data;
+            if (t === 'json' || t === 'text' || t === 'xml') {
+                return {
+                    mode: 'raw',
+                    raw: pickSelectedContent(data),
+                    options: { raw: { language: t === 'json' ? 'json' : (t === 'xml' ? 'xml' : 'text') } }
+                };
+            }
+            if (t === 'websocket') {
+                // WS 消息体以 raw JSON 携带，导入时按 method=WS 还原
+                return { mode: 'raw', raw: JSON.stringify(data || []), options: { raw: { language: 'json' } } };
+            }
+            if (t === 'form') {
+                const urlencoded = [];
+                if (data && typeof data === 'object') {
+                    Object.entries(data).forEach(([k, v]) => {
+                        urlencoded.push({ key: k, value: (v && v.value) || '', type: 'text', disabled: v && v.enabled === false });
+                    });
+                }
+                return { mode: 'urlencoded', urlencoded };
+            }
+            if (t === 'formdata') {
+                const formdata = [];
+                if (Array.isArray(data)) {
+                    data.forEach(item => {
+                        if (!item || !item.key) return;
+                        formdata.push({
+                            key: item.key,
+                            value: item.type === 'file' ? '' : (item.value || ''),
+                            type: item.type === 'file' ? 'file' : 'text',
+                            disabled: item.enabled === false
+                        });
+                    });
+                }
+                return { mode: 'formdata', formdata };
+            }
+            if (t === 'binary') {
+                // 二进制内容不持久化，仅保留文件名信息
+                return { mode: 'file', file: { details: { name: typeof data === 'string' ? data : '' } } };
+            }
+            return undefined;
+        }
+
+        /** WebCurl url 字符串 → Postman url 对象（尽量解析；不可解析时只保留 raw） */
+        function wcUrlToPostmanUrl(rawUrl) {
+            const obj = { raw: rawUrl || '' };
+            try {
+                const u = new URL(rawUrl);
+                if (u.protocol) obj.protocol = u.protocol.replace(':', '');
+                if (u.host) obj.host = u.host.split('.');
+                if (u.pathname && u.pathname !== '/') obj.path = u.pathname.split('/').filter(Boolean);
+                const params = [];
+                u.searchParams.forEach((v, k) => params.push({ key: k, value: v }));
+                if (params.length) obj.query = params;
+            } catch (e) { /* 非 http(s)/ws(s) 等可解析 URL，仅保留 raw */ }
+            return obj;
+        }
+
+        /** WebCurl apiItem → Postman item */
+        function wcApiToPostmanItem(api) {
+            const item = { name: api.name || 'Request', id: genPostmanId() };
+            const header = [];
+            if (api.headers && typeof api.headers === 'object') {
+                Object.entries(api.headers).forEach(([k, v]) => {
+                    if (!k) return;
+                    header.push({ key: k, value: (v && v.value) || '', type: 'text', disabled: v && v.enabled === false });
+                });
+            }
+            const request = { method: (api.method || 'GET').toUpperCase() };
+            if (header.length) request.header = header;
+            const body = wcBodyToPostman(api.body);
+            if (body) request.body = body;
+            request.url = wcUrlToPostmanUrl(api.url);
+            item.request = request;
+
+            const event = [];
+            if (api.hooks) {
+                const toExec = script => (script || '').split(/\r?\n/);
+                if (api.hooks.preRequest && api.hooks.preRequest.enabled && (api.hooks.preRequest.script || '').trim()) {
+                    event.push({ listen: 'prerequest', script: { type: 'text/javascript', exec: toExec(api.hooks.preRequest.script) } });
+                }
+                if (api.hooks.postResponse && api.hooks.postResponse.enabled && (api.hooks.postResponse.script || '').trim()) {
+                    event.push({ listen: 'test', script: { type: 'text/javascript', exec: toExec(api.hooks.postResponse.script) } });
+                }
+            }
+            if (event.length) item.event = event;
+            return item;
+        }
+
+        /** 收集集合中实际引用到的变量（{{name}}），交集本地变量库，作为 collection 变量导出 */
+        function collectReferencedVars(apis, allVars) {
+            const used = new Set();
+            const re = /\{\{\s*([^{}]+?)\s*\}\}/g;
+            const hay = [];
+            (apis || []).forEach(api => {
+                hay.push(api.url || '', api.name || '');
+                if (api.headers && typeof api.headers === 'object') {
+                    Object.entries(api.headers).forEach(([k, v]) => hay.push(k, (v && v.value) || ''));
+                }
+                if (api.body && api.body.data != null) hay.push(JSON.stringify(api.body.data));
+            });
+            const text = hay.join('\n');
+            let m;
+            while ((m = re.exec(text))) used.add(m[1].trim());
+            const out = [];
+            used.forEach(name => {
+                if (allVars.has(name)) {
+                    out.push({ key: name, value: allVars.get(name), type: 'default', enabled: true });
+                }
+            });
+            return out;
+        }
+
+        /** WebCurl 集合 → Postman v2.1 collection（variables 可选：collection 级变量） */
+        function wcToPostmanCollection(collection, variables) {
+            const out = {
+                info: {
+                    _postman_id: genPostmanId(),
+                    name: collection.name || 'WebCurl Collection',
+                    description: 'Exported from WebCurl',
+                    schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+                },
+                item: (collection.apis || []).map(wcApiToPostmanItem)
+            };
+            if (Array.isArray(variables) && variables.length) out.variable = variables;
+            return out;
+        }
+
+        /** Postman url 对象/字符串 → 完整 url 字符串 */
+        function postmanUrlToString(url) {
+            if (!url) return '';
+            if (typeof url === 'string') return url;
+            if (url.raw) return url.raw;
+            let s = '';
+            if (url.protocol) s += url.protocol + '://';
+            s += Array.isArray(url.host) ? url.host.join('.') : (url.host || '');
+            if (Array.isArray(url.path) && url.path.length) s += '/' + url.path.join('/');
+            if (Array.isArray(url.query) && url.query.length) {
+                s += '?' + url.query.map(q => encodeURIComponent(q.key) + '=' + encodeURIComponent(q.value || '')).join('&');
+            }
+            return s;
+        }
+
+        /** 把 Postman auth 配置（数组或对象）展平为 {key:value} */
+        function postmanAuthValue(conf) {
+            const obj = {};
+            if (Array.isArray(conf)) {
+                conf.forEach(kv => { if (kv && kv.key) obj[kv.key] = kv.value; });
+            } else if (conf && typeof conf === 'object') {
+                Object.assign(obj, conf);
+            }
+            return obj;
+        }
+
+        /** Postman body → WebCurl body */
+        function postmanBodyToWcBody(reqBody, method) {
+            if (!reqBody || !reqBody.mode) return { type: 'none', data: null };
+            const m = reqBody.mode;
+            if (m === 'raw') {
+                const raw = reqBody.raw != null ? String(reqBody.raw) : '';
+                const lang = reqBody.options && reqBody.options.raw && reqBody.options.raw.language;
+                if (method === 'WS') {
+                    // WS 消息体：还原为 websocket body
+                    let arr = [];
+                    try { arr = JSON.parse(raw) || []; } catch (e) {
+                        arr = [{ type: 'text', value: raw, selected: true, remark: '' }];
+                    }
+                    return { type: 'websocket', data: arr };
+                }
+                const t = (lang === 'json') ? 'json' : (lang === 'xml' ? 'xml' : 'text');
+                return { type: t, data: [{ content: raw, selected: true, remark: '' }] };
+            }
+            if (m === 'urlencoded') {
+                const data = {};
+                (reqBody.urlencoded || []).forEach(p => {
+                    if (!p || !p.key) return;
+                    data[p.key] = { value: p.value || '', enabled: !p.disabled, remark: '' };
+                });
+                return { type: 'form', data };
+            }
+            if (m === 'formdata') {
+                const data = (reqBody.formdata || []).filter(p => p && p.key).map(p => ({
+                    key: p.key,
+                    type: p.type === 'file' ? 'file' : 'text',
+                    value: p.type === 'file' ? '' : (p.value || ''),
+                    enabled: !p.disabled,
+                    remark: ''
+                }));
+                return { type: 'formdata', data };
+            }
+            if (m === 'file') {
+                return { type: 'binary', data: '' };
+            }
+            if (m === 'graphql') {
+                const obj = reqBody.graphql || {};
+                return { type: 'json', data: [{ content: JSON.stringify(obj, null, 2), selected: true, remark: 'graphql' }] };
+            }
+            return { type: 'none', data: null };
+        }
+
+        /** Postman 叶子 item → WebCurl apiItem */
+        function postmanRequestToApi(item) {
+            const req = item.request || {};
+            const method = (req.method || 'GET').toUpperCase();
+            const api = {
+                name: item.name || '',
+                method,
+                url: postmanUrlToString(req.url),
+                headers: {},
+                body: postmanBodyToWcBody(req.body, method),
+                hooks: { preRequest: { enabled: false, script: '' }, postResponse: { enabled: false, script: '' } },
+                timestamp: new Date().toISOString()
+            };
+            if (!api.name) api.name = (method + ' ' + (api.url || '').slice(0, 60)).trim() || 'Request';
+
+            // headers 数组 → 对象 map
+            if (Array.isArray(req.header)) {
+                req.header.forEach(h => {
+                    if (!h || !h.key) return;
+                    api.headers[h.key] = { value: h.value || '', enabled: !h.disabled, remark: '' };
+                });
+            }
+
+            // auth 折叠为请求头 / query
+            if (req.auth && req.auth.type) {
+                const a = postmanAuthValue(req.auth[req.auth.type]);
+                if (req.auth.type === 'bearer' && a.token != null && a.token !== '') {
+                    api.headers['Authorization'] = { value: 'Bearer ' + a.token, enabled: true, remark: '' };
+                } else if (req.auth.type === 'basic') {
+                    const raw = (a.username || '') + ':' + (a.password || '');
+                    try { api.headers['Authorization'] = { value: 'Basic ' + btoa(raw), enabled: true, remark: '' }; } catch (e) { }
+                } else if (req.auth.type === 'apikey' && a.key) {
+                    if (a.in === 'query') {
+                        api.url += (api.url.includes('?') ? '&' : '?') + encodeURIComponent(a.key) + '=' + encodeURIComponent(a.value || '');
+                    } else {
+                        api.headers[a.key] = { value: a.value || '', enabled: true, remark: '' };
+                    }
+                }
+            }
+
+            // events → hooks（prerequest → 前置脚本，test → 后置脚本）
+            if (Array.isArray(item.event)) {
+                item.event.forEach(ev => {
+                    const script = ev.script || {};
+                    const exec = Array.isArray(script.exec) ? script.exec.join('\n') : (script.exec != null ? String(script.exec) : '');
+                    if (ev.listen === 'prerequest') {
+                        api.hooks.preRequest = { enabled: true, script: exec };
+                    } else if (ev.listen === 'test') {
+                        api.hooks.postResponse = { enabled: true, script: exec };
+                    }
+                });
+            }
+            return api;
+        }
+
+        /** 递归扁平化 Postman item（含文件夹）为 api 数组 */
+        function flattenPostmanItems(items, out) {
+            if (!Array.isArray(items)) return out;
+            items.forEach(it => {
+                if (it && Array.isArray(it.item) && it.item.length > 0) {
+                    flattenPostmanItems(it.item, out);       // 文件夹：递归摊平
+                } else if (it && it.request) {
+                    out.push(postmanRequestToApi(it));        // 叶子请求
+                }
+            });
+            return out;
+        }
+
         /**
-         * 导出接口列表
-         * 将当前集合的接口列表导出为JSON文件
+         * 导出接口列表（Postman Collection v2.1）
+         * 导出后可直接用 Postman 的 Import 打开
          */
         function exportApis() {
             let collections = getApiCollections();
             let current = getCurrentCollectionName();
             let collection = collections.find(c => c.name === current);
-            if (!collection || collection.apis.length === 0) {
+            if (!collection || !collection.apis || collection.apis.length === 0) {
                 return alert('当前集合接口列表为空，无需导出');
             }
-            const dataStr = JSON.stringify(collection.apis, null, 2);
+            // 把集合中引用到的 {{变量}} 一并写进 collection.variable，保证 Postman 打开变量不缺失
+            const envConf = StorageManager.get('env_conf', []);
+            const allVars = new Map(envConf.filter(v => v && v.env_name).map(v => [v.env_name, v.env_value || '']));
+            const variables = collectReferencedVars(collection.apis, allVars);
+            const dataStr = JSON.stringify(wcToPostmanCollection(collection, variables), null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${current}_apis_export.json`;
+            a.download = `${current}.postman_collection.json`;
             document.body.appendChild(a);
             a.click();
             URL.revokeObjectURL(url);
@@ -7445,8 +7633,7 @@ function postResponse(response) {
         }
 
         /**
-         * 导入接口列表
-         * 从JSON文件导入接口列表
+         * 导入接口列表（支持 Postman Collection v2.1/v2.0，文件夹自动扁平化）
          */
         function importApis() {
             const fileInput = document.createElement('input');
@@ -7463,9 +7650,19 @@ function postResponse(response) {
                 reader.onload = async (e) => {
                     try {
                         const content = e.target.result;
-                        const apis = JSON.parse(content);
-                        if (!Array.isArray(apis)) {
-                            throw new Error('导入的接口数据格式不正确');
+                        const obj = JSON.parse(content);
+                        let apis;
+                        if (obj && !Array.isArray(obj) && (obj.info || Array.isArray(obj.item))) {
+                            // Postman Collection（v2.1 / v2.0）
+                            apis = flattenPostmanItems(obj.item || [], []);
+                        } else if (Array.isArray(obj)) {
+                            // 兜底：直接是 api 数组
+                            apis = obj;
+                        } else {
+                            throw new Error('未识别的文件格式，请使用 Postman 导出的 collection.json');
+                        }
+                        if (!apis.length) {
+                            throw new Error('文件中没有可导入的接口');
                         }
                         let collections = getApiCollections();
                         let current = getCurrentCollectionName();
@@ -7474,13 +7671,44 @@ function postResponse(response) {
                             collection = { name: current, apis: [] };
                             collections.push(collection);
                         }
-                        // 合并接口列表
+                        // 合并并按 name 去重，保留最新
                         const mergedApis = [...collection.apis, ...apis];
-                        // 去重，保留最新的记录
                         const uniqueApis = Array.from(new Map(mergedApis.map(item => [item.name, item])).values());
                         collection.apis = uniqueApis;
                         setApiCollections(collections);
-                        alert('接口列表导入成功');
+                        // 顺带导入 collection 级变量（{{host}} 等），合并进变量库
+                        // - collection 内同名变量出现多次时，优先取未禁用项（与 Postman 实际行为一致）
+                        // - 导入后一律视为启用，确保 {{var}} 立即可用；已存在于本地变量库的同名变量不覆盖
+                        let varAdded = 0;
+                        if (Array.isArray(obj.variable)) {
+                            const vmap = new Map();
+                            obj.variable.forEach(v => {
+                                if (!v || !v.key) return;
+                                const enable = v.disabled !== true;
+                                const prev = vmap.get(v.key);
+                                if (!prev || (enable && !prev.enable)) {
+                                    vmap.set(v.key, { value: v.value != null ? String(v.value) : '', enable });
+                                }
+                            });
+                            const envConf = StorageManager.get('env_conf', []);
+                            const existing = new Set(envConf.map(v => v && v.env_name));
+                            vmap.forEach((info, name) => {
+                                if (existing.has(name)) return;
+                                envConf.push({
+                                    row_id: envConf.length + 1,
+                                    enable: true,
+                                    env_name: name,
+                                    env_value: info.value
+                                });
+                                existing.add(name);
+                                varAdded++;
+                            });
+                            if (varAdded > 0) {
+                                StorageManager.set('env_conf', envConf);
+                                if (typeof loadVariables === 'function') loadVariables();
+                            }
+                        }
+                        alert(`接口列表导入成功，共 ${apis.length} 个${varAdded ? '（附带导入 ' + varAdded + ' 个变量，已启用）' : ''}`);
                         updateApisDisplay();
                     } catch (error) {
                         alert('导入接口列表时发生错误: ' + error.message);
@@ -7584,70 +7812,6 @@ function postResponse(response) {
                 StorageManager.remove('env_conf');
                 loadVariables();
             }
-        }
-
-        /**
-         * 导出变量配置
-         * 将变量配置导出为JSON文件
-         */
-        function exportVariables() {
-            const envConf = StorageManager.get('env_conf', []);
-            if (envConf.length === 0) {
-                return alert('没有可导出的变量');
-            }
-
-            const dataStr = JSON.stringify(envConf, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'variables_export.json';
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-
-        /**
-         * 导入变量配置
-         * 从JSON文件导入变量配置
-         */
-        function importVariables() {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.json';
-            fileInput.style.display = 'none';
-            document.body.appendChild(fileInput);
-
-            fileInput.addEventListener('change', async (event) => {
-                const file = event.target.files[0];
-                if (!file) {
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        const content = e.target.result;
-                        const envConf = JSON.parse(content);
-
-                        if (!Array.isArray(envConf)) {
-                            throw new Error('导入的变量数据格式不正确');
-                        }
-
-                        StorageManager.set('env_conf', envConf);
-                        loadVariables();
-                        alert('变量导入成功');
-                    } catch (error) {
-                        alert('导入变量时发生错误: ' + error.message);
-                    }
-                };
-
-                reader.readAsText(file);
-            });
-
-            fileInput.click();
-            document.body.removeChild(fileInput);
         }
 
         /**
@@ -7871,17 +8035,6 @@ function postResponse(response) {
             byId('settingRetryDelay').value = currentSettings.retry_delay;
             byId('settingStream').value = currentSettings.stream || 'false';
             byId('settingSseEventTypes').value = currentSettings.sse_event_types || '';
-
-            byId('settingCache').value = currentSettings.cache;
-            byId('settingMode').value = currentSettings.mode;
-            byId('settingCredentials').value = currentSettings.credentials;
-            byId('settingRedirect').value = currentSettings.redirect;
-            byId('settingReferrerPolicy').value = currentSettings.referrerPolicy;
-            byId('settingReferrer').value = currentSettings.referrer === 'custom' ? 'custom' : currentSettings.referrer;
-            byId('settingReferrerCustom').value = currentSettings.referrer !== 'about:client' && currentSettings.referrer !== '' ? currentSettings.referrer : '';
-            byId('settingIntegrity').value = currentSettings.integrity;
-            byId('settingKeepalive').value = currentSettings.keepalive.toString();
-            handleReferrerChange();
         }
 
         /**
@@ -7898,17 +8051,6 @@ function postResponse(response) {
                 retry_delay: byId('settingRetryDelay').value,
                 stream: byId('settingStream').value,
                 sse_event_types: byId('settingSseEventTypes').value,
-
-                cache: byId('settingCache').value,
-                mode: byId('settingMode').value,
-                credentials: byId('settingCredentials').value,
-                redirect: byId('settingRedirect').value,
-                referrerPolicy: byId('settingReferrerPolicy').value,
-                referrer: byId('settingReferrer').value === 'custom'
-                    ? byId('settingReferrerCustom').value
-                    : byId('settingReferrer').value,
-                integrity: byId('settingIntegrity').value,
-                keepalive: byId('settingKeepalive').value === 'true'
             };
             StorageManager.set('requestSettings', settings);
             closeSettings();
@@ -7922,14 +8064,6 @@ function postResponse(response) {
         function getRequestSettings() {
             const settings = StorageManager.get('requestSettings', {});
             const defaultSettings = {
-                cache: 'default',
-                mode: 'cors',
-                credentials: 'same-origin',
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer-when-downgrade',
-                referrer: 'about:client',
-                integrity: '',
-                keepalive: false,
                 default_protocol: 'http',
                 verify_ssl: 'N',
                 follow_redirect: 'N',
@@ -7940,16 +8074,6 @@ function postResponse(response) {
                 sse_event_types: ''
             };
             return { ...defaultSettings, ...settings };
-        }
-
-        /**
-         * 处理Referrer设置变化
-         * 当Referrer选择为自定义时显示自定义输入框
-         */
-        function handleReferrerChange() {
-            const referrerSelect = byId('settingReferrer');
-            const customInput = byId('settingReferrerCustom');
-            customInput.style.display = referrerSelect.value === 'custom' ? 'block' : 'none';
         }
 
         /**
@@ -7972,9 +8096,9 @@ function postResponse(response) {
 
         /**
          * 导出所有配置
-         * 将历史记录、接口集合、变量、全局请求头、请求设置导出为JSON文件
+         * 将历史记录、接口集合（IndexedDB）、变量、全局请求头、请求设置（localStorage）打包为JSON文件
          */
-        function exportAllConfig() {
+        async function exportAllConfig() {
             const config = {
                 history: StorageManager.get('requestHistory', []),
                 apiCollections: StorageManager.get('apiCollections', []),
@@ -8073,34 +8197,23 @@ function postResponse(response) {
             document.body.removeChild(fileInput);
         }
 
+        // 接口集合：统一走 StorageManager（内存缓存 + IndexedDB 写穿），以下为同步便捷封装
+        // 启动时 StorageManager.init() 已完成 savedApis 老格式迁移并保证至少一个默认集合
         /**
-         * 获取所有接口集合
-         * 从localStorage读取接口集合，如果不存在则自动迁移老数据或创建默认集合
+         * 获取所有接口集合（同步）
          * @returns {Array} 接口集合数组
          */
         function getApiCollections() {
-            let collections = StorageManager.get('apiCollections', []);
-            // 兼容老数据迁移
-            if (collections.length === 0) {
-                let oldApis = StorageManager.get('savedApis', []);
-                collections = [{ name: '默认集合', apis: oldApis }];
-                StorageManager.set('apiCollections', collections);
-                StorageManager.remove('savedApis');
-            }
-            // 如果依然没有集合，自动创建一个默认集合
-            if (collections.length === 0) {
-                collections = [{ name: '默认集合', apis: [] }];
-                StorageManager.set('apiCollections', collections);
-            }
-            return collections;
+            const c = StorageManager.get('apiCollections', []);
+            return Array.isArray(c) ? c : [];
         }
 
         /**
-         * 保存所有接口集合到localStorage
+         * 保存所有接口集合（同步写内存 + 异步落盘）
          * @param {Array} collections - 接口集合数组
          */
         function setApiCollections(collections) {
-            StorageManager.set('apiCollections', collections);
+            StorageManager.set('apiCollections', Array.isArray(collections) ? collections : []);
         }
 
         /**
@@ -8422,40 +8535,25 @@ function postResponse(response) {
             const startTime = Date.now();
             try {
                 let status, statusText, respHeaders = {}, body = '', contentType;
-                if (useProxy) {
-                    const fd = new FormData();
-                    fd.append('url', url);
-                    fd.append('method', finalMethod);
-                    fd.append('body_type', bodyType === 'formdata' ? 'form-data' : (bodyType === 'form' ? 'x-www-form-urlencoded' : bodyType));
-                    fd.append('headers', JSON.stringify(Object.entries(headers).map(([name, value]) => ({ name, value }))));
-                    fd.append('time_out', settings.timeout || '0');
-                    fd.append('verify_ssl', settings.verify_ssl || 'N');
-                    fd.append('follow_redirect', settings.follow_redirect || 'N');
-                    fd.append('retry_count', settings.retry_count || '0');
-                    fd.append('retry_delay', settings.retry_delay || '0');
-                    fd.append('stream', 'false');
-                    runnerAppendProxyBody(fd, api, bodyType, finalBody);
+                const fd = new FormData();
+                fd.append('url', url);
+                fd.append('method', finalMethod);
+                fd.append('body_type', bodyType === 'formdata' ? 'form-data' : (bodyType === 'form' ? 'x-www-form-urlencoded' : bodyType));
+                fd.append('headers', JSON.stringify(Object.entries(headers).map(([name, value]) => ({ name, value }))));
+                fd.append('time_out', settings.timeout || '0');
+                fd.append('verify_ssl', settings.verify_ssl || 'N');
+                fd.append('follow_redirect', settings.follow_redirect || 'N');
+                fd.append('retry_count', settings.retry_count || '0');
+                fd.append('retry_delay', settings.retry_delay || '0');
+                fd.append('stream', 'false');
+                runnerAppendProxyBody(fd, api, bodyType, finalBody);
 
-                    const resp = await fetch('/api/forward', { method: 'POST', body: fd });
-                    status = resp.status;
-                    statusText = resp.statusText;
-                    contentType = resp.headers.get('content-type');
-                    resp.headers.forEach((v, k) => respHeaders[k] = v);
-                    body = await resp.text();
-                } else {
-                    const requestOptions = { method: finalMethod, headers, redirect: settings.redirect };
-                    // 直连模式仅处理可序列化为字符串的请求体（none/json/text/form/xml），
-                    // formdata/binary 需代理模式；避免回退去读 DOM。
-                    if (bodyType !== 'none' && finalMethod !== 'GET' && bodyStr != null) {
-                        await setContentTypeAndBody(headers, bodyType, requestOptions, finalBody != null ? finalBody : bodyStr);
-                    }
-                    const resp = await fetch(url, requestOptions);
-                    status = resp.status;
-                    statusText = resp.statusText;
-                    contentType = resp.headers.get('content-type');
-                    resp.headers.forEach((v, k) => respHeaders[k] = v);
-                    body = await resp.text();
-                }
+                const resp = await fetch('/api/forward', { method: 'POST', body: fd });
+                status = resp.status;
+                statusText = resp.statusText;
+                contentType = resp.headers.get('content-type');
+                resp.headers.forEach((v, k) => respHeaders[k] = v);
+                body = await resp.text();
 
                 const duration = Date.now() - startTime;
                 const postResp = await HookEngine.executePostResponse({
@@ -9789,7 +9887,10 @@ function postResponse(response) {
          */
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                // 初始化请求Tab管理器（必须先执行）
+                // 最先：把 IndexedDB 全量加载进内存缓存 + 一次性迁移 localStorage（之后所有读取都是同步）
+                await StorageManager.init();
+
+                // 初始化请求Tab管理器
                 RequestTabManager.init();
 
                 // 监听HTTP方法变化，更新Tab显示
@@ -9803,7 +9904,6 @@ function postResponse(response) {
                     updateHistoryDisplay(),
                     updateApisDisplay(),
                     loadVariables(),
-                    initUseProxy(),
                     updateApiCollectionSelect()
                 ]);
 

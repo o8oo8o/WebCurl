@@ -964,10 +964,72 @@
         };
 
         // ========== 全局状态变量 ==========
-        const STORAGE_KEY = 'mockConfigs';  // localStorage存储键
+        const STORAGE_KEY = 'mockConfigs';  // 存储键（IndexedDB，原 localStorage，因体积可能较大已迁移）
         let requestLogCount = 0;            // 请求日志未读计数
         let currentLogTab = 'system';       // 当前日志标签页
         let ws = null;                      // WebSocket连接实例
+
+        // ========== IndexedDB 存储层（mockConfigs 体量较大，从 localStorage 迁移） ==========
+        const MockDB = {
+            DB_NAME: 'webcurl_mock_db',
+            DB_VERSION: 1,
+            STORE_NAME: 'kv',
+            _dbPromise: null,
+            _cache: null,
+
+            open() {
+                if (this._dbPromise) return this._dbPromise;
+                this._dbPromise = new Promise((resolve, reject) => {
+                    if (typeof indexedDB === 'undefined') {
+                        reject(new Error('当前环境不支持 IndexedDB'));
+                        return;
+                    }
+                    const req = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+                    req.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
+                            db.createObjectStore(this.STORE_NAME);
+                        }
+                    };
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+                return this._dbPromise;
+            },
+
+            _run(mode, fn) {
+                return this.open().then(db => new Promise((resolve, reject) => {
+                    const tx = db.transaction(this.STORE_NAME, mode);
+                    const store = tx.objectStore(this.STORE_NAME);
+                    let result;
+                    const inner = fn(store);
+                    if (inner && 'onsuccess' in inner) {
+                        inner.onsuccess = () => { result = inner.result; };
+                        inner.onerror = () => reject(inner.error);
+                    } else {
+                        result = inner;
+                    }
+                    tx.oncomplete = () => resolve(result);
+                    tx.onerror = () => reject(tx.error);
+                    tx.onabort = () => reject(tx.error);
+                }));
+            },
+
+            get(key) {
+                return this._run('readonly', store => store.get(key))
+                    .then(raw => (raw === undefined ? null : JSON.parse(raw)))
+                    .catch(() => null);
+            },
+            set(key, value) {
+                return this._run('readwrite', store => store.put(JSON.stringify(value), key))
+                    .then(() => true)
+                    .catch(err => {
+                        console.error('写入IndexedDB失败:', err);
+                        alert('配置保存失败：浏览器存储空间可能已满。');
+                        return false;
+                    });
+            }
+        };
 
         /**
          * 切换日志Tab页
@@ -1235,10 +1297,37 @@
         }
 
         /**
-         * 从localStorage获取所有已保存的配置
+         * 异步加载已保存配置到缓存（启动时调用一次），并顺带完成 localStorage → IndexedDB 的一次性迁移
+         * @returns {Promise<Object>}
+         */
+        async function loadMockConfigsAsync() {
+            let configs = await MockDB.get(STORAGE_KEY);
+            // 一次性迁移：IndexedDB 没有，但 localStorage 里有旧数据
+            if (configs === null) {
+                try {
+                    const legacy = localStorage.getItem(STORAGE_KEY);
+                    if (legacy) {
+                        configs = JSON.parse(legacy);
+                        await MockDB.set(STORAGE_KEY, configs);
+                        localStorage.removeItem(STORAGE_KEY);
+                    } else {
+                        configs = {};
+                    }
+                } catch (e) {
+                    configs = {};
+                }
+            }
+            MockDB._cache = configs || {};
+            return MockDB._cache;
+        }
+
+        /**
+         * 从内存缓存获取所有已保存的配置（同步，缓存由 loadMockConfigsAsync 预热）
          * @returns {Object} 配置对象，键为配置名称，值为配置内容
          */
         function getMockConfigs() {
+            if (MockDB._cache !== null) return MockDB._cache;
+            // 兜底：缓存未就绪时读 localStorage
             try {
                 const data = localStorage.getItem(STORAGE_KEY);
                 return data ? JSON.parse(data) : {};
@@ -1248,11 +1337,12 @@
         }
 
         /**
-         * 将配置保存到localStorage
+         * 写缓存 + 异步落盘 IndexedDB
          * @param {Object} configs - 配置对象
          */
         function saveMockConfigs(configs) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
+            MockDB._cache = configs;
+            MockDB.set(STORAGE_KEY, configs);
         }
 
         /**
@@ -1410,7 +1500,13 @@
         btnDeleteConfig.addEventListener('click', deleteSavedConfig);
 
         connectWebSocket();
-        refreshSavedConfigList();
+        // 先预热缓存（IndexedDB 异步读取 + 旧 localStorage 迁移），再刷新下拉框
+        loadMockConfigsAsync().then(() => {
+            refreshSavedConfigList();
+        }).catch(err => {
+            console.error('加载已保存配置失败:', err);
+            refreshSavedConfigList();
+        });
 
 
         /**

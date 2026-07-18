@@ -435,13 +435,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("404 not found"))
 }
 
-// handleMode 处理模式检测请求，返回当前服务模式
-func handleMode(w http.ResponseWriter, _ *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte(`{"mode": "proxy"}`))
-}
-
 // handleDoc 处理文档下载请求，返回README.md文件
 func handleDoc(w http.ResponseWriter, _ *http.Request) {
 	data, err := embeddedFS.ReadFile("README.md")
@@ -1460,7 +1453,6 @@ func main() {
 	http.HandleFunc("/favicon.ico", handleFavicon)        // favicon图标
 	http.HandleFunc("/doc", handleDoc)                    // 文档下载
 	http.HandleFunc("/api/forward", handleForward)        // HTTP请求转发
-	http.HandleFunc("/api/mode", handleMode)              // 模式检测
 	http.HandleFunc("/api/forward-ws", handleForwardWS)   // WebSocket转发
 	http.HandleFunc("/api/forward-sse", handleForwardSSE) // SSE转发
 	http.HandleFunc("/api/test-panic", handleTestPanic)   // 测试panic恢复
